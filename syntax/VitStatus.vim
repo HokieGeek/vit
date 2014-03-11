@@ -1,4 +1,4 @@
-if exists("b:curren_syntax")
+if exists("b:current_syntax")
     finish
 endif
 
