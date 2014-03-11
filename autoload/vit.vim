@@ -17,7 +17,7 @@ function! vit#LoadContent(location, command)
     elseif a:location == "bottom"
         botright new
     endif
-    set buftype=nofile
+    set buftype=nofile bufhidden=wipe nobuflisted
     execute "silent read ".a:command
     execute "silent file vit_content_".a:location
     0d_

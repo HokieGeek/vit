@@ -1,4 +1,3 @@
-" Functions that stay here {{{
 function! GetGitDirectory()
     let l:path = expand("%:p:h")
     while(l:path != "/" && len(l:path) > 0)
@@ -56,7 +55,6 @@ function! Git(command)
         echoerr "Unrecgonized git command: ".a:command
     endif
 endfunction
-" }}}
 
 command! -nargs=1 Git :execute Git(<q-args>)
 
