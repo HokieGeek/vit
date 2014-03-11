@@ -10,6 +10,7 @@ function! GetGitDirectory()
     endwhile
     return ""
 endfunction
+
 function! GetGitStatusLine()
     "FIXME 
     let l:branch=vit#GetGitBranch()
@@ -97,13 +98,13 @@ augroup END
 " }}}
 
 " FileType mappings {{{
-augroup VitLog
-    autocmd!
-    autocmd Filetype VitLog nnoremap <buffer> <silent> <enter> :call PopGitDiffFromLog()<cr>
-    autocmd Filetype VitLog nnoremap <buffer> <silent> o :call CheckoutFromGitLog()<cr>
-    autocmd Filetype VitLog nnoremap <buffer> <silent> v :call ShowFromGitLog()<cr>
-    autocmd Filetype VitLog nnoremap <buffer> <silent> <esc> :call vit#ContentClear()<cr>
-augroup END
+" augroup Vit
+    " autocmd!
+    " autocmd Filetype VitLog nnoremap <buffer> <silent> <enter> :call vit#PopGitDiffFromLog()<cr>
+    " autocmd Filetype VitLog nnoremap <buffer> <silent> o :call vit#CheckoutFromGitLog()<cr>
+    " autocmd Filetype VitLog nnoremap <buffer> <silent> v :call vit#ShowFromGitLog()<cr>
+    " autocmd Filetype VitLog nnoremap <buffer> <silent> <esc> :call vit#ContentClear()<cr>
+" augroup END
 
 " augroup GitDiff
     " autocmd!
@@ -113,23 +114,23 @@ augroup END
     " autocmd Filetype GitDiff nnoremap <buffer> <silent> <esc> :call vit#ContentClear()<cr>
 " augroup END
 
-augroup VitShow
-    autocmd!
-    autocmd Filetype VitShow nnoremap <buffer> <silent> <enter> :call PopGitDiffFromBuffer()<cr>
+" augroup VitShow
+    " autocmd!
+    " autocmd Filetype VitShow nnoremap <buffer> <silent> <enter> :call PopGitDiffFromBuffer()<cr>
     " autocmd Filetype VitShow nnoremap <buffer> <silent> o :call CheckoutFromGitBuffer()<cr>
-    autocmd Filetype VitShow nnoremap <buffer> <silent> l :Git log<cr>
-    autocmd Filetype VitShow nnoremap <buffer> <silent> <esc> :call vit#ContentClear()<cr>
-augroup END
+    " autocmd Filetype VitShow nnoremap <buffer> <silent> l :Git log<cr>
+    " autocmd Filetype VitShow nnoremap <buffer> <silent> <esc> :call vit#ContentClear()<cr>
+" augroup END
 " }}}
 
-autocmd BufWinLeave *.gitcommitmsg call vit#GitCommitFinish()
+autocmd BufWinLeave *.vitcommitmsg call vit#GitCommitFinish()
 autocmd BufWinEnter * let g:GitDir = GetGitDirectory()
 
 " nnoremap <silent> Uu :call LoadedContentClear()<cr>
 " Diff current file with a given git revision. If no input given, diffs against head
-nnoremap <silent> Ug :Git diff<cr>
-nnoremap <silent> Ub :Git blame<cr>
-nnoremap <silent> Ul :Git log<cr>
-nnoremap <silent> Us :Git status<cr>
+" nnoremap <silent> Ug :Git diff<cr>
+" nnoremap <silent> Ub :Git blame<cr>
+" nnoremap <silent> Ul :Git log<cr>
+" nnoremap <silent> Us :Git status<cr>
 
 " vim: set foldmethod=marker number relativenumber formatoptions-=tc:

@@ -56,7 +56,6 @@ function! vit#GetGitBranch()
         let l:file = readfile(g:GitDir."/HEAD")
         let l:branch = substitute(l:file[0], 'ref: refs/heads/', '', '')
         return l:branch
-        " echomsg l:b
     else
         return ""
     endif
@@ -216,7 +215,7 @@ function! vit#GitCommit()
     endif
 
     " 2. Pop up a small window with for commit message
-    let s:commit_message_file = "/tmp/".expand("%").".gitcommitmsg"
+    let s:commit_message_file = "/tmp/".expand("%").".vitcommitmsg"
     call system("git status -sb | awk '{ print \"# \" $0 }' > ".s:commit_message_file)
     mkview! 9
     botright new
