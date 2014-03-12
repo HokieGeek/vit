@@ -163,8 +163,7 @@ function! vit#PopGitLog()
 
     mkview! 9
     " use b:vit_original_file
-    " call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' #")
-    call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s'")
+    call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' #")
     set filetype=VitLog
     set nolist cursorline
     resize 10
