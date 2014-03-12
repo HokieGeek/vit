@@ -1,3 +1,35 @@
+" Helpers {{{
+function! vit#GetGitBranch()
+    if len(g:GitDir) > 0
+        let l:file = readfile(g:GitDir."/HEAD")
+        let l:branch = substitute(l:file[0], 'ref: refs/heads/', '', '')
+        return l:branch
+    else
+        return ""
+    endif
+endfunction
+function! vit#GitFileStatus()
+    let l:status = system("git status --porcelain | grep ".expand("%:t"))
+    " FIXME: This fails a tad with similar files
+
+    if match(l:status, '^fatal') > -1
+        let l:status_val = 0 " Not a git repo
+    elseif strlen(l:status) == 0
+        let l:status_val = 1 " Clean
+    elseif match(l:status, '^?') > -1
+        let l:status_val = 2 " Untracked
+    elseif match(l:status, '^.M') > -1
+        let l:status_val = 3 " Modified
+    elseif match(l:status, '^ ') < 0
+        let l:status_val = 4 " Staged
+    else
+        let l:status_val = -1 " foobar
+    endif
+
+    return l:status_val
+endfunction
+" }}}
+
 " Load Content {{{
 function! vit#ContentClear()
     set modifiable
@@ -8,7 +40,7 @@ function! vit#ContentClear()
 endfunction
 function! vit#LoadContent(location, command)
     let g:vit_loaded_output = 1
-    let l:file_path = expand("%")
+    let l:file_path = expand("%:p")
     if a:location == "left"
         topleft vnew
     elseif a:location == "right"
@@ -45,7 +77,7 @@ function! vit#PopSynched(command)
 
     mkview! 9
     let l:cline = line(".")
-    set foldenable!
+    set nofoldenable
     0
     call vit#LoadContent("left", a:command)
     windo set scrollbind nomodifiable
@@ -54,83 +86,12 @@ function! vit#PopSynched(command)
 endfunction
 " }}}
 
-" Helpers {{{
-function! vit#GetGitBranch()
-    if len(g:GitDir) > 0
-        let l:file = readfile(g:GitDir."/HEAD")
-        let l:branch = substitute(l:file[0], 'ref: refs/heads/', '', '')
-        return l:branch
-    else
-        return ""
-    endif
-
-    " FIXME: This is really expensive how about we just read the file?
-    " let l:branch = system("git branch | grep '^*' | sed 's/^\*\s*//'")
-    " let l:branch = substitute(substitute(l:branch, '\s*\n*$', '', ''), '^\s*', '', '')
-    " if match(l:branch, '^fatal') > -1
-        " return ""
-    " else
-        " return l:branch
-    " endif
-endfunction
-function! vit#GitFileStatus()
-    let l:status = system("git status --porcelain | grep ".expand("%:t"))
-    " FIXME: This fails a tad with similar files
-
-    if match(l:status, '^fatal') > -1
-        let l:status_val = 0 " Not a git repo
-    elseif strlen(l:status) == 0
-        let l:status_val = 1 " Clean
-    elseif match(l:status, '^?') > -1
-        let l:status_val = 2 " Untracked
-    elseif match(l:status, '^.M') > -1
-        let l:status_val = 3 " Modified
-    elseif match(l:status, '^ ') < 0
-        let l:status_val = 4 " Staged
-    else
-        let l:status_val = -1 " foobar
-    endif
-
-    return l:status_val
-endfunction
-" }}}
-
-" Status line {{{
-highlight SL_HL_GitBranch ctermbg=25 ctermfg=232 cterm=bold
-highlight SL_HL_GitModified ctermbg=25 ctermfg=88 cterm=bold
-highlight SL_HL_GitStaged ctermbg=25 ctermfg=40 cterm=bold
-highlight SL_HL_GitUntracked ctermbg=25 ctermfg=7 cterm=bold
-
-function! vit#StatusLine()
-    "FIXME 
-    let l:branch=vit#GetGitBranch()
-    " let l:branch=g:GitBranch
-    if len(l:branch) > 0
-        " TODO: only update the file status when the file is saved?
-        let l:status=vit#GitFileStatus()
-        if l:status == 3 " Modified
-            let l:hl="%#SL_HL_GitModified#"
-        elseif l:status == 4 " Staged and not modified
-            let l:hl="%#SL_HL_GitStaged#"
-        elseif l:status == 2 " Untracked
-            let l:hl="%#SL_HL_GitUntracked#"
-        else
-            let l:hl="%#SL_HL_GitBranch#"
-        endif
-
-        return l:hl."\ ".l:branch."\ "
-    else
-        return ""
-    endif
-endfunction
-" }}}
-
 " Loaded in windows {{{
 function! vit#PopGitDiff(rev)
-    " use b:vit_original_file
-    call vit#PopDiff("!git show ".a:rev.":./#")
+    " call vit#PopDiff("!git show ".a:rev.":./#")
+    call vit#PopDiff("!git show ".a:rev.":".b:vit_original_file)
     let b:git_revision = a:rev
-    " set filetype=GitDiff
+    set filetype=GitDiff
 endfunction
 function! vit#PopGitDiffPrompt()
     if exists("g:vit_loaded_output")
@@ -143,8 +104,7 @@ function! vit#PopGitDiffPrompt()
     call vit#PopDiff(l:response)
 endfunction
 function! vit#PopGitBlame()
-    " use b:vit_original_file
-    call vit#PopSynched("!git blame --date=short #")
+    call vit#PopSynched("!git blame --date=short ".expand("%"))
     wincmd p
     normal f)
     execute "vertical resize ".col(".")
@@ -162,8 +122,8 @@ function! vit#PopGitLog()
     endif
 
     mkview! 9
-    " use b:vit_original_file
     call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' #")
+    " call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".b:vit_original_file)
     set filetype=VitLog
     set nolist cursorline
     resize 10
@@ -198,32 +158,60 @@ endfunction
 function! vit#ShowFromGitBuffer()
     call vit#PopGitShow(b:git_buffer)
 endfunction
-function! vit#CheckoutFromGitLog()
-    " call system("git checkout `echo '".getline(".")."' | cut -d '(' -f1 | awk '{ print $NF }'` ./#")
-    let l:rev = vit#GetRevFromGitLog()
-    if exists("g:vit_loaded_output")
-        call vit#ContentClear()
-    endif
-    vit#GitCheckout(l:rev)
-    " call system("git checkout ".vit#GetRevFromGitLog()."./#")
-    " if exists("g:vit_loaded_output")
-        " call VitContentClear()
-    " endif
-endfunction
 function! vit#PopGitDiffFromBuffer()
     call vit#PopGitDiff(b:git_revision)
 endfunction
 " }}}
 
+" Status line {{{
+highlight SL_HL_GitBranch ctermbg=25 ctermfg=232 cterm=bold
+highlight SL_HL_GitModified ctermbg=25 ctermfg=88 cterm=bold
+highlight SL_HL_GitStaged ctermbg=25 ctermfg=40 cterm=bold
+highlight SL_HL_GitUntracked ctermbg=25 ctermfg=7 cterm=bold
+
+function! vit#StatusLine()
+    "FIXME 
+    let l:branch=vit#GetGitBranch()
+    " let l:branch=g:GitBranch
+    if len(l:branch) > 0
+        " TODO: only update the file status when the file is saved?
+        let l:status=vit#GitFileStatus()
+        if l:status == 3 " Modified
+            let l:hl="%#SL_HL_GitModified#"
+        elseif l:status == 4 " Staged and not modified
+            let l:hl="%#SL_HL_GitStaged#"
+        elseif l:status == 2 " Untracked
+            let l:hl="%#SL_HL_GitUntracked#"
+        else
+            let l:hl="%#SL_HL_GitBranch#"
+        endif
+
+        return l:hl."\ ".l:branch."\ "
+    else
+        return ""
+    endif
+endfunction
+" }}}
+
 " External manipulators {{{
-function! vit#AddFileToGit(display_status)
-    call system("git add ".expand("%"))
-    echomsg "Added ".expand("%")." to the stage"
+function! vit#CheckoutFromGitLog()
+    let l:rev = vit#GetRevFromGitLog()
+    if exists("g:vit_loaded_output")
+        call vit#ContentClear()
+    endif
+    call vit#GitCheckout(l:rev)
+endfunction
+function! vit#AddFileToGit(file, display_status)
+    call system("git add ".a:file)
+    echomsg "Added ".a:file." to the stage"
     if a:display_status == 1
         call vit#GitStatus()
         " silent execute "3sleep"
         " call vit#ContentClear()
     endif
+endfunction
+function! vit#AddCurrentFileToGit(display_status)
+    call vit#AddFileToGit(expand("%"), a:display_status)
 endfunction
 function! vit#ResetFileInGitIndex(display_status)
     call system("git reset ".expand("%"))
@@ -245,10 +233,7 @@ function! vit#GitStatus()
     wincmd t
 endfunction
 function! vit#GitCommit()
-    " TODO: 1. (maybe) Display Git Status and ask for confirmation
-    " call GitStatus()
-
-    " 1a. Maybe, if the current file is marked as unstaged in any way, ask to add it?
+    " Maybe, if the current file is marked as unstaged in any way, ask to add it?
     if vit#GitFileStatus() != 4
         let l:response = confirm("Add the file?", "Y\nn", 1)
         if l:response == 1
@@ -256,7 +241,7 @@ function! vit#GitCommit()
         endif
     endif
 
-    " 2. Pop up a small window with for commit message
+    " Pop up a small window with for commit message
     let s:commit_message_file = "/tmp/".expand("%:t").".vitcommitmsg"
     call system("git status -sb | awk '{ print \"# \" $0 }' > ".s:commit_message_file)
     mkview! 9
@@ -268,8 +253,8 @@ function! vit#GitCommit()
 endfunction
 function! vit#GitCommitFinish()
     call system("sed -i -e '/^#/d' -e '/^\\s*$/d' ".s:commit_message_file)
+    " Check the size of the file. If it's empty or blank, we don't commmit
     if len(readfile(s:commit_message_file)) > 0
-        " Check the size of the file. If it's empty or blank, we don't commmit
         call system("git commit --file=".s:commit_message_file)
         echomsg "Successfully committed this file"
         call delete(s:commit_message_file)

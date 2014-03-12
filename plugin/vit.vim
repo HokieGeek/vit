@@ -4,6 +4,7 @@ function! GetGitDirectory()
         if (isdirectory(l:path."/.git") != 0)
             return l:path."/.git"
         endif
+        " let l:path = expand(l:path+":h") " Causes infinite loop
         let l:path = system("dirname ".l:path)
         let l:path = substitute(substitute(l:path, '\s*\n*$', '', ''), '^\s*', '', '')
     endwhile
@@ -18,7 +19,7 @@ function! Git(command)
     elseif a:command == "diff"
         call vit#PopGitDiffPrompt()
     elseif a:command == "add"
-        call vit#AddFileToGit(0)
+        call vit#AddCurrentFileToGit(0)
     elseif a:command == "reset"
         call vit#ResetFileInGitIndex(0)
     elseif a:command == "status"
@@ -29,7 +30,7 @@ function! Git(command)
         echo "TODO: checkout"
         " call vit#GitCheckout()
     else
-        echoerr "Unrecgonized git command: ".a:command
+        echoerr "Unrecognized git command: ".a:command
     endif
 endfunction
 
@@ -39,5 +40,11 @@ autocmd BufWinLeave *.vitcommitmsg call vit#GitCommitFinish()
 autocmd BufWinEnter * let g:GitDir = GetGitDirectory()
 
 nnoremap <silent> Uu :call vit#ContentClear()<cr>
+" Diff unsaved changes against file saved on disk
+nnoremap <silent> Uo :call vit#PopDiff("#")<cr>
+nnoremap <silent> Ug :Git diff<cr>
+nnoremap <silent> Ub :Git blame<cr>
+nnoremap <silent> Ul :Git log<cr>
+nnoremap <silent> Us :Git status<cr>
 
 " vim: set foldmethod=marker number relativenumber formatoptions-=tc:
