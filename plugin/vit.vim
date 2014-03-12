@@ -12,22 +12,14 @@ function! GetGitDirectory()
 endfunction
 
 function! Git(command)
-    if a:command == "blame"
-        call vit#PopGitBlame()
-    elseif a:command == "log"
-        call vit#PopGitLog()
-    elseif a:command == "diff"
-        call vit#PopGitDiffPrompt()
-    elseif a:command == "add"
-        call vit#AddCurrentFileToGit(0)
-    elseif a:command == "reset"
-        call vit#ResetFileInGitIndex(0)
-    elseif a:command == "status"
-        call vit#GitStatus()
-    elseif a:command == "commit"
-        call vit#GitCommit()
-    elseif a:command == "checkout"
-        echo "TODO: checkout"
+    if a:command == "blame" | call vit#PopGitBlame()
+    elseif a:command == "log" | call vit#PopGitLog()
+    elseif a:command == "diff" | call vit#PopGitDiffPrompt()
+    elseif a:command == "add" | call vit#AddCurrentFileToGit(0)
+    elseif a:command == "reset" | call vit#ResetFileInGitIndex(0)
+    elseif a:command == "status" | call vit#GitStatus()
+    elseif a:command == "commit" | call vit#GitCommit()
+    elseif a:command == "checkout" | echo "TODO: checkout"
         " call vit#GitCheckout()
     else
         echoerr "Unrecognized git command: ".a:command

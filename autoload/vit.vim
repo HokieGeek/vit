@@ -38,12 +38,11 @@ function! vit#ContentClear()
         diffoff
         silent loadview 9
         unlet! g:vit_loaded_output
-        echomsg "vit#ContentClear()"
     endif
 endfunction
 function! vit#LoadContent(location, command)
     let g:vit_loaded_output = 1
-    let l:file_path = expand("%:p")
+    let l:file_path = expand("%")
     if a:location == "left"
         topleft vnew
     elseif a:location == "right"
@@ -65,6 +64,7 @@ function! vit#PopDiff(command)
 
     mkview! 9
     call vit#LoadContent("left", a:command)
+    set filetype=VitDiff
     wincmd l
     silent windo diffthis
     windo set nomodifiable
@@ -87,10 +87,11 @@ endfunction
 
 " Loaded in windows {{{
 function! vit#PopGitDiff(rev)
-    " call vit#PopDiff("!git show ".a:rev.":./#")
-    call vit#PopDiff("!git show ".a:rev.":".b:vit_original_file)
+    call vit#PopDiff("!git show ".a:rev.":./#")
+    " call vit#PopDiff("!git show ".a:rev.":".b:vit_original_file)
+    wincmd t
     let b:git_revision = a:rev
-    set filetype=VitDiff
+    " wincmd l
 endfunction
 function! vit#PopGitDiffPrompt()
     call vit#ContentClear()
@@ -98,7 +99,7 @@ function! vit#PopGitDiffPrompt()
     call inputsave()
     let l:response = input('Commit, tag or branch: ')
     call inputrestore()
-    call vit#PopDiff(l:response)
+    call vit#PopGitDiff(l:response)
 endfunction
 function! vit#PopGitBlame()
     call vit#PopSynched("!git blame --date=short ".expand("%"))
@@ -147,7 +148,7 @@ function! vit#ShowFromGitLog()
     call vit#PopGitShow(vit#GetRevFromGitLog())
 endfunction
 function! vit#ShowFromGitBuffer()
-    call vit#PopGitShow(b:git_buffer)
+    call vit#PopGitShow(b:git_revision)
 endfunction
 function! vit#PopGitDiffFromBuffer()
     call vit#PopGitDiff(b:git_revision)
