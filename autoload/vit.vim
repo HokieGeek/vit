@@ -153,35 +153,15 @@ endfunction
 function! vit#PopGitDiffFromBuffer()
     call vit#PopGitDiff(b:git_revision)
 endfunction
-" }}}
+function! vit#GitStatus()
+    call vit#ContentClear()
 
-" Status line {{{
-highlight SL_HL_GitBranch ctermbg=25 ctermfg=232 cterm=bold
-highlight SL_HL_GitModified ctermbg=25 ctermfg=88 cterm=bold
-highlight SL_HL_GitStaged ctermbg=25 ctermfg=40 cterm=bold
-highlight SL_HL_GitUntracked ctermbg=25 ctermfg=7 cterm=bold
-
-function! vit#StatusLine()
-    "FIXME 
-    let l:branch=vit#GetGitBranch()
-    " let l:branch=g:GitBranch
-    if len(l:branch) > 0
-        " TODO: only update the file status when the file is saved?
-        let l:status=vit#GitFileStatus()
-        if l:status == 3 " Modified
-            let l:hl="%#SL_HL_GitModified#"
-        elseif l:status == 4 " Staged and not modified
-            let l:hl="%#SL_HL_GitStaged#"
-        elseif l:status == 2 " Untracked
-            let l:hl="%#SL_HL_GitUntracked#"
-        else
-            let l:hl="%#SL_HL_GitBranch#"
-        endif
-
-        return l:hl."\ ".l:branch."\ "
-    else
-        return ""
-    endif
+    mkview! 9
+    call vit#LoadContent("right", "!git status -sb")
+    set filetype=VitStatus
+    vertical resize 35 "TODO This needs to be dynamic
+    set nolist nomodifiable
+    wincmd t
 endfunction
 " }}}
 
@@ -209,16 +189,6 @@ function! vit#ResetFileInGitIndex(display_status)
     if a:display_status == 1
         call vit#GitStatus()
     endif
-endfunction
-function! vit#GitStatus()
-    call vit#ContentClear()
-
-    mkview! 9
-    call vit#LoadContent("right", "!git status -sb")
-    set filetype=VitStatus
-    vertical resize 25
-    set nolist nomodifiable
-    wincmd t
 endfunction
 function! vit#GitCommit()
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
@@ -256,6 +226,36 @@ endfunction
 function! vit#GitCheckout(rev)
     call system("git checkout ".a:rev." ".expand("%"))
     " TODO: update buffer
+endfunction
+" }}}
+
+" Status line {{{
+highlight SL_HL_GitBranch ctermbg=25 ctermfg=232 cterm=bold
+highlight SL_HL_GitModified ctermbg=25 ctermfg=88 cterm=bold
+highlight SL_HL_GitStaged ctermbg=25 ctermfg=40 cterm=bold
+highlight SL_HL_GitUntracked ctermbg=25 ctermfg=7 cterm=bold
+
+function! vit#StatusLine()
+    "FIXME 
+    let l:branch=vit#GetGitBranch()
+    " let l:branch=g:GitBranch
+    if len(l:branch) > 0
+        " TODO: only update the file status when the file is saved?
+        let l:status=vit#GitFileStatus()
+        if l:status == 3 " Modified
+            let l:hl="%#SL_HL_GitModified#"
+        elseif l:status == 4 " Staged and not modified
+            let l:hl="%#SL_HL_GitStaged#"
+        elseif l:status == 2 " Untracked
+            let l:hl="%#SL_HL_GitUntracked#"
+        else
+            let l:hl="%#SL_HL_GitBranch#"
+        endif
+
+        return l:hl."\ ".l:branch."\ "
+    else
+        return ""
+    endif
 endfunction
 " }}}
 
