@@ -32,11 +32,14 @@ endfunction
 
 " Load Content {{{
 function! vit#ContentClear()
-    set modifiable
-    bdelete vit_content
-    diffoff
-    silent loadview 9
-    unlet! g:vit_loaded_output
+    if exists("g:vit_loaded_output")
+        set modifiable
+        bdelete vit_content
+        diffoff
+        silent loadview 9
+        unlet! g:vit_loaded_output
+        echomsg "vit#ContentClear()"
+    endif
 endfunction
 function! vit#LoadContent(location, command)
     let g:vit_loaded_output = 1
@@ -58,9 +61,7 @@ function! vit#LoadContent(location, command)
     let b:vit_original_file = l:file_path
 endfunction
 function! vit#PopDiff(command)
-    if exists("g:vit_loaded_output")
-        call vit#ContentClear()
-    endif
+    call vit#ContentClear()
 
     mkview! 9
     call vit#LoadContent("left", a:command)
@@ -71,9 +72,7 @@ function! vit#PopDiff(command)
     set modifiable syntax=off
 endfunction
 function! vit#PopSynched(command)
-    if exists("g:vit_loaded_output")
-        call vit#ContentClear()
-    endif
+    call vit#ContentClear()
 
     mkview! 9
     let l:cline = line(".")
@@ -91,12 +90,10 @@ function! vit#PopGitDiff(rev)
     " call vit#PopDiff("!git show ".a:rev.":./#")
     call vit#PopDiff("!git show ".a:rev.":".b:vit_original_file)
     let b:git_revision = a:rev
-    set filetype=GitDiff
+    set filetype=VitDiff
 endfunction
 function! vit#PopGitDiffPrompt()
-    if exists("g:vit_loaded_output")
-        call vit#ContentClear()
-    endif
+    call vit#ContentClear()
 
     call inputsave()
     let l:response = input('Commit, tag or branch: ')
@@ -117,15 +114,12 @@ function! vit#GetRevFromGitBlame()
     return l:rev
 endfunction
 function! vit#PopGitLog()
-    if exists("g:vit_loaded_output")
-        call vit#ContentClear()
-    endif
+    call vit#ContentClear()
 
     mkview! 9
     call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' #")
     " call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".b:vit_original_file)
-    set filetype=VitLog
-    set nolist cursorline
+    set filetype=VitLog nolist cursorline
     resize 10
     set nomodifiable
     call cursor(line("."), 2)
@@ -136,14 +130,11 @@ function! vit#GetRevFromGitLog()
     return l:rev
 endfunction
 function! vit#PopGitShow(rev)
-    if exists("g:vit_loaded_output")
-        call vit#ContentClear()
-    endif
+    call vit#ContentClear()
 
     mkview! 9
     call vit#LoadContent("top", "!git show ".a:rev)
-    set filetype=VitShow
-    set nolist
+    set filetype=VitShow nolist
     resize 25
     set nomodifiable
     let b:git_revision = a:rev
@@ -196,9 +187,7 @@ endfunction
 " External manipulators {{{
 function! vit#CheckoutFromGitLog()
     let l:rev = vit#GetRevFromGitLog()
-    if exists("g:vit_loaded_output")
-        call vit#ContentClear()
-    endif
+    call vit#ContentClear()
     call vit#GitCheckout(l:rev)
 endfunction
 function! vit#AddFileToGit(file, display_status)
@@ -221,9 +210,7 @@ function! vit#ResetFileInGitIndex(display_status)
     endif
 endfunction
 function! vit#GitStatus()
-    if exists("g:vit_loaded_output")
-        call vit#ContentClear()
-    endif
+    call vit#ContentClear()
 
     mkview! 9
     call vit#LoadContent("right", "!git status -sb")
