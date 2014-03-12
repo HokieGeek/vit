@@ -17,7 +17,8 @@ function! vit#LoadContent(location, command)
     elseif a:location == "bottom"
         botright new
     endif
-    set buftype=nofile bufhidden=wipe nobuflisted
+    set buftype=nofile bufhidden=wipe
+    " set buftype=nofile "bufhidden=wipe nobuflisted
     execute "silent read ".a:command
     execute "silent file vit_content_".a:location
     0d_
@@ -215,7 +216,7 @@ function! vit#GitCommit()
     endif
 
     " 2. Pop up a small window with for commit message
-    let s:commit_message_file = "/tmp/".expand("%").".vitcommitmsg"
+    let s:commit_message_file = "/tmp/".expand("%:t").".vitcommitmsg"
     call system("git status -sb | awk '{ print \"# \" $0 }' > ".s:commit_message_file)
     mkview! 9
     botright new

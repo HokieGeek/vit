@@ -124,7 +124,7 @@ augroup END
 autocmd BufWinLeave *.vitcommitmsg call vit#GitCommitFinish()
 autocmd BufWinEnter * let g:GitDir = GetGitDirectory()
 
-" nnoremap <silent> Uu :call LoadedContentClear()<cr>
+nnoremap <silent> Uu :call vit#ContentClear()<cr>
 " Diff current file with a given git revision. If no input given, diffs against head
 " nnoremap <silent> Ug :Git diff<cr>
 " nnoremap <silent> Ub :Git blame<cr>
