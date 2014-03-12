@@ -95,6 +95,36 @@ function! vit#GitFileStatus()
 endfunction
 " }}}
 
+" Status line {{{
+highlight SL_HL_GitBranch ctermbg=25 ctermfg=232 cterm=bold
+highlight SL_HL_GitModified ctermbg=25 ctermfg=88 cterm=bold
+highlight SL_HL_GitStaged ctermbg=25 ctermfg=40 cterm=bold
+highlight SL_HL_GitUntracked ctermbg=25 ctermfg=7 cterm=bold
+
+function! vit#StatusLine()
+    "FIXME 
+    let l:branch=vit#GetGitBranch()
+    " let l:branch=g:GitBranch
+    if len(l:branch) > 0
+        " TODO: only update the file status when the file is saved?
+        let l:status=vit#GitFileStatus()
+        if l:status == 3 " Modified
+            let l:hl="%#SL_HL_GitModified#"
+        elseif l:status == 4 " Staged and not modified
+            let l:hl="%#SL_HL_GitStaged#"
+        elseif l:status == 2 " Untracked
+            let l:hl="%#SL_HL_GitUntracked#"
+        else
+            let l:hl="%#SL_HL_GitBranch#"
+        endif
+
+        return l:hl."\ ".l:branch."\ "
+    else
+        return ""
+    endif
+endfunction
+" }}}
+
 " Loaded in windows {{{
 function! vit#PopGitDiff(rev)
     " use b:vit_original_file
@@ -133,7 +163,8 @@ function! vit#PopGitLog()
 
     mkview! 9
     " use b:vit_original_file
-    call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' #")
+    " call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' #")
+    call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s'")
     set filetype=VitLog
     set nolist cursorline
     resize 10
