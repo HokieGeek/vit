@@ -8,6 +8,7 @@ function! vit#ContentClear()
 endfunction
 function! vit#LoadContent(location, command)
     let g:vit_loaded_output = 1
+    let l:file_path = expand("%")
     if a:location == "left"
         topleft vnew
     elseif a:location == "right"
@@ -22,6 +23,7 @@ function! vit#LoadContent(location, command)
     execute "silent read ".a:command
     execute "silent file vit_content_".a:location
     0d_
+    let b:vit_original_file = l:file_path
 endfunction
 function! vit#PopDiff(command)
     if exists("g:vit_loaded_output")
@@ -52,6 +54,7 @@ function! vit#PopSynched(command)
 endfunction
 " }}}
 
+" Helpers {{{
 function! vit#GetGitBranch()
     if len(g:GitDir) > 0
         let l:file = readfile(g:GitDir."/HEAD")
@@ -90,8 +93,11 @@ function! vit#GitFileStatus()
 
     return l:status_val
 endfunction
+" }}}
 
+" Loaded in windows {{{
 function! vit#PopGitDiff(rev)
+    " use b:vit_original_file
     call vit#PopDiff("!git show ".a:rev.":./#")
     let b:git_revision = a:rev
     " set filetype=GitDiff
@@ -107,6 +113,7 @@ function! vit#PopGitDiffPrompt()
     call vit#PopDiff(l:response)
 endfunction
 function! vit#PopGitBlame()
+    " use b:vit_original_file
     call vit#PopSynched("!git blame --date=short #")
     wincmd p
     normal f)
@@ -125,6 +132,7 @@ function! vit#PopGitLog()
     endif
 
     mkview! 9
+    " use b:vit_original_file
     call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' #")
     set filetype=VitLog
     set nolist cursorline
@@ -175,6 +183,9 @@ endfunction
 function! vit#PopGitDiffFromBuffer()
     call vit#PopGitDiff(b:git_revision)
 endfunction
+" }}}
+
+" External manipulators {{{
 function! vit#AddFileToGit(display_status)
     call system("git add ".expand("%"))
     echomsg "Added ".expand("%")." to the stage"
@@ -243,5 +254,6 @@ function! vit#GitCheckout(rev)
     call system("git checkout ".a:rev." ".expand("%"))
     " TODO: update buffer
 endfunction
+" }}}
 
 " vim: set foldmethod=marker number relativenumber formatoptions-=tc:

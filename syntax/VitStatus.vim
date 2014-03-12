@@ -2,22 +2,22 @@ if exists("b:current_syntax")
     finish
 endif
 
-" First, color both columns red
-" syntax match VitStatusRed    "\v^.. "
-"" Color the first one green
-" syntax match VitStatusGreen  "\v^."
-"" If we have an untracked file
-" syntax match VitStatusRed    "\v^\?"
-"" ... or an unmerged one
-" syntax match VitStatusRed    "\v^U"
-"" The branch name
-" syntax match VitStatusGreen  "## .*"
-"" The hashes next to the branch name
-" syntax match VitStatusWhite  "## "
-" syntax region VitStatusWhite  start=/\v^\#/ end=/\v^.\#/
+syntax match VitStatusColumn2    "^.. " contains=VitStatusColumn1,VitStatusUntracked,VitStatusUnmerged
+syntax match VitStatusColumn1  "\v^." contained
+syntax match VitStatusUntracked    "\v^\?" contained
+syntax match VitStatusUnmerged    "\v^U" contained
+syntax match VitStatusBranch  "## .*" contains=VitStatusBranchHashes,VitStatusBranchTracking,VitStatusBranchDots
+syntax match VitStatusBranchHashes  "## " contained
+syntax match VitStatusBranchTracking  "\.\.\..*" contained contains=VitStatusBranchDots
+syntax match VitStatusBranchDots  "\.\.\." contained
 
-" highlight VitStatusRed   ctermbg=none ctermfg=darkred   cterm=none
-" highlight VitStatusWhite ctermbg=none ctermfg=white     cterm=none
-" highlight VitStatusGreen ctermbg=none ctermfg=darkgreen cterm=none
+highlight VitStatusColumn1          ctermbg=none ctermfg=darkgreen   cterm=none
+highlight VitStatusColumn2          ctermbg=none ctermfg=darkred   cterm=none
+highlight VitStatusUntracked        ctermbg=none ctermfg=darkred   cterm=none
+highlight VitStatusUnmerged         ctermbg=none ctermfg=darkred   cterm=none
+highlight VitStatusBranch           ctermbg=none ctermfg=darkgreen cterm=none
+highlight VitStatusBranchHashes     ctermbg=none ctermfg=white     cterm=none
+highlight VitStatusBranchTracking   ctermbg=none ctermfg=darkred   cterm=none
+highlight VitStatusBranchDots       ctermbg=none ctermfg=white     cterm=none
 
 let b:current_syntax = "VitStatus"

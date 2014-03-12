@@ -83,16 +83,6 @@ augroup VitShowHighlighting
         \ highlight VitShowInfo3 ctermbg=none ctermfg=white cterm=bold | let m = matchadd("VitShowInfo3", "^--- a.*") |
         \ highlight VitShowInfo4 ctermbg=none ctermfg=white cterm=bold | let m = matchadd("VitShowInfo4", "^+++ b.*")
 augroup END
-
-augroup VitStatusHighlighting
-    autocmd!
-    autocmd Filetype VitStatus
-        \ highlight VitStatusColumn2 ctermbg=none ctermfg=darkred cterm=none | let m = matchadd("VitStatusColumn2", "^.. ") |
-        \ highlight VitStatusColumn1 ctermbg=none ctermfg=darkgreen cterm=none | let m = matchadd("VitStatusColumn1", "^.") |
-        \ highlight VitStatusUntracked ctermbg=none ctermfg=darkred cterm=none | let m = matchadd("VitStatusUntracked", "^\?\? ") |
-        \ highlight VitStatusBranch ctermbg=none ctermfg=darkgreen cterm=none | let m = matchadd("VitStatusBranch", "## .*") |
-        \ highlight VitStatusBranchHashes ctermbg=none ctermfg=white cterm=none | let m = matchadd("VitStatusBranchHashes", "## ")
-augroup END
 " }}}
 
 " FileType mappings {{{
