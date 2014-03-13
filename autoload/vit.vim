@@ -102,8 +102,11 @@ function! vit#PopGitDiffPrompt()
     call vit#PopGitDiff(l:response)
 endfunction
 function! vit#PopGitBlame()
+    call vit#ContentClear()
+
     call vit#PopSynched("!git blame --date=short ".expand("%"))
     wincmd p
+    set filetype=VitBlame cursorline
     normal f)
     execute "vertical resize ".col(".")
     normal 0
@@ -112,6 +115,7 @@ endfunction
 function! vit#GetRevFromGitBlame()
     let l:rev = system("echo '".getline(".")."' | awk '{ print $1 }'")
     let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
+    echomsg "Blame rev: ".l:rev
     return l:rev
 endfunction
 function! vit#PopGitLog()
@@ -141,17 +145,23 @@ function! vit#PopGitShow(rev)
     let b:git_revision = a:rev
 endfunction
 function! vit#PopGitDiffFromLog()
-    let l:rev = vit#GetRevFromGitLog()
-    call vit#PopGitDiff(l:rev)
+    call vit#PopGitDiff(vit#GetRevFromGitLog())
 endfunction
-function! vit#ShowFromGitLog()
+function! vit#PopGitDiffFromShow()
+    echomsg "Rev: ".b:git_revision
+    call vit#PopGitDiff(b:git_revision)
+endfunction
+function! vit#PopGitDiffFromBlame()
+    call vit#PopGitDiff(vit#GetRevFromGitBlame())
+endfunction
+function! vit#ShowFromLog()
     call vit#PopGitShow(vit#GetRevFromGitLog())
 endfunction
-function! vit#ShowFromGitBuffer()
+function! vit#ShowFromDiff()
     call vit#PopGitShow(b:git_revision)
 endfunction
-function! vit#PopGitDiffFromBuffer()
-    call vit#PopGitDiff(b:git_revision)
+function! vit#ShowFromBlame()
+    call vit#PopGitShow(vit#GetRevFromGitBlame())
 endfunction
 function! vit#GitStatus()
     call vit#ContentClear()
@@ -166,7 +176,7 @@ endfunction
 " }}}
 
 " External manipulators {{{
-function! vit#CheckoutFromGitLog()
+function! vit#CheckoutFromLog()
     let l:rev = vit#GetRevFromGitLog()
     call vit#ContentClear()
     call vit#GitCheckout(l:rev)
