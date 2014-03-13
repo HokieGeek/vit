@@ -169,7 +169,23 @@ function! vit#GitStatus()
     mkview! 9
     call vit#LoadContent("right", "!git status -sb")
     set filetype=VitStatus
-    vertical resize 35 "TODO This needs to be dynamic
+
+    " Set width of the window based on the widest text
+    let l:num_lines = line("$")
+    let l:i = 0
+    let l:max_cols = 0
+    while (l:i <= l:num_lines)
+        let l:curr_line_cols = len(getline(l:i))
+        if (l:curr_line_cols > l:max_cols)
+            let l:max_cols = l:curr_line_cols
+        endif
+        let l:i += 1
+    endwhile
+    let l:max_cols += 1
+    echomsg "Max Cols: ".l:max_cols
+    set winwidth=5
+    execute "vertical resize ".l:max_cols
+
     set nolist nomodifiable
     wincmd t
 endfunction
@@ -205,7 +221,7 @@ function! vit#GitCommit()
     if vit#GitFileStatus() != 4
         let l:response = confirm("Add the file?", "Y\nn", 1)
         if l:response == 1
-            call vit#AddFileToGit(0)
+            call vit#AddCurrentFileToGit(0)
         endif
     endif
 
