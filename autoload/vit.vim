@@ -1,15 +1,18 @@
 " Helpers {{{
 function! vit#GetGitBranch()
-    if len(g:GitDir) > 0
-        let l:file = readfile(g:GitDir."/HEAD")
+    if len(b:GitDir) > 0
+        let l:file = readfile(b:GitDir."/HEAD")
         let l:branch = substitute(l:file[0], 'ref: refs/heads/', '', '')
         return l:branch
     else
         return ""
     endif
 endfunction
-function! vit#GitFileStatus()
-    let l:status = system("git status --porcelain | grep ".expand("%:t"))
+" function! vit#GitFileStatus()
+function! vit#GitFileStatus(file)
+    let l:status = system("git status --porcelain | grep ".a:file)
+    " let l:status = system("git status --porcelain | grep ".expand("%:t"))
+    " echomsg l:status
     " FIXME: This fails a tad with similar files
 
     if match(l:status, '^fatal') > -1
@@ -25,8 +28,12 @@ function! vit#GitFileStatus()
     else
         let l:status_val = -1 " foobar
     endif
+    " echomsg l:status_val
 
     return l:status_val
+endfunction
+function! vit#GitCurrentFileStatus()
+    call vit#GitFileStatus(expand("%:t"))
 endfunction
 " }}}
 
@@ -218,7 +225,7 @@ function! vit#ResetFileInGitIndex(display_status)
 endfunction
 function! vit#GitCommit()
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
-    if vit#GitFileStatus() != 4
+    if vit#GitCurrentFileStatus() != 4
         let l:response = confirm("Add the file?", "Y\nn", 1)
         if l:response == 1
             call vit#AddCurrentFileToGit(0)
@@ -261,13 +268,18 @@ highlight SL_HL_GitModified ctermbg=25 ctermfg=88 cterm=bold
 highlight SL_HL_GitStaged ctermbg=25 ctermfg=40 cterm=bold
 highlight SL_HL_GitUntracked ctermbg=25 ctermfg=7 cterm=bold
 
-function! vit#StatusLine()
+function! vit#StatusLine(win_num)
+" function! vit#StatusLine()
     "FIXME 
     let l:branch=vit#GetGitBranch()
-    " let l:branch=g:GitBranch
+    " echomsg "HERE: ".l:branch
+    " let l:branch=b:GitBranch
     if len(l:branch) > 0
         " TODO: only update the file status when the file is saved?
-        let l:status=vit#GitFileStatus()
+        let l:filename = bufname(winbufnr(a:win_num))
+        let l:status=vit#GitFileStatus(l:filename)
+        " let l:status=vit#GitFileStatus()
+        " echomsg "HERE: ".l:status
         if l:status == 3 " Modified
             let l:hl="%#SL_HL_GitModified#"
         elseif l:status == 4 " Staged and not modified

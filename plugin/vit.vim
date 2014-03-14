@@ -28,7 +28,7 @@ endfunction
 
 command! -nargs=1 Git :execute Git(<q-args>)
 
-autocmd BufWinEnter * let g:GitDir = GetGitDirectory()
+autocmd BufWinEnter * let b:GitDir = GetGitDirectory()
 
 autocmd BufWinLeave *.vitcommitmsg call vit#GitCommitFinish()
 autocmd FileType VitStatus,VitLog,VitShow,VitDiff cnoremap <buffer> q call vit#ContentClear()
