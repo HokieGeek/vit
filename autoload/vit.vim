@@ -252,8 +252,7 @@ function! vit#CreateCommitMessagePane(args)
     normal ggO
 endfunction
 function! vit#PerformCommit(args)
-    " echomsg "DEGUG PerformCommit(".a:args.")"
-    " call system("git commit --file=".l:commit_message_file." ".b:vit_commit_args)
+    call system("git commit ".a:args)
     echomsg "Successfully committed"
 endfunction
 function! vit#GitCommitFinish()
@@ -261,7 +260,8 @@ function! vit#GitCommitFinish()
     call system("sed -i -e '/^#/d' -e '/^\\s*$/d' ".l:commit_message_file)
     " Check the size of the file. If it's empty or blank, we don't commmit
     if len(readfile(l:commit_message_file)) > 0
-        call vit#PerformCommit(b:vit_commit_args)
+        let l:file_args = "--file=".l:commit_message_file." ".b:vit_commit_args
+        call vit#PerformCommit(l:file_args)
     else
         echohl WarningMsg
         echomsg "Cannot commit without a commit message"
