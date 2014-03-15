@@ -1,6 +1,6 @@
 " Helpers {{{
 function! vit#GetGitBranch()
-    if len(b:GitDir) > 0
+    if exists("b:GitDir") && len(b:GitDir) > 0
         let l:file = readfile(b:GitDir."/HEAD")
         let l:branch = substitute(l:file[0], 'ref: refs/heads/', '', '')
         return l:branch
@@ -8,12 +8,10 @@ function! vit#GetGitBranch()
         return ""
     endif
 endfunction
-" function! vit#GitFileStatus()
 function! vit#GitFileStatus(file)
-    let l:status = system("git status --porcelain | grep ".a:file)
-    " let l:status = system("git status --porcelain | grep ".expand("%:t"))
-    " echomsg l:status
-    " FIXME: This fails a tad with similar files
+    " let l:status = system("git status --porcelain | grep '\<".a:file."\>$'")
+    let l:status = system("git status --porcelain | egrep '[/\s]\?".a:file."$'")
+    " echomsg localtime().": GitFileStatus(".a:file."): ".l:status
 
     if match(l:status, '^fatal') > -1
         let l:status_val = 0 " Not a git repo
@@ -28,8 +26,8 @@ function! vit#GitFileStatus(file)
     else
         let l:status_val = -1 " foobar
     endif
-    " echomsg l:status_val
 
+    " echomsg l:status_val
     return l:status_val
 endfunction
 function! vit#GitCurrentFileStatus()
@@ -263,23 +261,15 @@ endfunction
 " }}}
 
 " Status line {{{
-highlight SL_HL_GitBranch ctermbg=25 ctermfg=232 cterm=bold
-highlight SL_HL_GitModified ctermbg=25 ctermfg=88 cterm=bold
-highlight SL_HL_GitStaged ctermbg=25 ctermfg=40 cterm=bold
-highlight SL_HL_GitUntracked ctermbg=25 ctermfg=7 cterm=bold
-
 function! vit#StatusLine(win_num)
-" function! vit#StatusLine()
-    "FIXME 
     let l:branch=vit#GetGitBranch()
     " echomsg "HERE: ".l:branch
     " let l:branch=b:GitBranch
     if len(l:branch) > 0
-        " TODO: only update the file status when the file is saved?
         let l:filename = bufname(winbufnr(a:win_num))
         let l:status=vit#GitFileStatus(l:filename)
-        " let l:status=vit#GitFileStatus()
-        " echomsg "HERE: ".l:status
+        " echomsg "Updating: ".localtime()." [".l:status."]"
+
         if l:status == 3 " Modified
             let l:hl="%#SL_HL_GitModified#"
         elseif l:status == 4 " Staged and not modified
