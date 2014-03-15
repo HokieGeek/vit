@@ -11,7 +11,7 @@ endfunction
 function! vit#GitFileStatus(file)
     " let l:status = system("git status --porcelain | grep '\<".a:file."\>$'")
     let l:status = system("git status --porcelain | egrep '[/\s]\?".a:file."$'")
-    " echomsg localtime().": GitFileStatus(".a:file."): ".l:status
+    " echomsg "GitFileStatus(".a:file."): ".l:status
 
     if match(l:status, '^fatal') > -1
         let l:status_val = 0 " Not a git repo
@@ -27,11 +27,11 @@ function! vit#GitFileStatus(file)
         let l:status_val = -1 " foobar
     endif
 
-    " echomsg l:status_val
+    " echomsg "STATUS: ".l:status_val
     return l:status_val
 endfunction
 function! vit#GitCurrentFileStatus()
-    call vit#GitFileStatus(expand("%:t"))
+    return vit#GitFileStatus(expand("%:t"))
 endfunction
 " }}}
 
@@ -58,7 +58,6 @@ function! vit#LoadContent(location, command)
         botright new
     endif
     set buftype=nofile bufhidden=wipe
-    " set buftype=nofile "bufhidden=wipe nobuflisted
     execute "silent read ".a:command
     execute "silent file vit_content_".a:location
     0d_
@@ -187,7 +186,6 @@ function! vit#GitStatus()
         let l:i += 1
     endwhile
     let l:max_cols += 1
-    echomsg "Max Cols: ".l:max_cols
     set winwidth=5
     execute "vertical resize ".l:max_cols
 
@@ -200,61 +198,80 @@ endfunction
 function! vit#CheckoutFromLog()
     let l:rev = vit#GetRevFromGitLog()
     call vit#ContentClear()
-    call vit#GitCheckout(l:rev)
+    call vit#GitCheckoutCurrentFile(l:rev)
 endfunction
-function! vit#AddFileToGit(file, display_status)
-    call system("git add ".a:file)
-    echomsg "Added ".a:file." to the stage"
-    if a:display_status == 1
-        call vit#GitStatus()
-        " silent execute "3sleep"
-        " call vit#ContentClear()
-    endif
+function! vit#AddFilesToGit(files, display_status)
+    call system("git add ".a:files)
+    echomsg "Added ".a:files." to the stage"
+    " if a:display_status == 1
+        " call vit#GitStatus()
+    " endif
+endfunction
+function! vit#ResetFilesInGitIndex(files, display_status)
+    call system("git reset ".a:files)
+    echomsg "Unstaged ".a:files
+    " if a:display_status == 1
+        " call vit#GitStatus()
+    " endif
 endfunction
 function! vit#AddCurrentFileToGit(display_status)
-    call vit#AddFileToGit(expand("%"), a:display_status)
+    call vit#AddFilesToGit(expand("%"), a:display_status)
 endfunction
-function! vit#ResetFileInGitIndex(display_status)
-    call system("git reset ".expand("%"))
-    echomsg "Unstaged ".expand("%")
-    if a:display_status == 1
-        call vit#GitStatus()
-    endif
+function! vit#ResetCurrentFileInGitIndex(display_status)
+    call vit#ResetFilesInGitIndex(expand("%"), a:display_status)
 endfunction
-function! vit#GitCommit()
+function! vit#GitCommit(args)
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
+    " let l:tmp = vit#GitCurrentFileStatus()
+    " echomsg "Git file status: ".l:tmp
+    " if l:tmp != 4
     if vit#GitCurrentFileStatus() != 4
-        let l:response = confirm("Add the file?", "Y\nn", 1)
-        if l:response == 1
+        " let l:response = confirm("Current file not staged. Add it?", "Y\nn", 1)
+        " if l:response == 1
+        if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
             call vit#AddCurrentFileToGit(0)
         endif
     endif
-
+    " If a message was already entered, just commit
+    if match(a:args, " *-m ") > -1 || match(a:args, " *--message=") > -1
+        call vit#PerformCommit(a:args)
+    else " otherwise, open a window to enter the message
+        call vit#CreateCommitMessagePane(a:args)
+    endif
+endfunction
+function! vit#CreateCommitMessagePane(args)
     " Pop up a small window with for commit message
-    let s:commit_message_file = "/tmp/".expand("%:t").".vitcommitmsg"
-    call system("git status -sb | awk '{ print \"# \" $0 }' > ".s:commit_message_file)
+    let l:commit_message_file = tempname().".vitcommitmsg"
+    call system("git status -sb | awk '{ print \"# \" $0 }' > ".l:commit_message_file)
     mkview! 9
     botright new
-    execute "edit ".s:commit_message_file
+    execute "edit ".l:commit_message_file
+    let b:vit_commit_args = a:args
     resize 10
     set filetype=gitcommit
     normal ggO
 endfunction
-function! vit#GitCommitFinish()
-    call system("sed -i -e '/^#/d' -e '/^\\s*$/d' ".s:commit_message_file)
-    " Check the size of the file. If it's empty or blank, we don't commmit
-    if len(readfile(s:commit_message_file)) > 0
-        call system("git commit --file=".s:commit_message_file)
-        echomsg "Successfully committed this file"
-        call delete(s:commit_message_file)
-        silent execute "bdelete ".s:commit_message_file
-        unlet s:commit_message_file
-        redraw
-    else
-        echoerr "Cannot commit without a commit message"
-    endif
+function! vit#PerformCommit(args)
+    " echomsg "DEGUG PerformCommit(".a:args.")"
+    " call system("git commit --file=".l:commit_message_file." ".b:vit_commit_args)
+    echomsg "Successfully committed"
 endfunction
-function! vit#GitCheckout(rev)
+function! vit#GitCommitFinish()
+    let l:commit_message_file = expand("%")
+    call system("sed -i -e '/^#/d' -e '/^\\s*$/d' ".l:commit_message_file)
+    " Check the size of the file. If it's empty or blank, we don't commmit
+    if len(readfile(l:commit_message_file)) > 0
+        call vit#PerformCommit(b:vit_commit_args)
+    else
+        echohl WarningMsg
+        echomsg "Cannot commit without a commit message"
+        echohl None
+    endif
+    silent execute "bdelete! ".l:commit_message_file
+    call delete(l:commit_message_file)
+    unlet l:commit_message_file
+endfunction
+function! vit#GitCheckoutCurrentFile(rev)
     call system("git checkout ".a:rev." ".expand("%"))
     " TODO: update buffer
 endfunction

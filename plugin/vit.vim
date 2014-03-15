@@ -11,22 +11,56 @@ function! GetGitDirectory()
     return ""
 endfunction
 
-function! Git(command)
-    if a:command == "blame" | call vit#PopGitBlame()
-    elseif a:command == "log" | call vit#PopGitLog()
-    elseif a:command == "diff" | call vit#PopGitDiffPrompt()
-    elseif a:command == "add" | call vit#AddCurrentFileToGit(0)
-    elseif a:command == "reset" | call vit#ResetFileInGitIndex(0)
-    elseif a:command == "status" | call vit#GitStatus()
-    elseif a:command == "commit" | call vit#GitCommit()
-    elseif a:command == "checkout" | echo "TODO: checkout"
-        " call vit#GitCheckout()
+function! Git(...)
+    " echo "Git: ".a:1.": ".a:0
+    if exists("b:GitDir")
+        if a:0 > 0
+            let l:args = split(a:1)
+            let l:command = l:args[0]
+            let l:cmd_args = join(l:args[1:], ' ')
+
+            if l:command == "add"
+                " call vit#AddFilesToGit((len(l:args) > 1 ? l:cmd_args : expand("%")), 0)
+                if len(l:args) > 1
+                    call vit#AddFilesToGit(l:cmd_args, 0)
+                else
+                    call vit#AddCurrentFileToGit(0)
+                endif
+            elseif l:command == "reset"
+                " call vit#ResetFilesInGitIndex((len(l:args) > 1 ? l:cmd_args : expand("%")), 0)
+                if len(l:args) > 1
+                    call vit#ResetFilesInGitIndex(l:cmd_args, 0)
+                else
+                    call vit#ResetCurrentFileInGitIndex(0)
+                endif
+            elseif l:command == "checkout" || l:command == "co"
+                " call vit#CheckoutCurrentFile((len(l:args) > 1 ? l:cmd_args : "HEAD"), 0)
+                if len(l:args) > 1
+                    call vit#GitCheckoutCurrentFile(l:cmd_args)
+                else
+                    call vit#GitCheckoutCurrentFile("HEAD")
+                endif
+            elseif l:command == "commit" | call vit#GitCommit(l:cmd_args)
+            elseif l:command == "blame" | call vit#PopGitBlame()
+            elseif l:command == "log" | call vit#PopGitLog()
+            elseif l:command == "diff" | call vit#PopGitDiffPrompt()
+            elseif l:command == "status" | call vit#GitStatus()
+            else
+                echohl WarningMsg
+                echomsg "Unrecognized git command: ".l:command
+                echohl None
+            endif
+        else
+            echohl WarningMsg
+            echomsg "No command given"
+            echohl None
+        endif
     else
-        echoerr "Unrecognized git command: ".a:command
+        echomsg "Not in a git repository"
     endif
 endfunction
 
-command! -nargs=1 Git :execute Git(<q-args>)
+command! -buffer -nargs=? Git :execute Git(<f-args>)
 
 autocmd BufWinEnter * let b:GitDir = GetGitDirectory()
 
