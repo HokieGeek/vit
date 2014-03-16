@@ -88,7 +88,6 @@ function! vit#PopSynched(command)
     if expand("%") != ""
         mkview! 9
     endif
-    call vit#LoadContent("top", "!git show ".a:rev)
     let l:cline = line(".")
     set nofoldenable
     0
