@@ -60,13 +60,11 @@ function! Git(...)
     endif
 endfunction
 
-command! -buffer -nargs=? Git :execute Git(<f-args>)
-
+autocmd BufWinEnter * command! -buffer -complete=file -nargs=? Git :execute Git(<f-args>)
 autocmd BufWinEnter * let b:GitDir = GetGitDirectory()
 
 autocmd BufWinLeave *.vitcommitmsg call vit#GitCommitFinish()
-autocmd FileType VitStatus,VitLog,VitShow,VitDiff cnoremap <buffer> q call vit#ContentClear()
-" autocmd FileType VitStatus,VitLog,VitShow,VitDiff autocmd BufWinLeave call vit#ContentClear()
+" autocmd BufWinLeave * call vit#ExitVitWindow()
 
 nnoremap <silent> Uu :call vit#ContentClear()<cr>
 " Diff unsaved changes against file saved on disk

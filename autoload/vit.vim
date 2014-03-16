@@ -33,6 +33,11 @@ endfunction
 function! vit#GitCurrentFileStatus()
     return vit#GitFileStatus(expand("%:t"))
 endfunction
+function! vit#ExitVitWindow()
+    if &filetype == "VitStatus" || &filetype == "VitLog" || &filetype == "VitShow" || &filetype == "VitDiff"
+        call vit#ContentClear()
+    endif
+endfunction
 " }}}
 
 " Load Content {{{
@@ -199,6 +204,15 @@ function! vit#CheckoutFromLog()
     let l:rev = vit#GetRevFromGitLog()
     call vit#ContentClear()
     call vit#GitCheckoutCurrentFile(l:rev)
+endfunction
+function! vit#CheckoutFromBlame()
+    let l:rev = vit#GetRevFromGitBlame()
+    call vit#ContentClear()
+    call vit#GitCheckoutCurrentFile(l:rev)
+endfunction
+function! vit#CheckoutFromBuffer()
+    call vit#ContentClear()
+    call vit#GitCheckoutCurrentFile(b:git_revision)
 endfunction
 function! vit#AddFilesToGit(files, display_status)
     call system("git add ".a:files)
