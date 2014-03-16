@@ -71,7 +71,9 @@ endfunction
 function! vit#PopDiff(command)
     call vit#ContentClear()
 
-    mkview! 9
+    if expand("%") != ""
+        mkview! 9
+    endif
     call vit#LoadContent("left", a:command)
     set filetype=VitDiff
     wincmd l
@@ -83,7 +85,10 @@ endfunction
 function! vit#PopSynched(command)
     call vit#ContentClear()
 
-    mkview! 9
+    if expand("%") != ""
+        mkview! 9
+    endif
+    call vit#LoadContent("top", "!git show ".a:rev)
     let l:cline = line(".")
     set nofoldenable
     0
@@ -130,7 +135,9 @@ endfunction
 function! vit#PopGitLog(file)
     call vit#ContentClear()
 
-    mkview! 9
+    if expand("%") != ""
+        mkview! 9
+    endif
     call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".a:file)
     set filetype=VitLog nolist cursorline
     resize 10
@@ -148,8 +155,9 @@ function! vit#GetRevFromGitLog()
 endfunction
 function! vit#PopGitShow(rev)
     call vit#ContentClear()
-
-    mkview! 9
+    if expand("%") != ""
+        mkview! 9
+    endif
     call vit#LoadContent("top", "!git show ".a:rev)
     set filetype=VitShow nolist
     resize 25
@@ -178,7 +186,9 @@ endfunction
 function! vit#GitStatus()
     call vit#ContentClear()
 
-    mkview! 9
+    if expand("%") != ""
+        mkview! 9
+    endif
     call vit#LoadContent("right", "!git status -sb")
     set filetype=VitStatus
 
@@ -260,7 +270,9 @@ function! vit#CreateCommitMessagePane(args)
     " Pop up a small window with for commit message
     let l:commit_message_file = tempname().".vitcommitmsg"
     call system("git status -sb | awk '{ print \"# \" $0 }' > ".l:commit_message_file)
-    mkview! 9
+    if expand("%") != ""
+        mkview! 9
+    endif
     botright new
     execute "edit ".l:commit_message_file
     let b:vit_commit_args = a:args

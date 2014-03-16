@@ -40,10 +40,10 @@ function! Git(...)
                 endif
                 call vit#GitCheckoutCurrentFile(l:cmd_args)
             elseif l:command == "diff"
-                if len(l:args) <= 0
-                    call vit#PopGitDiffPrompt()
+                if len(l:args) > 0
+                    call vit#PopGitDiff(l:cmd_args)
                 else
-                    call vit#PopGitDiff(l:args)
+                    call vit#PopGitDiffPrompt()
                 endif
             elseif l:command == "blame"
                 call vit#PopGitBlame()
