@@ -19,32 +19,38 @@ function! Git(...)
             let l:command = l:args[0]
             let l:cmd_args = join(l:args[1:], ' ')
 
-            if l:command == "add"
-                " call vit#AddFilesToGit((len(l:args) > 1 ? l:cmd_args : expand("%")), 0)
-                if len(l:args) > 1
-                    call vit#AddFilesToGit(l:cmd_args, 0)
-                else
-                    call vit#AddCurrentFileToGit(0)
+            if l:command == "log"
+                if len(l:args) <= 0
+                    let l:cmd_args = "#"
                 endif
+                call vit#PopGitLog(l:cmd_args)
+            elseif l:command == "add"
+                if len(l:args) <= 0
+                    let l:cmd_args = expand("%")
+                endif
+                call vit#AddFilesToGit(l:cmd_args, 0)
             elseif l:command == "reset"
-                " call vit#ResetFilesInGitIndex((len(l:args) > 1 ? l:cmd_args : expand("%")), 0)
-                if len(l:args) > 1
-                    call vit#ResetFilesInGitIndex(l:cmd_args, 0)
-                else
-                    call vit#ResetCurrentFileInGitIndex(0)
+                if len(l:args) <= 0
+                    let l:cmd_args = expand("%")
                 endif
+                call vit#ResetFilesInGitIndex(l:cmd_args, 0)
             elseif l:command == "checkout" || l:command == "co"
-                " call vit#CheckoutCurrentFile((len(l:args) > 1 ? l:cmd_args : "HEAD"), 0)
-                if len(l:args) > 1
-                    call vit#GitCheckoutCurrentFile(l:cmd_args)
-                else
-                    call vit#GitCheckoutCurrentFile("HEAD")
+                if len(l:args) <= 0
+                    let l:cmd_args = "HEAD"
                 endif
-            elseif l:command == "commit" | call vit#GitCommit(l:cmd_args)
-            elseif l:command == "blame" | call vit#PopGitBlame()
-            elseif l:command == "log" | call vit#PopGitLog()
-            elseif l:command == "diff" | call vit#PopGitDiffPrompt()
-            elseif l:command == "status" | call vit#GitStatus()
+                call vit#GitCheckoutCurrentFile(l:cmd_args)
+            elseif l:command == "diff"
+                if len(l:args) <= 0
+                    call vit#PopGitDiffPrompt()
+                else
+                    call vit#PopGitDiff(l:args)
+                endif
+            elseif l:command == "blame"
+                call vit#PopGitBlame()
+            elseif l:command == "commit"
+                call vit#GitCommit(l:cmd_args)
+            elseif l:command == "status"
+                call vit#GitStatus()
             else
                 echohl WarningMsg
                 echomsg "Unrecognized git command: ".l:command
@@ -60,14 +66,14 @@ function! Git(...)
     endif
 endfunction
 
-autocmd BufWinEnter * command! -buffer -complete=file -nargs=? Git :execute Git(<f-args>)
+" autocmd BufWinEnter * command! -buffer -complete=file -nargs=? Git :execute Git(<f-args>)
+autocmd BufWinEnter * command! -buffer -nargs=? Git :execute Git(<f-args>)
 autocmd BufWinEnter * let b:GitDir = GetGitDirectory()
 
 autocmd BufWinLeave *.vitcommitmsg call vit#GitCommitFinish()
 " autocmd BufWinLeave * call vit#ExitVitWindow()
 
 nnoremap <silent> Uu :call vit#ContentClear()<cr>
-" Diff unsaved changes against file saved on disk
 nnoremap <silent> Uo :call vit#PopDiff("#")<cr>
 nnoremap <silent> Ug :Git diff<cr>
 nnoremap <silent> Ub :Git blame<cr>

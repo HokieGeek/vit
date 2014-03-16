@@ -127,16 +127,19 @@ function! vit#GetRevFromGitBlame()
     echomsg "Blame rev: ".l:rev
     return l:rev
 endfunction
-function! vit#PopGitLog()
+function! vit#PopGitLog(file)
     call vit#ContentClear()
 
     mkview! 9
-    call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' #")
-    " call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".b:vit_original_file)
+    call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".a:file)
     set filetype=VitLog nolist cursorline
     resize 10
     set nomodifiable
     call cursor(line("."), 2)
+endfunction
+function! vit#PopGitLogCurrentFile()
+    call vit#PopGitLog("#")
+    " b:vit_original_file
 endfunction
 function! vit#GetRevFromGitLog()
     let l:rev = system("echo '".getline(".")."' | cut -d '(' -f1 | awk '{ print $NF }'")
@@ -286,8 +289,9 @@ function! vit#GitCommitFinish()
     unlet l:commit_message_file
 endfunction
 function! vit#GitCheckoutCurrentFile(rev)
-    call system("git checkout ".a:rev." ".expand("%"))
-    " TODO: update buffer
+    let l:file = expand("%")
+    call system("git checkout ".a:rev." ".l:file)
+    edit l:file
 endfunction
 " }}}
 
