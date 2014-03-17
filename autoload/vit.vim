@@ -46,7 +46,9 @@ function! vit#ContentClear()
         set modifiable
         bdelete vit_content
         diffoff
-        silent loadview 9
+        if expand("%") != ""
+            silent loadview 9
+        endif
         unlet! g:vit_loaded_output
     endif
 endfunction
@@ -131,7 +133,7 @@ function! vit#GetRevFromGitBlame()
     echomsg "Blame rev: ".l:rev
     return l:rev
 endfunction
-function! vit#PopGitLog(file)
+function! vit#PopGitFileLog(file)
     call vit#ContentClear()
 
     if expand("%") != ""
@@ -140,11 +142,11 @@ function! vit#PopGitLog(file)
     call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".a:file)
     set filetype=VitLog nolist cursorline
     resize 10
-    set nomodifiable
+    set nomodifiable nonumber norelativenumber
     call cursor(line("."), 2)
 endfunction
 function! vit#PopGitLogCurrentFile()
-    call vit#PopGitLog("#")
+    call vit#PopGitFileLog("#")
     " b:vit_original_file
 endfunction
 function! vit#GetRevFromGitLog()
@@ -160,7 +162,7 @@ function! vit#PopGitShow(rev)
     call vit#LoadContent("top", "!git show ".a:rev)
     set filetype=VitShow nolist
     resize 25
-    set nomodifiable
+    set nomodifiable nonumber norelativenumber
     let b:git_revision = a:rev
 endfunction
 function! vit#PopGitDiffFromLog()
@@ -185,11 +187,12 @@ endfunction
 function! vit#GitStatus()
     call vit#ContentClear()
 
-    if expand("%") != ""
+    let l:is_panel=(expand("%") != "" ? 1 : 0)
+    if l:is_panel
         mkview! 9
     endif
+
     call vit#LoadContent("right", "!git status -sb")
-    set filetype=VitStatus
 
     " Set width of the window based on the widest text
     let l:num_lines = line("$")
@@ -206,8 +209,14 @@ function! vit#GitStatus()
     set winwidth=5
     execute "vertical resize ".l:max_cols
 
-    set nolist nomodifiable
-    wincmd t
+    set filetype=VitStatus
+    set nolist nomodifiable nonumber norelativenumber "cursorline
+
+    if l:is_panel
+        wincmd t
+    else
+        only
+    endif
 endfunction
 " }}}
 
@@ -229,16 +238,16 @@ endfunction
 function! vit#AddFilesToGit(files, display_status)
     call system("git add ".a:files)
     echomsg "Added ".a:files." to the stage"
-    " if a:display_status == 1
-        " call vit#GitStatus()
-    " endif
+    if a:display_status == 1
+        call vit#GitStatus()
+    endif
 endfunction
 function! vit#ResetFilesInGitIndex(files, display_status)
     call system("git reset ".a:files)
     echomsg "Unstaged ".a:files
-    " if a:display_status == 1
-        " call vit#GitStatus()
-    " endif
+    if a:display_status == 1
+        call vit#GitStatus()
+    endif
 endfunction
 function! vit#AddCurrentFileToGit(display_status)
     call vit#AddFilesToGit(expand("%"), a:display_status)

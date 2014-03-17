@@ -21,6 +21,9 @@ fi
 cmd=$1
 shift
 case $cmd in
-log|lg) exec vim -c "set nonumber norelativenumber" -c "call vit#PopGitLog('')" -c "only" ;;
-status|st) echo "TODO" ;;
+log|lg) exec vim -c "set nonumber norelativenumber" -c "call vit#PopGitFileLog('')" -c "only" ;;
+status|st) exec vim -c "Git status" ;;
+show) exec vim -c "Git show" ;;
 esac
+
+# exec vim ${vit_cmds}

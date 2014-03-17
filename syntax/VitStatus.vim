@@ -26,5 +26,6 @@ highlight VitStatusBranchDots       ctermbg=none ctermfg=white     cterm=none
 highlight VitStatusBranchAhead          ctermbg=none ctermfg=darkgreen cterm=none
 highlight VitStatusBranchBehind         ctermbg=none ctermfg=darkred cterm=none
 highlight VitStatusBranchRemoteStatus   ctermbg=none ctermfg=white     cterm=none
+highlight CursorLine                    ctermbg=darkblue ctermfg=white cterm=none
 
 let b:current_syntax = "VitStatus"

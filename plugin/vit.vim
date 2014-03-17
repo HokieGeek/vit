@@ -20,30 +20,32 @@ function! Git(...)
             let l:cmd_args = join(l:args[1:], ' ')
 
             if l:command == "log"
-                if len(l:args) <= 0
+                if len(l:cmd_args) <= 0
                     let l:cmd_args = "#"
                 endif
-                call vit#PopGitLog(l:cmd_args)
+                call vit#PopGitFileLog(l:cmd_args)
             elseif l:command == "add"
-                if len(l:args) <= 0
+                if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
                 call vit#AddFilesToGit(l:cmd_args, 0)
             elseif l:command == "reset"
-                if len(l:args) <= 0
+                if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
                 call vit#ResetFilesInGitIndex(l:cmd_args, 0)
             elseif l:command == "checkout" || l:command == "co"
-                if len(l:args) <= 0
+                if len(l:cmd_args) <= 0
                     let l:cmd_args = "HEAD"
                 endif
                 call vit#GitCheckoutCurrentFile(l:cmd_args)
             elseif l:command == "diff"
-                if len(l:args) > 0
-                    call vit#PopGitDiff(l:cmd_args)
-                else
+                echomsg "diff: ".len(l:cmd_args).": ".l:cmd_args
+                if len(l:cmd_args) <= 0
                     call vit#PopGitDiffPrompt()
+                else
+                    echomsg "HERE"
+                    call vit#PopGitDiff(l:cmd_args)
                 endif
             elseif l:command == "blame"
                 call vit#PopGitBlame()
