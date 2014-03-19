@@ -1,13 +1,11 @@
 " Helpers {{{
 function! vit#GetGitDirectory()
     let l:path = expand("%:p:h")
-    while(l:path != "/" && len(l:path) > 0)
-        if (isdirectory(l:path."/.git") != 0)
+    while(l:path != "/" && l:path != "C:\\" && len(l:path) > 0)
+        if isdirectory(l:path."/.git")
             return l:path."/.git"
         endif
-        " let l:path = expand(l:path+":h") " Causes infinite loop
-        let l:path = system("dirname ".l:path)
-        let l:path = substitute(substitute(l:path, '\s*\n*$', '', ''), '^\s*', '', '')
+        let l:path = fnamemodify(l:path, ":h")
     endwhile
     return ""
 endfunction
