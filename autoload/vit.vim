@@ -155,7 +155,10 @@ function! vit#PopGitFileLog(file)
     call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".a:file)
     set filetype=VitLog nolist cursorline
     resize 10
-    set nomodifiable nonumber norelativenumber
+    set nomodifiable nonumber
+    if exists("&relativenumber")
+        set norelativenumber
+    endif
     call cursor(line("."), 2)
 endfunction
 function! vit#PopGitLogCurrentFile()
@@ -175,7 +178,10 @@ function! vit#PopGitShow(rev)
     call vit#LoadContent("top", "!git show ".a:rev)
     set filetype=VitShow nolist
     resize 25
-    set nomodifiable nonumber norelativenumber
+    set nomodifiable nonumber
+    if exists("&relativenumber")
+        set norelativenumber
+    endif
     let b:git_revision = a:rev
 endfunction
 function! vit#PopGitDiffFromLog()
@@ -223,7 +229,10 @@ function! vit#GitStatus()
     execute "vertical resize ".l:max_cols
 
     set filetype=VitStatus
-    set nolist nomodifiable nonumber norelativenumber "cursorline
+    set nolist nomodifiable nonumber "cursorline
+    if exists("&relativenumber")
+        set norelativenumber
+    endif
 
     if l:is_panel
         wincmd t
