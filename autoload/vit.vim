@@ -300,7 +300,6 @@ function! vit#GitCommit(args)
     else " otherwise, open a window to enter the message
         call vit#CreateCommitMessagePane(a:args)
     endif
-    call vit#RefreshGitStatus()
 endfunction
 function! vit#CreateCommitMessagePane(args)
     " Pop up a small window with for commit message
@@ -320,6 +319,7 @@ endfunction
 function! vit#PerformCommit(args)
     call system("git commit ".a:args)
     echomsg "Successfully committed"
+    call vit#RefreshGitStatus()
 endfunction
 function! vit#GitCommitFinish()
     let l:commit_message_file = expand("%")
