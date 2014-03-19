@@ -304,7 +304,7 @@ function! vit#GitCommit(args)
 endfunction
 function! vit#CreateCommitMessagePane(args)
     " Pop up a small window with for commit message
-    let l:commit_message_file = tempname().".vitcommitmsg"
+    let l:commit_message_file = tempname()
     call system("git status -sb | awk '{ print \"# \" $0 }' > ".l:commit_message_file)
     if expand("%") != ""
         mkview! 9

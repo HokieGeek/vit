@@ -60,7 +60,6 @@ endfunction
 autocmd BufWinEnter * command! -buffer -nargs=? Git :execute Git(<f-args>)
 autocmd BufWinEnter * let b:GitDir = vit#GetGitDirectory()
 
-autocmd BufWinLeave *.vitcommitmsg call vit#GitCommitFinish()
 " autocmd BufWinLeave * call vit#ExitVitWindow()
 
 nnoremap <silent> Uu :call vit#ContentClear()<cr>
