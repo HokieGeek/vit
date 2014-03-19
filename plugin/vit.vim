@@ -1,15 +1,3 @@
-function! GetGitDirectory()
-    let l:path = expand("%:p:h")
-    while(l:path != "/" && len(l:path) > 0)
-        if (isdirectory(l:path."/.git") != 0)
-            return l:path."/.git"
-        endif
-        " let l:path = expand(l:path+":h") " Causes infinite loop
-        let l:path = system("dirname ".l:path)
-        let l:path = substitute(substitute(l:path, '\s*\n*$', '', ''), '^\s*', '', '')
-    endwhile
-    return ""
-endfunction
 
 function! Git(...)
     " echo "Git: ".a:1.": ".a:0
@@ -28,23 +16,23 @@ function! Git(...)
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
-                call vit#AddFilesToGit(l:cmd_args, 0)
+                call vit#AddFilesToGit(l:cmd_args)
             elseif l:command == "reset"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
-                call vit#ResetFilesInGitIndex(l:cmd_args, 0)
+                call vit#ResetFilesInGitIndex(l:cmd_args)
             elseif l:command == "checkout" || l:command == "co"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = "HEAD"
                 endif
                 call vit#GitCheckoutCurrentFile(l:cmd_args)
             elseif l:command == "diff"
-                echomsg "diff: ".len(l:cmd_args).": ".l:cmd_args
+                " echomsg "diff: ".len(l:cmd_args).": ".l:cmd_args
                 if len(l:cmd_args) <= 0
                     call vit#PopGitDiffPrompt()
                 else
-                    echomsg "HERE"
+                    " echomsg "HERE"
                     call vit#PopGitDiff(l:cmd_args)
                 endif
             elseif l:command == "blame"
@@ -70,7 +58,7 @@ endfunction
 
 " autocmd BufWinEnter * command! -buffer -complete=file -nargs=? Git :execute Git(<f-args>)
 autocmd BufWinEnter * command! -buffer -nargs=? Git :execute Git(<f-args>)
-autocmd BufWinEnter * let b:GitDir = GetGitDirectory()
+autocmd BufWinEnter * let b:GitDir = vit#GetGitDirectory()
 
 autocmd BufWinLeave *.vitcommitmsg call vit#GitCommitFinish()
 " autocmd BufWinLeave * call vit#ExitVitWindow()

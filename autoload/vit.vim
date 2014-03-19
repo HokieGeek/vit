@@ -1,4 +1,17 @@
 " Helpers {{{
+function! vit#GetGitDirectory()
+    let l:path = expand("%:p:h")
+    while(l:path != "/" && len(l:path) > 0)
+        if (isdirectory(l:path."/.git") != 0)
+            return l:path."/.git"
+        endif
+        " let l:path = expand(l:path+":h") " Causes infinite loop
+        let l:path = system("dirname ".l:path)
+        let l:path = substitute(substitute(l:path, '\s*\n*$', '', ''), '^\s*', '', '')
+    endwhile
+    return ""
+endfunction
+
 function! vit#GetGitBranch()
     if exists("b:GitDir") && len(b:GitDir) > 0
         let l:file = readfile(b:GitDir."/HEAD")
@@ -169,7 +182,7 @@ function! vit#PopGitDiffFromLog()
     call vit#PopGitDiff(vit#GetRevFromGitLog())
 endfunction
 function! vit#PopGitDiffFromShow()
-    echomsg "Rev: ".b:git_revision
+    " echomsg "Rev: ".b:git_revision
     call vit#PopGitDiff(b:git_revision)
 endfunction
 function! vit#PopGitDiffFromBlame()
@@ -218,6 +231,15 @@ function! vit#GitStatus()
         only
     endif
 endfunction
+function! vit#RefreshGitStatus()
+    for win_num in range(1, winnr('$'))
+        if getbufvar(winbufnr(win_num), '&filetype') == "VitStatus"
+            call vit#GitStatus()
+            " echomsg "FOUND ONE!"
+            break
+        endif
+    endfor
+endfunction
 " }}}
 
 " External manipulators {{{
@@ -235,26 +257,22 @@ function! vit#CheckoutFromBuffer()
     call vit#ContentClear()
     call vit#GitCheckoutCurrentFile(b:git_revision)
 endfunction
-function! vit#AddFilesToGit(files, display_status)
+function! vit#AddFilesToGit(files)
     call system("git add ".a:files)
     echomsg "Added ".a:files." to the stage"
-    if a:display_status == 1
-        call vit#GitStatus()
-    endif
+    call vit#RefreshGitStatus()
 endfunction
-function! vit#ResetFilesInGitIndex(files, display_status)
+function! vit#ResetFilesInGitIndex(files)
     call system("git reset ".a:files)
     echomsg "Unstaged ".a:files
-    if a:display_status == 1
-        call vit#GitStatus()
-    endif
+    call vit#RefreshGitStatus()
 endfunction
-function! vit#AddCurrentFileToGit(display_status)
-    call vit#AddFilesToGit(expand("%"), a:display_status)
-endfunction
-function! vit#ResetCurrentFileInGitIndex(display_status)
-    call vit#ResetFilesInGitIndex(expand("%"), a:display_status)
-endfunction
+" function! vit#AddCurrentFileToGit()
+    " call vit#AddFilesToGit(expand("%"))
+" endfunction
+" function! vit#ResetCurrentFileInGitIndex()
+    " call vit#ResetFilesInGitIndex(expand("%"))
+" endfunction
 function! vit#GitCommit(args)
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
     " let l:tmp = vit#GitCurrentFileStatus()
@@ -264,7 +282,7 @@ function! vit#GitCommit(args)
         " let l:response = confirm("Current file not staged. Add it?", "Y\nn", 1)
         " if l:response == 1
         if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
-            call vit#AddCurrentFileToGit(0)
+            call vit#AddFilesToGit(expand("%"))
         endif
     endif
     " If a message was already entered, just commit
@@ -273,6 +291,7 @@ function! vit#GitCommit(args)
     else " otherwise, open a window to enter the message
         call vit#CreateCommitMessagePane(a:args)
     endif
+    call vit#RefreshGitStatus()
 endfunction
 function! vit#CreateCommitMessagePane(args)
     " Pop up a small window with for commit message
