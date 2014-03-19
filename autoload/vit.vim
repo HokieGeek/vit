@@ -312,6 +312,7 @@ function! vit#CreateCommitMessagePane(args)
     botright new
     execute "edit ".l:commit_message_file
     let b:vit_commit_args = a:args
+    autocmd BufWinLeave <buffer> call vit#GitCommitFinish()
     resize 10
     set filetype=gitcommit
     normal ggO
