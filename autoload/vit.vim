@@ -371,4 +371,4 @@ function! vit#StatusLine(win_num)
 endfunction
 " }}}
 
-" vim: set foldmethod=marker number relativenumber formatoptions-=tc:
+" vim: set foldmethod=marker formatoptions-=tc:

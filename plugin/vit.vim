@@ -69,4 +69,4 @@ nnoremap <silent> Ub :Git blame<cr>
 nnoremap <silent> Ul :Git log<cr>
 nnoremap <silent> Us :Git status<cr>
 
-" vim: set foldmethod=marker number relativenumber formatoptions-=tc:
+" vim: set foldmethod=marker formatoptions-=tc:
