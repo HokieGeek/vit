@@ -56,7 +56,6 @@ function! Git(...)
     endif
 endfunction
 
-" autocmd BufWinEnter * command! -buffer -complete=file -nargs=? Git :execute Git(<f-args>)
 autocmd BufWinEnter * command! -buffer -nargs=? Git :execute Git(<f-args>)
 autocmd BufWinEnter * let b:GitDir = vit#GetGitDirectory()
 

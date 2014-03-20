@@ -37,8 +37,6 @@ function! vit#GitFileStatus(file)
     else
         let l:status_val = -1 " foobar
     endif
-
-    " echomsg "STATUS: ".l:status_val
     return l:status_val
 endfunction
 function! vit#GitCurrentFileStatus()
@@ -80,6 +78,7 @@ function! vit#LoadContent(location, command)
     execute "silent file vit_content_".a:location
     0d_
     let b:vit_original_file = l:file_path
+    " nnoremap <buffer> <silent> q :<c-u>bdelete<cr>
 endfunction
 function! vit#PopDiff(command)
     call vit#ContentClear()
@@ -223,7 +222,7 @@ function! vit#GitStatus()
         let l:i += 1
     endwhile
     let l:max_cols += 1
-    set winwidth=5
+    set winminwidth=1
     execute "vertical resize ".l:max_cols
 
     set filetype=VitStatus
@@ -339,33 +338,6 @@ function! vit#GitCheckoutCurrentFile(rev)
     let l:file = expand("%")
     call system("git checkout ".a:rev." ".l:file)
     edit l:file
-endfunction
-" }}}
-
-" Status line {{{
-function! vit#StatusLine(win_num)
-    let l:branch=vit#GetGitBranch()
-    " echomsg "HERE: ".l:branch
-    " let l:branch=b:GitBranch
-    if len(l:branch) > 0
-        let l:filename = bufname(winbufnr(a:win_num))
-        let l:status=vit#GitFileStatus(l:filename)
-        " echomsg "Updating: ".localtime()." [".l:status."]"
-
-        if l:status == 3 " Modified
-            let l:hl="%#SL_HL_GitModified#"
-        elseif l:status == 4 " Staged and not modified
-            let l:hl="%#SL_HL_GitStaged#"
-        elseif l:status == 2 " Untracked
-            let l:hl="%#SL_HL_GitUntracked#"
-        else
-            let l:hl="%#SL_HL_GitBranch#"
-        endif
-
-        return l:hl."\ ".l:branch."\ "
-    else
-        return ""
-    endif
 endfunction
 " }}}
 
