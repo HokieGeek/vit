@@ -1,18 +1,42 @@
 " Helpers {{{
-function! vit#GetGitDirectory()
+function! vit#init()
+    " TODO: determine also, the root directory (where .git is) and make all
+    " substitute(fnamemodify(a:file, ":p"), b:vit_root_dir, '', '')
+    " file paths relative to that
     let l:path = expand("%:p:h")
     while(l:path != "/" && l:path != "C:\\" && len(l:path) > 0)
-        if isdirectory(l:path."/.git")
-            return l:path."/.git"
+        if filereadable(l:path."/.git")
+            let l:file = readfile(l:path."/.git")
+            let b:vit_git_dir = substitute(l:file[0], 'gitdir: ', '', '')
+            let b:vit_root_dir = l:path
+            break
+        elseif isdirectory(l:path."/.git")
+            let b:vit_git_dir = l:path."/.git"
+            let b:vit_root_dir = b:vit_git_dir
+            break
         endif
         let l:path = fnamemodify(l:path, ":h")
     endwhile
     return ""
 endfunction
 
+function! vit#GetFilenameRelativeToGit(file)
+    return substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', '')
+endfunction
+
+function! vit#GetFilenamesRelativeToGit(file_list)
+    " return a:file_list
+    let l:files = []
+    for f in a:file_list
+        call add(l:files, vit#GetFilenameRelativeToGit(f))
+    endfor
+    return l:files
+endfunction
+
 function! vit#GetGitBranch()
-    if exists("b:GitDir") && len(b:GitDir) > 0
-        let l:file = readfile(b:GitDir."/HEAD")
+    if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
+
+        let l:file = readfile(b:vit_git_dir."/HEAD")
         let l:branch = substitute(l:file[0], 'ref: refs/heads/', '', '')
         return l:branch
     else
@@ -21,7 +45,8 @@ function! vit#GetGitBranch()
 endfunction
 function! vit#GitFileStatus(file)
     " let l:status = system("git status --porcelain | grep '\<".a:file."\>$'")
-    let l:status = system("git status --porcelain | egrep '[/\s]\?".a:file."$'")
+    let l:file = vit#GetFilenameRelativeToGit(a:file)
+    let l:status = system("git --git-dir=".b:vit_git_dir."status --porcelain | egrep '[/\s]\?".l:file."$'")
     " echomsg "GitFileStatus(".a:file."): ".l:status
 
     if match(l:status, '^fatal') > -1
@@ -112,7 +137,7 @@ endfunction
 
 " Loaded in windows {{{
 function! vit#PopGitDiff(rev)
-    call vit#PopDiff("!git show ".a:rev.":./#")
+    call vit#PopDiff("!git --git-dir=".b:vit_git_dir." show ".a:rev.":./#")
     " call vit#PopDiff("!git show ".a:rev.":".b:vit_original_file)
     wincmd t
     let b:git_revision = a:rev
@@ -129,7 +154,7 @@ endfunction
 function! vit#PopGitBlame()
     call vit#ContentClear()
 
-    call vit#PopSynched("!git blame --date=short ".expand("%"))
+    call vit#PopSynched("!git --git-dir=".b:vit_git_dir." blame --date=short ".expand("%"))
     wincmd p
     set filetype=VitBlame cursorline
     normal f)
@@ -149,7 +174,8 @@ function! vit#PopGitFileLog(file)
     if expand("%") != ""
         mkview! 9
     endif
-    call vit#LoadContent("top", "!git log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".a:file)
+    let l:file = vit#GetFilenameRelativeToGit(a:file)
+    call vit#LoadContent("top", "!git --git-dir=".b:vit_git_dir." log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".l:file)
     set filetype=VitLog nolist cursorline
     resize 10
     set nomodifiable nonumber
@@ -157,11 +183,21 @@ function! vit#PopGitFileLog(file)
         set norelativenumber
     endif
     call cursor(line("."), 2)
+    let b:vit_log_file = a:file
+    " call setbufvar(
 endfunction
-function! vit#PopGitLogCurrentFile()
-    call vit#PopGitFileLog("#")
+function! vit#RefreshGitFileLog()
+    for win_num in range(1, winnr('$'))
+        if getbufvar(winbufnr(win_num), '&filetype') == "VitLog"
+            call vit#PopGitFileLog(getbufvar(winbufnr(win_num), "vit_log_file"))
+            break
+        endif
+    endfor
+endfunction
+" function! vit#PopGitLogCurrentFile()
+    " call vit#PopGitFileLog("#")
     " b:vit_original_file
-endfunction
+" endfunction
 function! vit#GetRevFromGitLog()
     let l:rev = system("echo '".getline(".")."' | cut -d '(' -f1 | awk '{ print $NF }'")
     let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
@@ -172,7 +208,7 @@ function! vit#PopGitShow(rev)
     if expand("%") != ""
         mkview! 9
     endif
-    call vit#LoadContent("top", "!git show ".a:rev)
+    call vit#LoadContent("top", "!git --git-dir=".b:vit_git_dir." show ".a:rev)
     set filetype=VitShow nolist
     resize 25
     set nomodifiable nonumber
@@ -208,7 +244,7 @@ function! vit#GitStatus()
         mkview! 9
     endif
 
-    call vit#LoadContent("right", "!git status -sb")
+    call vit#LoadContent("right", "!git --git-dir=".b:vit_git_dir." status -sb")
 
     " Set width of the window based on the widest text
     let l:num_lines = line("$")
@@ -241,7 +277,6 @@ function! vit#RefreshGitStatus()
     for win_num in range(1, winnr('$'))
         if getbufvar(winbufnr(win_num), '&filetype') == "VitStatus"
             call vit#GitStatus()
-            " echomsg "FOUND ONE!"
             break
         endif
     endfor
@@ -264,12 +299,17 @@ function! vit#CheckoutFromBuffer()
     call vit#GitCheckoutCurrentFile(b:git_revision)
 endfunction
 function! vit#AddFilesToGit(files)
-    call system("git add ".a:files)
+    let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
+    " echomsg l:files
+    " call system("git --git-dir=".b:vit_git_dir." add ".l:files)
+    call system("git --git-dir=".b:vit_git_dir." add ".l:files)
     echomsg "Added ".a:files." to the stage"
     call vit#RefreshGitStatus()
 endfunction
 function! vit#ResetFilesInGitIndex(files)
-    call system("git reset ".a:files)
+    let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
+    " let l:files = vit#GetFilenamesRelativeToGit(a:files)
+    call system("git --git-dir=".b:vit_git_dir." reset ".l:files)
     echomsg "Unstaged ".a:files
     call vit#RefreshGitStatus()
 endfunction
@@ -301,7 +341,7 @@ endfunction
 function! vit#CreateCommitMessagePane(args)
     " Pop up a small window with for commit message
     let l:commit_message_file = tempname()
-    call system("git status -sb | awk '{ print \"# \" $0 }' > ".l:commit_message_file)
+    call system("git --git-dir=".b:vit_git_dir." status -sb | awk '{ print \"# \" $0 }' > ".l:commit_message_file)
     if expand("%") != ""
         mkview! 9
     endif
@@ -314,9 +354,10 @@ function! vit#CreateCommitMessagePane(args)
     autocmd BufWinLeave <buffer> call vit#GitCommitFinish()
 endfunction
 function! vit#PerformCommit(args)
-    call system("git commit ".a:args)
+    call system("git --git-dir=".b:vit_git_dir." commit ".a:args)
     echomsg "Successfully committed"
     call vit#RefreshGitStatus()
+    call vit#RefreshGitFileLog()
 endfunction
 function! vit#GitCommitFinish()
     let l:commit_message_file = expand("%")
@@ -336,7 +377,7 @@ function! vit#GitCommitFinish()
 endfunction
 function! vit#GitCheckoutCurrentFile(rev)
     let l:file = expand("%")
-    call system("git checkout ".a:rev." ".l:file)
+    call system("git --git-dir=".b:vit_git_dir." checkout ".a:rev." ".l:file)
     edit l:file
 endfunction
 " }}}

@@ -1,13 +1,20 @@
 
 function! Git(...)
     " echo "Git: ".a:1.": ".a:0
-    if exists("b:GitDir")
+    if exists("b:vit_git_dir")
         if a:0 > 0
-            let l:args = split(a:1)
-            let l:command = l:args[0]
-            let l:cmd_args = join(l:args[1:], ' ')
+            let l:command = a:1
+            let l:cmd_args = ""
+            let l:i = 2
+            let l:num_args = a:0
+            while l:i <= l:num_args
+                execute "let l:cmd_args .= ' '.a:".l:i
+                let l:i += 1
+            endwhile
 
-            if l:command == "log"
+            " echomsg "cmd_args = ".l:cmd_args
+
+            if l:command == "log" || l:command == "lg"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = "#"
                 endif
@@ -39,7 +46,7 @@ function! Git(...)
                 call vit#PopGitBlame()
             elseif l:command == "commit"
                 call vit#GitCommit(l:cmd_args)
-            elseif l:command == "status"
+            elseif l:command == "status" || l:command == "st"
                 call vit#GitStatus()
             else
                 echohl WarningMsg
@@ -56,8 +63,10 @@ function! Git(...)
     endif
 endfunction
 
-autocmd BufWinEnter * command! -buffer -nargs=? Git :execute Git(<f-args>)
-autocmd BufWinEnter * let b:GitDir = vit#GetGitDirectory()
+autocmd BufWritePost * call vit#RefreshGitStatus()
+autocmd BufWinEnter * command! -buffer -complete=file -nargs=* Git :execute Git(<f-args>)
+" autocmd BufWinEnter * command! -buffer -complete=file -nargs=? Git :execute Git(<f-args>)
+autocmd BufWinEnter * call vit#init()
 
 " autocmd BufWinLeave * call vit#ExitVitWindow()
 
