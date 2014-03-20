@@ -45,8 +45,8 @@ function! vit#GetGitBranch()
 endfunction
 function! vit#GitFileStatus(file)
     " let l:status = system("git status --porcelain | grep '\<".a:file."\>$'")
-    let l:file = vit#GetFilenameRelativeToGit(a:file)
-    let l:status = system("git --git-dir=".b:vit_git_dir."status --porcelain | egrep '[/\s]\?".l:file."$'")
+    " let l:file = vit#GetFilenameRelativeToGit(a:file)
+    let l:status = system("git --git-dir=".b:vit_git_dir." status --porcelain | egrep '[/\s]\?".a:file."$'")
     " echomsg "GitFileStatus(".a:file."): ".l:status
 
     if match(l:status, '^fatal') > -1
@@ -65,7 +65,7 @@ function! vit#GitFileStatus(file)
     return l:status_val
 endfunction
 function! vit#GitCurrentFileStatus()
-    return vit#GitFileStatus(expand("%:t"))
+    return vit#GitFileStatus(vit#GetFilenameRelativeToGit(expand("%:t")))
 endfunction
 function! vit#ExitVitWindow()
     if &filetype == "VitStatus" || &filetype == "VitLog" || &filetype == "VitShow" || &filetype == "VitDiff"
@@ -137,8 +137,8 @@ endfunction
 
 " Loaded in windows {{{
 function! vit#PopGitDiff(rev)
-    call vit#PopDiff("!git --git-dir=".b:vit_git_dir." show ".a:rev.":./#")
-    " call vit#PopDiff("!git show ".a:rev.":".b:vit_original_file)
+    let l:file = vit#GetFilenameRelativeToGit(expand("%"))
+    call vit#PopDiff("!git --git-dir=".b:vit_git_dir." show ".a:rev.":".l:file)
     wincmd t
     let b:git_revision = a:rev
     " wincmd l
@@ -154,7 +154,8 @@ endfunction
 function! vit#PopGitBlame()
     call vit#ContentClear()
 
-    call vit#PopSynched("!git --git-dir=".b:vit_git_dir." blame --date=short ".expand("%"))
+    let l:file = vit#GetFilenameRelativeToGit(expand("%"))
+    call vit#PopSynched("!git --git-dir=".b:vit_git_dir." blame --date=short ".l:file)
     wincmd p
     set filetype=VitBlame cursorline
     normal f)
@@ -320,6 +321,7 @@ endfunction
     " call vit#ResetFilesInGitIndex(expand("%"))
 " endfunction
 function! vit#GitCommit(args)
+    " echomsg "vit#GitCommit(".a:args.")"
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
     " let l:tmp = vit#GitCurrentFileStatus()
     " echomsg "Git file status: ".l:tmp
@@ -376,9 +378,12 @@ function! vit#GitCommitFinish()
     unlet l:commit_message_file
 endfunction
 function! vit#GitCheckoutCurrentFile(rev)
-    let l:file = expand("%")
+    " let l:file = expand("%")
+    let l:file = vit#GetFilenameRelativeToGit(expand("%"))
     call system("git --git-dir=".b:vit_git_dir." checkout ".a:rev." ".l:file)
     edit l:file
+    call vit#RefreshGitStatus()
+    call vit#RefreshGitFileLog()
 endfunction
 " }}}
 
