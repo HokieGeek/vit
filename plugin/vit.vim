@@ -1,3 +1,7 @@
+if exists("g:loaded_vit") || v:version < 700
+    finish
+endif
+let g:loaded_vit = 1
 
 function! Git(...)
     " echo "Git: ".a:1.": ".a:0
