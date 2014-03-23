@@ -82,6 +82,9 @@ function! vit#ContentClear()
             silent loadview 9
         endif
         unlet! g:vit_loaded_output
+        if exists(":EnableGoldenViewAutoResize")
+            EnableGoldenViewAutoResize
+        endif
     endif
 endfunction
 function! vit#LoadContent(location, command)
@@ -101,6 +104,9 @@ function! vit#LoadContent(location, command)
     execute "silent file vit_content_".a:location
     0d_
     let b:vit_original_file = l:file_path
+    if exists(":DisableGoldenViewAutoResize")
+        DisableGoldenViewAutoResize
+    endif
     " nnoremap <buffer> <silent> q :<c-u>bdelete<cr>
 endfunction
 function! vit#PopDiff(command)
