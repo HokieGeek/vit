@@ -1,8 +1,5 @@
 " Helpers {{{
 function! vit#init()
-    " TODO: determine also, the root directory (where .git is) and make all
-    " substitute(fnamemodify(a:file, ":p"), b:vit_root_dir, '', '')
-    " file paths relative to that
     let l:path = expand("%:p:h")
     while(l:path != "/" && l:path != "C:\\" && len(l:path) > 0)
         if filereadable(l:path."/.git")
@@ -11,8 +8,8 @@ function! vit#init()
             let b:vit_root_dir = l:path
             break
         elseif isdirectory(l:path."/.git")
-            let b:vit_git_dir = l:path."/.git"
-            let b:vit_root_dir = b:vit_git_dir
+            let b:vit_root_dir = l:path
+            let b:vit_git_dir = b:vit_root_dir."/.git"
             break
         endif
         let l:path = fnamemodify(l:path, ":h")
@@ -43,6 +40,7 @@ function! vit#GetGitBranch()
         return ""
     endif
 endfunction
+
 function! vit#GitFileStatus(file)
     " let l:status = system("git status --porcelain | grep '\<".a:file."\>$'")
     " let l:file = vit#GetFilenameRelativeToGit(a:file)
@@ -136,8 +134,12 @@ endfunction
 " }}}
 
 " Loaded in windows {{{
-function! vit#PopGitDiff(rev)
-    let l:file = vit#GetFilenameRelativeToGit(expand("%"))
+function! vit#PopGitDiff(rev, file)
+    if len(a:file) > 0
+        let l:file = a:file
+    else
+        let l:file = vit#GetFilenameRelativeToGit(expand("%"))
+    endif
     call vit#PopDiff("!git --git-dir=".b:vit_git_dir." show ".a:rev.":".l:file)
     wincmd t
     let b:git_revision = a:rev
@@ -149,7 +151,7 @@ function! vit#PopGitDiffPrompt()
     call inputsave()
     let l:response = input('Commit, tag or branch: ')
     call inputrestore()
-    call vit#PopGitDiff(l:response)
+    call vit#PopGitDiff(l:response, "")
 endfunction
 function! vit#PopGitBlame()
     call vit#ContentClear()
@@ -157,6 +159,7 @@ function! vit#PopGitBlame()
     let l:file = vit#GetFilenameRelativeToGit(expand("%"))
     call vit#PopSynched("!git --git-dir=".b:vit_git_dir." blame --date=short ".l:file)
     wincmd p
+    let b:vit_ref_file = l:file
     set filetype=VitBlame cursorline
     normal f)
     execute "vertical resize ".col(".")
@@ -166,7 +169,7 @@ endfunction
 function! vit#GetRevFromGitBlame()
     let l:rev = system("echo '".getline(".")."' | awk '{ print $1 }'")
     let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
-    echomsg "Blame rev: ".l:rev
+    " echomsg "Blame rev: ".l:rev
     return l:rev
 endfunction
 function! vit#PopGitFileLog(file)
@@ -184,13 +187,12 @@ function! vit#PopGitFileLog(file)
         set norelativenumber
     endif
     call cursor(line("."), 2)
-    let b:vit_log_file = a:file
-    " call setbufvar(
+    let b:vit_ref_file = a:file
 endfunction
 function! vit#RefreshGitFileLog()
     for win_num in range(1, winnr('$'))
         if getbufvar(winbufnr(win_num), '&filetype') == "VitLog"
-            call vit#PopGitFileLog(getbufvar(winbufnr(win_num), "vit_log_file"))
+            call vit#PopGitFileLog(getbufvar(winbufnr(win_num), "vit_ref_file"))
             break
         endif
     endfor
@@ -209,6 +211,7 @@ function! vit#PopGitShow(rev)
     if expand("%") != ""
         mkview! 9
     endif
+    let b:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
     call vit#LoadContent("top", "!git --git-dir=".b:vit_git_dir." show ".a:rev)
     set filetype=VitShow nolist
     resize 25
@@ -219,14 +222,14 @@ function! vit#PopGitShow(rev)
     let b:git_revision = a:rev
 endfunction
 function! vit#PopGitDiffFromLog()
-    call vit#PopGitDiff(vit#GetRevFromGitLog())
+    call vit#PopGitDiff(vit#GetRevFromGitLog(), b:vit_ref_file)
 endfunction
 function! vit#PopGitDiffFromShow()
     " echomsg "Rev: ".b:git_revision
-    call vit#PopGitDiff(b:git_revision)
+    call vit#PopGitDiff(b:git_revision, b:vit_ref_file)
 endfunction
 function! vit#PopGitDiffFromBlame()
-    call vit#PopGitDiff(vit#GetRevFromGitBlame())
+    call vit#PopGitDiff(vit#GetRevFromGitBlame(), b:vit_ref_file)
 endfunction
 function! vit#ShowFromLog()
     call vit#PopGitShow(vit#GetRevFromGitLog())
