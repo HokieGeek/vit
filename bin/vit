@@ -9,6 +9,7 @@ usage() {
 
         log (lg) - Opens vim with the git log of the current repo
         status (st) - Displays the status of the current repo
+        show (sh) - Displays the status of a revision
 USAGE_INFO
     } >&2
 }
@@ -21,8 +22,14 @@ fi
 cmd=$1
 shift
 case $cmd in
-log|lg) exec vim -c "set nonumber" -c 'if exists("&relativenumber")|set norelativenumber|endif' \
-                 -c "call vit#PopGitFileLog('')" -c "only" ;;
+log|lg)
+    if [ $# -gt 0 ]; then
+        exec vim $@ -c "Git log"
+    else
+        exec vim -c "set nonumber" -c 'if exists("&relativenumber")|set norelativenumber|endif' \
+                 -c "call vit#PopGitFileLog('')" #-c "only"
+    fi
+    ;;
 status|st) exec vim -c "Git status" ;;
 show|sh) exec vim -c "Git show" ;;
 esac

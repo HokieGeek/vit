@@ -181,13 +181,22 @@ endfunction
 function! vit#PopGitFileLog(file)
     call vit#ContentClear()
 
-    if expand("%") != ""
+    if expand("%") !=# ""
         mkview! 9
+        let l:standalone = 1
+    else
+        let l:standalone = 0
     endif
     let l:file = vit#GetFilenameRelativeToGit(a:file)
     call vit#LoadContent("top", "!git --git-dir=".b:vit_git_dir." log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".l:file)
     set filetype=VitLog nolist cursorline
-    resize 10
+    if l:standalone == 0
+        let b:vit_is_standalone = 0
+        bdelete 1
+        resize
+    else
+        resize 10
+    endif
     set nomodifiable nonumber
     if exists("&relativenumber")
         set norelativenumber
@@ -227,8 +236,25 @@ function! vit#PopGitShow(rev)
     endif
     let b:git_revision = a:rev
 endfunction
-function! vit#PopGitDiffFromLog()
-    call vit#PopGitDiff(vit#GetRevFromGitLog(), b:vit_ref_file)
+function! vit#OpenFilesInCommit(rev)
+    let l:ret = system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ print $2 }'")
+    let l:files = split(l:ret)
+    if len(l:files) > 0
+        silent execute "argadd ".join(l:files, ' ')
+        call vit#ContentClear()
+    else
+        echohl WarningMsg
+        echomsg "There are no files related to this commit"
+        echohl None
+    endif
+endfunction
+function! vit#HandleRevisionSelection()
+    let l:rev = vit#GetRevFromGitLog()
+    if exists("b:vit_is_standalone")
+        call vit#OpenFilesInCommit(l:rev)
+    else
+        call vit#PopGitDiff(l:rev, b:vit_ref_file)
+    endif
 endfunction
 function! vit#PopGitDiffFromShow()
     " echomsg "Rev: ".b:git_revision
