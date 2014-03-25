@@ -1,3 +1,8 @@
+if exists("g:autoloaded_vit") || v:version < 700
+    finish
+endif
+let g:autoloaded_vit = 1
+
 " Helpers {{{
 function! vit#init()
     let l:path = expand("%:p:h")
