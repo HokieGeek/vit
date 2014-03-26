@@ -378,11 +378,13 @@ endfunction
 function! vit#CreateCommitMessagePane(args)
     " Pop up a small window with for commit message
     let l:commit_message_file = tempname()
-    call system("git --git-dir=".b:vit_git_dir." status -sb | awk '{ print \"# \" $0 }' > ".l:commit_message_file)
+    let l:vit_git_dir = b:vit_git_dir
+    call system("git --git-dir=".l:vit_git_dir." status -sb | awk '{ print \"# \" $0 }' > ".l:commit_message_file)
     if expand("%") != ""
         mkview! 9
     endif
     botright new
+    let b:vit_git_dir = l:vit_git_dir
     execute "edit ".l:commit_message_file
     let b:vit_commit_args = a:args
     resize 10
