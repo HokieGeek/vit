@@ -422,6 +422,10 @@ function! vit#GitCheckoutCurrentFile(rev)
     call vit#RefreshGitStatus()
     call vit#RefreshGitFileLog()
 endfunction
+function! vit#GitPush()
+    echomsg "TODO"
+    " call system("git --git-dir=".b:vit_git_dir." push ".l:remote." ".l:branch)
+endfunction
 " }}}
 
 " vim: set foldmethod=marker formatoptions-=tc:

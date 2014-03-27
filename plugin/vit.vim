@@ -2,8 +2,18 @@ if exists("g:loaded_vit") || v:version < 700
     finish
 endif
 let g:loaded_vit = 1
+let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commit", "status", "push"]
 
-function! Git(...)
+function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
+    if len(split(a:cmd_line)) <= 2
+        if a:arg_lead == ''
+            return g:vit_commands
+        else
+            return filter(g:vit_commands, 'v:val[0:strlen(a:arg_lead)-1] ==? a:arg_lead')
+        endif
+    endif
+endfunction " }}}
+function! Git(...) " {{{
     " echo "Git: ".a:1.": ".a:0
     if exists("b:vit_git_dir")
         if a:0 > 0
@@ -52,6 +62,8 @@ function! Git(...)
                 call vit#GitCommit(l:cmd_args)
             elseif l:command == "status" || l:command == "st"
                 call vit#GitStatus()
+            elseif l:command == "push"
+                call vit#GitPush()
             else
                 echohl WarningMsg
                 echomsg "Unrecognized git command: ".l:command
@@ -65,11 +77,11 @@ function! Git(...)
     else
         echomsg "Not in a git repository"
     endif
-endfunction
+endfunction " }}}
 
 autocmd BufWritePost * call vit#RefreshGitStatus()
-autocmd BufWinEnter * command! -buffer -complete=file -nargs=* Git :execute Git(<f-args>)
-" autocmd BufWinEnter * command! -buffer -complete=file -nargs=? Git :execute Git(<f-args>)
+autocmd BufWinEnter * command! -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
+" autocmd BufWinEnter * command! -buffer -complete=file -nargs=* Git :execute Git(<f-args>)
 autocmd BufWinEnter * call vit#init()
 
 " autocmd BufWinLeave * call vit#ExitVitWindow()
