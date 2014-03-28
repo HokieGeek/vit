@@ -38,9 +38,23 @@ function! vit#GetFilenamesRelativeToGit(file_list)
     return l:files
 endfunction
 
+function! vit#GetGitRemote()
+    if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
+        let l:remotes = split(system("git --git-dir=".b:vit_git_dir." remote -v | grep push | awk '{ print $1 }'"))
+        if len(l:remotes) == 0
+            echohl WarningMsg
+            echomsg "No remotes found!"
+            echohl
+            return
+        elseif len(l:remotes) > 1
+            " TODO: kick off choice input thingy
+        else
+            l:remote = l:remotes[0]
+        endif
+    endif
+endfunction
 function! vit#GetGitBranch()
     if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
-
         let l:file = readfile(b:vit_git_dir."/HEAD")
         let l:branch = substitute(l:file[0], 'ref: refs/heads/', '', '')
         return l:branch
@@ -435,9 +449,20 @@ function! vit#GitCheckoutCurrentFile(rev)
     call vit#RefreshGitStatus()
     call vit#RefreshGitFileLog()
 endfunction
-function! vit#GitPush()
+function! vit#GitPush(remote, branch)
     echomsg "TODO"
+    " let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetGitRemote()
+    " let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetGitBranch()
+
     " call system("git --git-dir=".b:vit_git_dir." push ".l:remote." ".l:branch)
+endfunction
+function! vit#GitPull(remote, branch, rebase)
+    echomsg "TODO"
+    " let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetGitRemote()
+    " let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetGitBranch()
+    " let l:rebase = a:rebase ? "--rebase" : ""
+
+    " call system("git --git-dir=".b:vit_git_dir." ".l:rebase." pull ".l:remote." ".l:branch)
 endfunction
 " }}}
 

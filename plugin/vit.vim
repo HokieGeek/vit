@@ -2,7 +2,7 @@ if exists("g:loaded_vit") || v:version < 700
     finish
 endif
 let g:loaded_vit = 1
-let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commit", "status", "push"]
+let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commit", "status", "push", "pull"]
 
 function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
     if len(split(a:cmd_line)) <= 2
@@ -18,13 +18,16 @@ function! Git(...) " {{{
     if exists("b:vit_git_dir")
         if a:0 > 0
             let l:command = a:1
-            let l:cmd_args = ""
-            let l:i = 2
-            let l:num_args = a:0
-            while l:i <= l:num_args
-                execute "let l:cmd_args .= ' '.a:".l:i
-                let l:i += 1
-            endwhile
+            let l:cmd_args = join(a:000[1:], ' ')
+
+            " FIXME: HOLY CRAP WHAT ARE YOU DOING? just get a subset of a:000
+            " let l:cmd_args = ""
+            " let l:i = 2
+            " let l:num_args = a:0
+            " while l:i <= l:num_args
+                " execute "let l:cmd_args .= ' '.a:".l:i
+                " let l:i += 1
+            " endwhile
 
             " echomsg "cmd_args = ".l:cmd_args
 
@@ -56,14 +59,16 @@ function! Git(...) " {{{
                     " echomsg "HERE"
                     call vit#PopGitDiff(l:cmd_args)
                 endif
-            elseif l:command == "blame"
-                call vit#PopGitBlame()
+            elseif l:command == "push"
+                call vit#GitPush("TODO", "TODO")
+            elseif l:command == "pull"
+                call vit#GitPull("TODO", "TODO", 0)
             elseif l:command == "commit"
                 call vit#GitCommit(l:cmd_args)
+            elseif l:command == "blame"
+                call vit#PopGitBlame()
             elseif l:command == "status" || l:command == "st"
                 call vit#GitStatus()
-            elseif l:command == "push"
-                call vit#GitPush()
             else
                 echohl WarningMsg
                 echomsg "Unrecognized git command: ".l:command
