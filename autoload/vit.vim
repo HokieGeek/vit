@@ -8,10 +8,12 @@ function! vit#init()
     let l:path = expand("%:p:h")
     while(l:path != "/" && l:path != "C:\\" && len(l:path) > 0)
         if filereadable(l:path."/.git")
+            execute "cd ".l:path
             let l:file = readfile(l:path."/.git")
             let b:vit_git_dir = substitute(l:file[0], 'gitdir: ', '', '')
             let b:vit_git_dir = fnamemodify(b:vit_git_dir, ":p")
             let b:vit_root_dir = l:path
+            cd -
             break
         elseif isdirectory(l:path."/.git")
             let b:vit_root_dir = l:path
