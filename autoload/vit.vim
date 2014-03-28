@@ -282,7 +282,9 @@ function! vit#GitStatus()
         mkview! 9
     endif
 
+    execute "cd ".b:vit_root_dir
     call vit#LoadContent("right", "!git --git-dir=".b:vit_git_dir." status -sb")
+    cd -
 
     " Set width of the window based on the widest text
     let l:num_lines = line("$")
@@ -351,30 +353,35 @@ function! vit#ResetFilesInGitIndex(files)
     echomsg "Unstaged ".a:files
     call vit#RefreshGitStatus()
 endfunction
-" function! vit#AddCurrentFileToGit()
-    " call vit#AddFilesToGit(expand("%"))
-" endfunction
-" function! vit#ResetCurrentFileInGitIndex()
-    " call vit#ResetFilesInGitIndex(expand("%"))
-" endfunction
 function! vit#GitCommit(args)
     " echomsg "vit#GitCommit(".a:args.")"
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
-    " let l:tmp = vit#GitCurrentFileStatus()
-    " echomsg "Git file status: ".l:tmp
-    " if l:tmp != 4
     if vit#GitCurrentFileStatus() != 4
-        " let l:response = confirm("Current file not staged. Add it?", "Y\nn", 1)
-        " if l:response == 1
         if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
             call vit#AddFilesToGit(expand("%"))
         endif
     endif
+
+    " I really hate having to enter the author every freaking time
+    let l:args = a:args
+    if strlen(a:args) > 0 && match(a:args, "--author=") > -1
+        let l:args_list = split(l:args)
+        let l:author = l:args_list[match(l:args_list, "--author=")]
+        if l:author == "--author=''"
+            let l:args = substitute(l:args, "--author=''", "", "")
+            unlet! b:vit_commit_author
+        else
+            let b:vit_commit_author = l:author
+        endif
+    elseif exists("b:vit_commit_author")
+        let l:args .= " ".b:vit_commit_author
+    endif
+
     " If a message was already entered, just commit
-    if match(a:args, " *-m ") > -1 || match(a:args, " *--message=") > -1
-        call vit#PerformCommit(a:args)
+    if match(l:args, " *-m ") > -1 || match(l:args, " *--message=") > -1
+        call vit#PerformCommit(l:args)
     else " otherwise, open a window to enter the message
-        call vit#CreateCommitMessagePane(a:args)
+        call vit#CreateCommitMessagePane(l:args)
     endif
 endfunction
 function! vit#CreateCommitMessagePane(args)
@@ -391,7 +398,8 @@ function! vit#CreateCommitMessagePane(args)
     let b:vit_commit_args = a:args
     resize 10
     set filetype=gitcommit
-    normal ggO
+    set modifiable
+    call append(0, "")
     autocmd BufWinLeave <buffer> call vit#GitCommitFinish()
 endfunction
 function! vit#PerformCommit(args)
