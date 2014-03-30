@@ -341,23 +341,21 @@ endfunction
 function! vit#AddFilesToGit(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
     " echomsg l:files
-    " call system("git --git-dir=".b:vit_git_dir." add ".l:files)
     call system("git --git-dir=".b:vit_git_dir." add ".l:files)
     echomsg "Added ".a:files." to the stage"
     call vit#RefreshGitStatus()
 endfunction
 function! vit#ResetFilesInGitIndex(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
-    " let l:files = vit#GetFilenamesRelativeToGit(a:files)
     call system("git --git-dir=".b:vit_git_dir." reset ".l:files)
     echomsg "Unstaged ".a:files
     call vit#RefreshGitStatus()
 endfunction
 function! vit#GitCommit(args)
-    " echomsg "vit#GitCommit(".a:args.")"
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
-    if vit#GitCurrentFileStatus() != 4
-        if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
+    if &modified && confirm("Current file has changed. Save it?", "Y\nn", 1) == 1
+        write
+        if vit#GitCurrentFileStatus() != 4 && confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
             call vit#AddFilesToGit(expand("%"))
         endif
     endif
