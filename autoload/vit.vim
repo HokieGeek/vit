@@ -353,9 +353,14 @@ function! vit#ResetFilesInGitIndex(files)
 endfunction
 function! vit#GitCommit(args)
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
-    if &modified && confirm("Current file has changed. Save it?", "Y\nn", 1) == 1
-        write
-        if vit#GitCurrentFileStatus() != 4 && confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
+    " if &modified && confirm("Current file has changed. Save it?", "Y\nn", 1) == 1
+        " write
+        " if vit#GitCurrentFileStatus() != 4 && confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
+            " call vit#AddFilesToGit(expand("%"))
+        " endif
+    " endif
+    if vit#GitCurrentFileStatus() != 4
+        if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
             call vit#AddFilesToGit(expand("%"))
         endif
     endif
