@@ -84,18 +84,12 @@ function! Git(...) " {{{
     endif
 endfunction " }}}
 
-autocmd BufWritePost * call vit#RefreshGitStatus()
-autocmd BufWinEnter * command! -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
-" autocmd BufWinEnter * command! -buffer -complete=file -nargs=* Git :execute Git(<f-args>)
+command! DOrig :call vit#PopDiff("#")
+command! VitClear :call vit#ContentClear()
+
+
 autocmd BufWinEnter * call vit#init()
 
 " autocmd BufWinLeave * call vit#ExitVitWindow()
-
-nnoremap <silent> Uu :call vit#ContentClear()<cr>
-nnoremap <silent> Uo :call vit#PopDiff("#")<cr>
-nnoremap <silent> Ug :Git diff<cr>
-nnoremap <silent> Ub :Git blame<cr>
-nnoremap <silent> Ul :Git log<cr>
-nnoremap <silent> Us :Git status<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:

@@ -5,6 +5,12 @@ let g:autoloaded_vit = 1
 
 " Helpers {{{
 function! vit#init()
+    " Determine if we have a git executable
+    if !executable("git")
+        return
+    endif
+
+    " Determine the git dir
     let l:path = expand("%:p:h")
     while(l:path != "/" && l:path != "C:\\" && len(l:path) > 0)
         if filereadable(l:path."/.git")
@@ -22,7 +28,10 @@ function! vit#init()
         endif
         let l:path = fnamemodify(l:path, ":h")
     endwhile
-    return ""
+
+    " Add autocmds
+    autocmd BufWritePost * call vit#RefreshGitStatus()
+    command! -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
 endfunction
 
 function! vit#GetFilenameRelativeToGit(file)
@@ -405,7 +414,10 @@ function! vit#CreateCommitMessagePane(args)
     " Pop up a small window with for commit message
     let l:commit_message_file = tempname()
     let l:vit_git_dir = b:vit_git_dir
-    call system("git --git-dir=".l:vit_git_dir." status -sb | awk '{ print \"# \" $0 }' > ".l:commit_message_file)
+    if strlen(a:args) > 0
+        call system("echo '# ARGUMENTS: ".a:args."' > ".l:commit_message_file)
+    endif
+    call system("git --git-dir=".l:vit_git_dir." status -sb | awk '{ print \"# \" $0 }' >> ".l:commit_message_file)
     if expand("%") != ""
         mkview! 9
     endif
