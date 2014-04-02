@@ -332,7 +332,9 @@ function! vit#GitStatus()
 endfunction
 function! vit#RefreshGitStatus()
     for win_num in range(1, winnr('$'))
-        if getbufvar(winbufnr(win_num), '&filetype') == "VitStatus"
+        let l:buf_num = winbufnr(win_num)
+        if getbufvar(l:buf_num, '&filetype') == "VitStatus"
+            execute "bdelete! ".l:buf_num
             call vit#GitStatus()
             break
         endif
