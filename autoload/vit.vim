@@ -6,7 +6,7 @@ let g:autoloaded_vit = 1
 " Helpers {{{
 function! vit#init()
     " Determine if we have a git executable
-    if !executable("git")
+    if !executable("git") || strlen(bufname("%")) <= 0
         return
     endif
 
@@ -96,27 +96,10 @@ endfunction
 function! vit#GitCurrentFileStatus()
     return vit#GitFileStatus(vit#GetFilenameRelativeToGit(expand("%:t")))
 endfunction
-function! vit#ExitVitWindow()
-    if &filetype == "VitStatus" || &filetype == "VitLog" || &filetype == "VitShow" || &filetype == "VitDiff"
-        call vit#ContentClear()
-    endif
-endfunction
 " }}}
 
 " Load Content {{{
-function! vit#ContentClear()
-    if exists("g:vit_loaded_output")
-        set modifiable
-        bdelete vit_content
-        diffoff
-        if expand("%") != ""
-            silent loadview 9
-        endif
-        unlet! g:vit_loaded_output
-    endif
-endfunction
 function! vit#LoadContent(location, command)
-    let g:vit_loaded_output = 1
     let l:file_path = expand("%")
     if a:location == "left"
         topleft vnew
@@ -127,30 +110,26 @@ function! vit#LoadContent(location, command)
     elseif a:location == "bottom"
         botright new
     endif
-    set buftype=nofile bufhidden=wipe
+    set buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
     execute "silent read ".a:command
-    execute "silent file vit_content_".a:location
     0d_
     let b:vit_original_file = l:file_path
-    " nnoremap <buffer> <silent> q :<c-u>bdelete<cr>
 endfunction
 function! vit#PopDiff(command)
-    call vit#ContentClear()
-
     if expand("%") != ""
         mkview! 9
     endif
     call vit#LoadContent("left", a:command)
     set filetype=VitDiff
+    autocmd BufDelete,BufWipeout <buffer> windo diffoff
+    "|windo silent loadview 9
     wincmd l
     silent windo diffthis
     windo set nomodifiable
     0
-    set modifiable syntax=off
+    set modifiable "syntax=off
 endfunction
 function! vit#PopSynched(command)
-    call vit#ContentClear()
-
     if expand("%") != ""
         mkview! 9
     endif
@@ -158,7 +137,10 @@ function! vit#PopSynched(command)
     set nofoldenable
     0
     call vit#LoadContent("left", a:command)
-    windo set scrollbind nomodifiable
+    windo set scrollbind nomodifiable nonumber
+    if exists("&relativenumber")
+        windo set norelativenumber
+    endif
     execute l:cline
     set modifiable
 endfunction
@@ -171,22 +153,23 @@ function! vit#PopGitDiff(rev, file)
     else
         let l:file = vit#GetFilenameRelativeToGit(expand("%"))
     endif
-    call vit#PopDiff("!git --git-dir=".b:vit_git_dir." show ".a:rev.":".l:file)
+    if !exists("b:vit_git_dir")
+        let l:vit_git_dir = getbufvar(l:file, "vit_git_dir")
+    else
+        let l:vit_git_dir = b:vit_git_dir
+    endif
+    call vit#PopDiff("!git --git-dir=".l:vit_git_dir." show ".a:rev.":".l:file)
     wincmd t
     let b:git_revision = a:rev
     " wincmd l
 endfunction
 function! vit#PopGitDiffPrompt()
-    call vit#ContentClear()
-
     call inputsave()
     let l:response = input('Commit, tag or branch: ')
     call inputrestore()
     call vit#PopGitDiff(l:response, "")
 endfunction
 function! vit#PopGitBlame()
-    call vit#ContentClear()
-
     let l:file = vit#GetFilenameRelativeToGit(expand("%"))
     call vit#PopSynched("!git --git-dir=".b:vit_git_dir." blame --date=short ".l:file)
     wincmd p
@@ -204,8 +187,6 @@ function! vit#GetRevFromGitBlame()
     return l:rev
 endfunction
 function! vit#PopGitFileLog(file)
-    call vit#ContentClear()
-
     if expand("%") !=# ""
         mkview! 9
         let l:standalone = 1
@@ -237,22 +218,24 @@ function! vit#RefreshGitFileLog()
         endif
     endfor
 endfunction
-" function! vit#PopGitLogCurrentFile()
-    " call vit#PopGitFileLog("#")
-    " b:vit_original_file
-" endfunction
 function! vit#GetRevFromGitLog()
     let l:rev = system("echo '".getline(".")."' | cut -d '(' -f1 | awk '{ print $NF }'")
     let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
     return l:rev
 endfunction
 function! vit#PopGitShow(rev)
-    call vit#ContentClear()
     if expand("%") != ""
         mkview! 9
     endif
-    let b:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
+    " let b:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
+    if exists("b:vit_ref_file")
+        let l:vit_ref_file = b:vit_ref_file
+    else
+        let l:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
+        let b:vit_ref_file = l:vit_ref_file
+    endif
     call vit#LoadContent("top", "!git --git-dir=".b:vit_git_dir." show ".a:rev)
+    let b:vit_ref_file = l:vit_ref_file
     set filetype=VitShow nolist
     resize 25
     set nomodifiable nonumber
@@ -266,7 +249,7 @@ function! vit#OpenFilesInCommit(rev)
     let l:files = split(l:ret)
     if len(l:files) > 0
         silent execute "argadd ".join(l:files, ' ')
-        call vit#ContentClear()
+        bdelete
     else
         echohl WarningMsg
         echomsg "There are no files related to this commit"
@@ -278,28 +261,39 @@ function! vit#HandleRevisionSelection()
     if exists("b:vit_is_standalone")
         call vit#OpenFilesInCommit(l:rev)
     else
-        call vit#PopGitDiff(l:rev, b:vit_ref_file)
+        let l:file = b:vit_ref_file
+        bdelete
+        call vit#PopGitDiff(l:rev, l:file)
     endif
 endfunction
 function! vit#PopGitDiffFromShow()
-    " echomsg "Rev: ".b:git_revision
-    call vit#PopGitDiff(b:git_revision, b:vit_ref_file)
+    let l:rev = b:git_revision
+    let l:file = b:vit_ref_file
+    bdelete
+    call vit#PopGitDiff(l:rev, l:file)
 endfunction
 function! vit#PopGitDiffFromBlame()
-    call vit#PopGitDiff(vit#GetRevFromGitBlame(), b:vit_ref_file)
+    let l:rev = vit#GetRevFromGitBlame()
+    let l:file = b:vit_ref_file
+    bdelete
+    call vit#PopGitDiff(l:rev, l:file)
 endfunction
 function! vit#ShowFromLog()
-    call vit#PopGitShow(vit#GetRevFromGitLog())
+    let l:rev = vit#GetRevFromGitLog()
+    bdelete
+    call vit#PopGitShow(l:rev)
 endfunction
 function! vit#ShowFromDiff()
-    call vit#PopGitShow(b:git_revision)
+    let l:rev = b:git_revision
+    bdelete
+    call vit#PopGitShow(l:rev)
 endfunction
 function! vit#ShowFromBlame()
-    call vit#PopGitShow(vit#GetRevFromGitBlame())
+    let l:rev = vit#GetRevFromGitBlame()
+    bdelete
+    call vit#PopGitShow(l:rev)
 endfunction
 function! vit#GitStatus()
-    call vit#ContentClear()
-
     let l:is_panel=(expand("%") != "" ? 1 : 0)
     if l:is_panel
         mkview! 9
@@ -349,17 +343,18 @@ endfunction
 " External manipulators {{{
 function! vit#CheckoutFromLog()
     let l:rev = vit#GetRevFromGitLog()
-    call vit#ContentClear()
+    bdelete
     call vit#GitCheckoutCurrentFile(l:rev)
 endfunction
 function! vit#CheckoutFromBlame()
     let l:rev = vit#GetRevFromGitBlame()
-    call vit#ContentClear()
+    bdelete
     call vit#GitCheckoutCurrentFile(l:rev)
 endfunction
 function! vit#CheckoutFromBuffer()
-    call vit#ContentClear()
-    call vit#GitCheckoutCurrentFile(b:git_revision)
+    let l:rev = b:git_revision
+    bdelete
+    call vit#GitCheckoutCurrentFile(l:rev)
 endfunction
 function! vit#AddFilesToGit(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')

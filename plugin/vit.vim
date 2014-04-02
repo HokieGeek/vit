@@ -33,7 +33,7 @@ function! Git(...) " {{{
 
             if l:command == "log" || l:command == "lg"
                 if len(l:cmd_args) <= 0
-                    let l:cmd_args = "#"
+                    let l:cmd_args = expand("%")
                 endif
                 call vit#PopGitFileLog(l:cmd_args)
             elseif l:command == "add"
@@ -85,11 +85,7 @@ function! Git(...) " {{{
 endfunction " }}}
 
 command! DOrig :call vit#PopDiff("#")
-command! VitClear :call vit#ContentClear()
-
 
 autocmd BufWinEnter * call vit#init()
-
-" autocmd BufWinLeave * call vit#ExitVitWindow()
 
 " vim: set foldmethod=marker formatoptions-=tc:
