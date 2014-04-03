@@ -75,9 +75,7 @@ function! Git(...) " {{{
                 echohl None
             endif
         else
-            echohl WarningMsg
-            echomsg "No command given"
-            echohl None
+            call vit#GitStatus()
         endif
     else
         echomsg "Not in a git repository"

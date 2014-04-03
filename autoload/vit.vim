@@ -120,12 +120,12 @@ function! vit#PopDiff(command)
         mkview! 9
     endif
     call vit#LoadContent("left", a:command)
-    set filetype=VitDiff
+    set filetype=VitDiff nomodifiable
+    diffthis
     autocmd BufDelete,BufWipeout <buffer> windo diffoff
     "|windo silent loadview 9
     wincmd l
-    silent windo diffthis
-    windo set nomodifiable
+    diffthis
     0
     set modifiable "syntax=off
 endfunction
@@ -419,8 +419,8 @@ function! vit#CreateCommitMessagePane(args)
         mkview! 9
     endif
     botright new
-    let b:vit_git_dir = l:vit_git_dir
     execute "edit ".l:commit_message_file
+    let b:vit_git_dir = l:vit_git_dir
     let b:vit_commit_args = a:args
     resize 10
     set filetype=gitcommit
