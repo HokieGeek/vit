@@ -128,14 +128,14 @@ function! vit#PopDiff(command)
         mkview! 9
     endif
     call vit#LoadContent("left", a:command)
-    set filetype=VitDiff nomodifiable
+    setlocal filetype=VitDiff nomodifiable
     diffthis
     autocmd BufDelete,BufWipeout <buffer> windo diffoff
     "|windo silent loadview 9
     wincmd l
     diffthis
     0
-    set modifiable "syntax=off
+    setlocal modifiable "syntax=off
 endfunction
 function! vit#PopSynched(command)
     if expand("%") != ""
@@ -145,12 +145,12 @@ function! vit#PopSynched(command)
     set nofoldenable
     0
     call vit#LoadContent("left", a:command)
-    windo set scrollbind nomodifiable nonumber
+    windo setlocal scrollbind nomodifiable nonumber
     if exists("&relativenumber")
         windo set norelativenumber
     endif
     execute l:cline
-    set modifiable
+    setlocal modifiable
 endfunction
 " }}}
 
@@ -211,7 +211,7 @@ function! vit#PopGitFileLog(file)
     else
         resize 10
     endif
-    set nomodifiable nonumber
+    setlocal nomodifiable nonumber
     if exists("&relativenumber")
         set norelativenumber
     endif
@@ -251,7 +251,7 @@ function! vit#PopGitShow(rev)
     else
         resize 25
     endif
-    set nomodifiable nonumber
+    setlocal nomodifiable nonumber
     if exists("&relativenumber")
         set norelativenumber
     endif
@@ -263,7 +263,7 @@ function! vit#OpenFilesInCommit(rev)
     let l:files = split(l:ret)
     if len(l:files) > 0
         bdelete
-        set modifiable
+        setlocal modifiable
         silent execute "argadd ".join(l:files, ' ')
         bdelete %
         if exists("b:vit_is_standalone")
@@ -338,7 +338,7 @@ function! vit#GitStatus()
     execute "vertical resize ".l:max_cols
 
     set filetype=VitStatus
-    set nolist nomodifiable nonumber "cursorline
+    setlocal nolist nomodifiable nonumber "cursorline
     if exists("&relativenumber")
         set norelativenumber
     endif
@@ -457,7 +457,7 @@ function! vit#CreateCommitMessagePane(args)
     let b:vit_commit_args = a:args
     resize 10
     set filetype=gitcommit
-    set modifiable
+    setlocal modifiable
     call append(0, "")
     autocmd BufWinLeave <buffer> call vit#GitCommitFinish()
 endfunction
