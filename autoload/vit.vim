@@ -5,13 +5,20 @@ let g:autoloaded_vit = 1
 
 " Helpers {{{
 function! vit#init()
+    " echomsg "init: ".getcwd()
     " Determine if we have a git executable
-    if !executable("git") || strlen(bufname("%")) <= 0
+    if !executable("git")
+        return
+    endif
+
+    if expand("%") ==# "" && argc() <= 0
+        let b:vit_is_standalone = 0
+    elseif strlen(bufname("%")) <= 0
         return
     endif
 
     " Determine the git dir
-    let l:path = expand("%:p:h")
+    let l:path = exists("b:vit_is_standalone") ?  getcwd() : expand("%:p:h")
     while(l:path != "/" && l:path != "C:\\" && len(l:path) > 0)
         if filereadable(l:path."/.git")
             execute "cd ".l:path
@@ -28,10 +35,11 @@ function! vit#init()
         endif
         let l:path = fnamemodify(l:path, ":h")
     endwhile
+    " echomsg "ROOT DIR: ".b:vit_root_dir
 
     " Add autocmds
     autocmd BufWritePost * call vit#RefreshGitStatus()
-    command! -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
+    command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
 endfunction
 
 function! vit#GetFilenameRelativeToGit(file)
@@ -187,18 +195,18 @@ function! vit#GetRevFromGitBlame()
     return l:rev
 endfunction
 function! vit#PopGitFileLog(file)
-    if expand("%") !=# ""
-        mkview! 9
-        let l:standalone = 1
+    if exists("b:vit_is_standalone")
+        let l:file = ""
     else
-        let l:standalone = 0
+        mkview! 9
+        let l:file = vit#GetFilenameRelativeToGit(a:file)
     endif
-    let l:file = vit#GetFilenameRelativeToGit(a:file)
     call vit#LoadContent("top", "!git --git-dir=".b:vit_git_dir." log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".l:file)
     set filetype=VitLog nolist cursorline
-    if l:standalone == 0
-        let b:vit_is_standalone = 0
-        bdelete 1
+    if exists("b:vit_is_standalone")
+        if bufnr("$") > 1
+            bdelete #
+        endif
         resize
     else
         resize 10
@@ -236,8 +244,13 @@ function! vit#PopGitShow(rev)
     endif
     call vit#LoadContent("top", "!git --git-dir=".b:vit_git_dir." show ".a:rev)
     let b:vit_ref_file = l:vit_ref_file
-    set filetype=VitShow nolist
-    resize 25
+    set filetype=VitShow nolist nocursorline
+    if exists("b:vit_is_standalone")
+        bdelete #
+        resize
+    else
+        resize 25
+    endif
     set nomodifiable nonumber
     if exists("&relativenumber")
         set norelativenumber
@@ -245,11 +258,17 @@ function! vit#PopGitShow(rev)
     let b:git_revision = a:rev
 endfunction
 function! vit#OpenFilesInCommit(rev)
-    let l:ret = system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ print $2 }'")
+    let l:rel_dir = substitute(getcwd(), b:vit_root_dir."/", "", "")."/"
+    let l:ret = system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ sub(\"".l:rel_dir."\", \"\", $2); print $2 }'")
     let l:files = split(l:ret)
     if len(l:files) > 0
-        silent execute "argadd ".join(l:files, ' ')
         bdelete
+        set modifiable
+        silent execute "argadd ".join(l:files, ' ')
+        bdelete %
+        if exists("b:vit_is_standalone")
+            unlet! b:vit_is_standalone
+        endif
     else
         echohl WarningMsg
         echomsg "There are no files related to this commit"
@@ -328,6 +347,20 @@ function! vit#GitStatus()
         wincmd t
     else
         only
+    endif
+endfunction
+function! vit#LoadFileFromStatus(line)
+    let l:file = split(a:line)[1]
+    if exists("b:vit_is_standalone")
+        if bufloaded(l:file)
+            execute "wincmd ".bufwinnr(l:file)
+            call vit#PopGitDiff('', '')
+        else
+            wincmd h
+            execute "edit ".l:file
+        endif
+    else
+        execute "edit ".l:file
     endif
 endfunction
 function! vit#RefreshGitStatus()
