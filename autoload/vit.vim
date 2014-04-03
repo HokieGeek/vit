@@ -108,6 +108,8 @@ endfunction
 
 " Load Content {{{
 function! vit#LoadContent(location, command)
+    let l:command = "!cd ".b:vit_root_dir."; ".a:command
+    " echomsg "cmd: ".l:command
     let l:file_path = expand("%")
     if a:location == "left"
         topleft vnew
@@ -119,7 +121,7 @@ function! vit#LoadContent(location, command)
         botright new
     endif
     set buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
-    execute "silent read ".a:command
+    execute "silent read ".l:command
     0d_
     let b:vit_original_file = l:file_path
 endfunction
@@ -166,7 +168,7 @@ function! vit#PopGitDiff(rev, file)
     else
         let l:vit_git_dir = b:vit_git_dir
     endif
-    call vit#PopDiff("!git --git-dir=".l:vit_git_dir." show ".a:rev.":".l:file)
+    call vit#PopDiff("git --git-dir=".l:vit_git_dir." show ".a:rev.":".l:file)
     wincmd t
     let b:git_revision = a:rev
     " wincmd l
@@ -179,7 +181,7 @@ function! vit#PopGitDiffPrompt()
 endfunction
 function! vit#PopGitBlame()
     let l:file = vit#GetFilenameRelativeToGit(expand("%"))
-    call vit#PopSynched("!git --git-dir=".b:vit_git_dir." blame --date=short ".l:file)
+    call vit#PopSynched("git --git-dir=".b:vit_git_dir." blame --date=short ".l:file)
     wincmd p
     let b:vit_ref_file = l:file
     set filetype=VitBlame cursorline
@@ -201,7 +203,7 @@ function! vit#PopGitFileLog(file)
         mkview! 9
         let l:file = vit#GetFilenameRelativeToGit(a:file)
     endif
-    call vit#LoadContent("top", "!git --git-dir=".b:vit_git_dir." log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' ".l:file)
+    call vit#LoadContent("top", "git --git-dir=".b:vit_git_dir." log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' -- ".l:file)
     set filetype=VitLog nolist cursorline
     if exists("b:vit_is_standalone")
         if bufnr("$") > 1
@@ -242,7 +244,7 @@ function! vit#PopGitShow(rev)
         let l:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
         let b:vit_ref_file = l:vit_ref_file
     endif
-    call vit#LoadContent("top", "!git --git-dir=".b:vit_git_dir." show ".a:rev)
+    call vit#LoadContent("top", "git --git-dir=".b:vit_git_dir." show ".a:rev)
     let b:vit_ref_file = l:vit_ref_file
     set filetype=VitShow nolist nocursorline
     if exists("b:vit_is_standalone")
@@ -318,8 +320,9 @@ function! vit#GitStatus()
         mkview! 9
     endif
 
+    " execute "cd ".b:vit_root_dir
     execute "cd ".b:vit_root_dir
-    call vit#LoadContent("right", "!git --git-dir=".b:vit_git_dir." status -sb")
+    call vit#LoadContent("right", "git --git-dir=".b:vit_git_dir." status -sb")
     cd -
 
     " Set width of the window based on the widest text
