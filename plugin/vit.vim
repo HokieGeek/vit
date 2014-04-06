@@ -5,6 +5,7 @@ let g:loaded_vit = 1
 let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commit", "status", "push", "pull"]
 
 function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
+    " TODO: if arg_lead is 'add', then do a filename completion at b:vit_git_dir
     if len(split(a:cmd_line)) <= 2
         if a:arg_lead == ''
             return g:vit_commands
@@ -14,22 +15,11 @@ function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
     endif
 endfunction " }}}
 function! Git(...) " {{{
-    " echo "Git: ".a:1.": ".a:0
     if exists("b:vit_git_dir")
         if a:0 > 0
+            echomsg "Git(".string(a:000).")"
             let l:command = a:1
             let l:cmd_args = join(a:000[1:], ' ')
-
-            " FIXME: HOLY CRAP WHAT ARE YOU DOING? just get a subset of a:000
-            " let l:cmd_args = ""
-            " let l:i = 2
-            " let l:num_args = a:0
-            " while l:i <= l:num_args
-                " execute "let l:cmd_args .= ' '.a:".l:i
-                " let l:i += 1
-            " endwhile
-
-            " echomsg "cmd_args = ".l:cmd_args
 
             if l:command == "log" || l:command == "lg"
                 if len(l:cmd_args) <= 0
@@ -52,15 +42,13 @@ function! Git(...) " {{{
                 endif
                 call vit#GitCheckoutCurrentFile(l:cmd_args)
             elseif l:command == "diff"
-                " echomsg "diff: ".len(l:cmd_args).": ".l:cmd_args
                 if len(l:cmd_args) <= 0
                     call vit#PopGitDiffPrompt()
                 else
-                    " echomsg "HERE"
                     call vit#PopGitDiff(l:cmd_args)
                 endif
             elseif l:command == "push"
-                call vit#GitPush("TODO", "TODO")
+                call vit#GitPush("", "")
             elseif l:command == "pull"
                 call vit#GitPull("TODO", "TODO", 0)
             elseif l:command == "commit"
