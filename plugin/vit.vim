@@ -5,8 +5,10 @@ let g:loaded_vit = 1
 let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commit", "status", "push", "pull"]
 
 function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
-    " TODO: if arg_lead is 'add', then do a filename completion at b:vit_git_dir
-    if len(split(a:cmd_line)) <= 2
+    if a:cmd_line =~# "^Git add "
+        let l:files = split(glob(b:vit_root_dir."/".a:arg_lead."*"))
+        return map(l:files, 'substitute(v:val, b:vit_root_dir."/", "", "")')
+    elseif len(split(a:cmd_line)) <= 2
         if a:arg_lead == ''
             return g:vit_commands
         else
@@ -17,7 +19,7 @@ endfunction " }}}
 function! Git(...) " {{{
     if exists("b:vit_git_dir")
         if a:0 > 0
-            echomsg "Git(".string(a:000).")"
+            " echomsg "Git(".string(a:000).")"
             let l:command = a:1
             let l:cmd_args = join(a:000[1:], ' ')
 
@@ -48,8 +50,17 @@ function! Git(...) " {{{
                     call vit#PopGitDiff(l:cmd_args)
                 endif
             elseif l:command == "push"
-                call vit#GitPush("", "")
+                if len(l:cmd_args) <= 0
+                    call vit#GitPush("", "")
+                else
+                    call vit#GitPush(a:000[2], a:000[3])
+                endif
             elseif l:command == "pull"
+                " if len(l:cmd_args) <= 0
+                    " call vit#GitPull("", "", 0)
+                " else
+                    " call vit#GitPull(a:000[2], a:000[3], 0)
+                " endif
                 call vit#GitPull("TODO", "TODO", 0)
             elseif l:command == "commit"
                 call vit#GitCommit(l:cmd_args)

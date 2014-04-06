@@ -91,6 +91,7 @@ function! vit#GetGitBranch()
 endfunction
 
 function! vit#GitFileStatus(file)
+    " echomsg "GitFileStatus(".a:file.")"
     " let l:status = system("git status --porcelain | grep '\<".a:file."\>$'")
     let l:file = vit#GetFilenameRelativeToGit(a:file)
     execute "cd ".b:vit_root_dir
@@ -115,7 +116,7 @@ function! vit#GitFileStatus(file)
     return l:status_val
 endfunction
 function! vit#GitCurrentFileStatus()
-    return vit#GitFileStatus(vit#GetFilenameRelativeToGit(expand("%:t")))
+    return vit#GitFileStatus(expand("%"))
 endfunction
 
 function! vit#ExecuteGit(args)
@@ -466,9 +467,12 @@ function! vit#GitCommit(args)
     endif
 
     " If a message was already entered, just commit
+    echomsg "l:args = ".l:args
     if match(l:args, " *-m ") > -1 || match(l:args, " *--message=") > -1
+        " echomsg "Commit"
         call vit#PerformCommit(l:args)
     else " otherwise, open a window to enter the message
+        " echomsg "Pane"
         call vit#CreateCommitMessagePane(l:args)
     endif
 endfunction
@@ -494,7 +498,9 @@ function! vit#CreateCommitMessagePane(args)
     autocmd BufWinLeave <buffer> call vit#GitCommitFinish()
 endfunction
 function! vit#PerformCommit(args)
+    execute "cd ".b:vit_root_dir
     call system("git --git-dir=".b:vit_git_dir." commit ".a:args)
+    cd -
     echomsg "Successfully committed"
     call vit#RefreshGitStatus()
     call vit#RefreshGitFileLog()
