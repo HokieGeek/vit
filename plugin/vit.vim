@@ -53,7 +53,7 @@ function! Git(...) " {{{
                 if len(l:cmd_args) <= 0
                     call vit#GitPush("", "")
                 else
-                    call vit#GitPush(a:000[2], a:000[3])
+                    call vit#GitPush(a:000[1], a:000[2])
                 endif
             elseif l:command == "pull"
                 " if len(l:cmd_args) <= 0
