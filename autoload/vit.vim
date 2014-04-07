@@ -245,7 +245,7 @@ function! vit#PopGitFileLog(file)
         set norelativenumber
     endif
     call cursor(line("."), 2)
-    let b:vit_ref_file = a:file
+    let b:vit_ref_file = l:file
 endfunction
 function! vit#RefreshGitFileLog()
     for win_num in range(1, winnr('$'))
@@ -467,12 +467,9 @@ function! vit#GitCommit(args)
     endif
 
     " If a message was already entered, just commit
-    echomsg "l:args = ".l:args
     if match(l:args, " *-m ") > -1 || match(l:args, " *--message=") > -1
-        " echomsg "Commit"
         call vit#PerformCommit(l:args)
     else " otherwise, open a window to enter the message
-        " echomsg "Pane"
         call vit#CreateCommitMessagePane(l:args)
     endif
 endfunction
@@ -483,19 +480,21 @@ function! vit#CreateCommitMessagePane(args)
     if strlen(a:args) > 0
         call system("echo '# ARGUMENTS: ".a:args."' > ".l:commit_message_file)
     endif
+    execute "cd ".b:vit_root_dir
     call system("git --git-dir=".l:vit_git_dir." status -sb | awk '{ print \"# \" $0 }' >> ".l:commit_message_file)
+    cd -
     if expand("%") != ""
         mkview! 9
     endif
     botright new
-    execute "edit ".l:commit_message_file
     let b:vit_git_dir = l:vit_git_dir
     let b:vit_commit_args = a:args
     resize 10
+    execute "edit ".l:commit_message_file
     set filetype=gitcommit
     setlocal modifiable
     call append(0, "")
-    autocmd BufWinLeave <buffer> call vit#GitCommitFinish()
+    " autocmd BufWinLeave <buffer> call vit#GitCommitFinish()
 endfunction
 function! vit#PerformCommit(args)
     execute "cd ".b:vit_root_dir

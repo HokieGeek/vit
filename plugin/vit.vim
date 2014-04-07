@@ -7,7 +7,9 @@ let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commi
 function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
     if a:cmd_line =~# "^Git add "
         let l:files = split(glob(b:vit_root_dir."/".a:arg_lead."*"))
-        return map(l:files, 'substitute(v:val, b:vit_root_dir."/", "", "")')
+        let l:files = map(l:files, 'v:val.(isdirectory(v:val)?"/":"")')
+        let l:files = map(l:files, 'substitute(v:val, b:vit_root_dir."/", "", "")')
+        return l:files
     elseif len(split(a:cmd_line)) <= 2
         if a:arg_lead == ''
             return g:vit_commands
