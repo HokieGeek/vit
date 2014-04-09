@@ -121,11 +121,11 @@ endfunction
 
 function! vit#ExecuteGit(args)
     if exists("b:vit_root_dir") && exists("b:vit_git_dir") && strlen(a:args) > 0
-        echomsg "ExecuteGit(".a:args.")"
+        " echomsg "ExecuteGit(".a:args.")"
         execute "cd ".b:vit_root_dir
         let l:ret = system("git --git-dir=".b:vit_git_dir." ".a:args)
         cd -
-        echomsg "ExecuteGit(): ".l:ret
+        " echomsg "ExecuteGit(): ".l:ret
         return l:ret
     endif
 endfunction
@@ -425,15 +425,17 @@ endfunction
 function! vit#AddFilesToGit(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
     " echomsg l:files
-    execute "cd ".b:vit_root_dir
-    call system("git --git-dir=".b:vit_git_dir." add ".l:files)
-    cd -
+    call vit#ExecuteGit("add ".l:files)
+    " execute "cd ".b:vit_root_dir
+    " call system("git --git-dir=".b:vit_git_dir." add ".l:files)
+    " cd -
     echo "Added ".a:files." to the stage"
     call vit#RefreshGitStatus()
 endfunction
 function! vit#ResetFilesInGitIndex(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
-    call system("git --git-dir=".b:vit_git_dir." reset ".l:files)
+    call vit#ExecuteGit("reset ".l:files)
+    " call system("git --git-dir=".b:vit_git_dir." reset ".l:files)
     echomsg "Unstaged ".a:files
     call vit#RefreshGitStatus()
 endfunction
@@ -480,9 +482,10 @@ function! vit#CreateCommitMessagePane(args)
     if strlen(a:args) > 0
         call system("echo '# ARGUMENTS: ".a:args."' > ".l:commit_message_file)
     endif
-    execute "cd ".b:vit_root_dir
-    call system("git --git-dir=".l:vit_git_dir." status -sb | awk '{ print \"# \" $0 }' >> ".l:commit_message_file)
-    cd -
+    call vit#ExecuteGit("status -sb | awk '{ print \"# \" $0 }' >> ".l:commit_message_file)
+    " execute "cd ".b:vit_root_dir
+    " call system("git --git-dir=".l:vit_git_dir." status -sb | awk '{ print \"# \" $0 }' >> ".l:commit_message_file)
+    " cd -
     if expand("%") != ""
         mkview! 9
     endif
@@ -497,9 +500,10 @@ function! vit#CreateCommitMessagePane(args)
     " autocmd BufWinLeave <buffer> call vit#GitCommitFinish()
 endfunction
 function! vit#PerformCommit(args)
-    execute "cd ".b:vit_root_dir
-    call system("git --git-dir=".b:vit_git_dir." commit ".a:args)
-    cd -
+    call vit#ExecuteGit("commit ".a:args)
+    " execute "cd ".b:vit_root_dir
+    " call system("git --git-dir=".b:vit_git_dir." commit ".a:args)
+    " cd -
     echomsg "Successfully committed"
     call vit#RefreshGitStatus()
     call vit#RefreshGitFileLog()
@@ -523,7 +527,8 @@ endfunction
 function! vit#GitCheckoutCurrentFile(rev)
     " let l:file = expand("%")
     let l:file = vit#GetFilenameRelativeToGit(expand("%"))
-    call system("git --git-dir=".b:vit_git_dir." checkout ".a:rev." ".l:file)
+    call vit#ExecuteGit("checkout ".a:rev." ".l:file)
+    " call system("git --git-dir=".b:vit_git_dir." checkout ".a:rev." ".l:file)
     edit l:file
     call vit#RefreshGitStatus()
     call vit#RefreshGitFileLog()
@@ -534,19 +539,21 @@ function! vit#GitPush(remote, branch)
     " echomsg "REMOTE: ".l:remote
     " echomsg "BRANCH: ".l:branch
 
-    execute "cd ".b:vit_root_dir
+    call vit#ExecuteGit("push ".l:remote." ".l:branch)
+    " execute "cd ".b:vit_root_dir
     " echomsg "git --git-dir=".b:vit_git_dir." push ".l:remote." ".l:branch
-    call system("git --git-dir=".b:vit_git_dir." push ".l:remote." ".l:branch)
-    cd -
+    " call system("git --git-dir=".b:vit_git_dir." push ".l:remote." ".l:branch)
+    " cd -
 endfunction
 function! vit#GitPull(remote, branch, rebase)
     let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetGitRemote()
     let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetGitBranch()
     let l:rebase = a:rebase ? "--rebase" : ""
 
-    execute "cd ".b:vit_root_dir
-    call system("git --git-dir=".b:vit_git_dir." ".l:rebase." pull ".l:remote."/".l:branch)
-    cd -
+    call vit#ExecuteGit("pull ".l:rebase." ".l:remote."/".l:branch)
+    " execute "cd ".b:vit_root_dir
+    " call system("git --git-dir=".b:vit_git_dir." ".l:rebase." pull ".l:remote."/".l:branch)
+    " cd -
 endfunction
 " }}}
 
