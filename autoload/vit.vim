@@ -540,6 +540,7 @@ function! vit#GitPush(remote, branch)
     " echomsg "BRANCH: ".l:branch
 
     call vit#ExecuteGit("push ".l:remote." ".l:branch)
+    call vit#RefreshGitStatus()
     " execute "cd ".b:vit_root_dir
     " echomsg "git --git-dir=".b:vit_git_dir." push ".l:remote." ".l:branch
     " call system("git --git-dir=".b:vit_git_dir." push ".l:remote." ".l:branch)
@@ -551,6 +552,7 @@ function! vit#GitPull(remote, branch, rebase)
     let l:rebase = a:rebase ? "--rebase" : ""
 
     call vit#ExecuteGit("pull ".l:rebase." ".l:remote."/".l:branch)
+    call vit#RefreshGitStatus()
     " execute "cd ".b:vit_root_dir
     " call system("git --git-dir=".b:vit_git_dir." ".l:rebase." pull ".l:remote."/".l:branch)
     " cd -
