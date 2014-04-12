@@ -11,7 +11,7 @@ function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
         let l:files = map(l:files, 'substitute(v:val, b:vit_root_dir."/", "", "")')
         return l:files
     elseif len(split(a:cmd_line)) <= 2
-        if a:arg_lead == ''
+        if a:arg_lead ==? ''
             return g:vit_commands
         else
             return filter(g:vit_commands, 'v:val[0:strlen(a:arg_lead)-1] ==? a:arg_lead')
@@ -25,33 +25,33 @@ function! Git(...) " {{{
             let l:command = a:1
             let l:cmd_args = join(a:000[1:], ' ')
 
-            if l:command == "log" || l:command == "lg"
+            if l:command ==# "log" || l:command ==# "lg"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
                 call vit#PopGitFileLog(l:cmd_args)
-            elseif l:command == "add"
+            elseif l:command ==# "add"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
                 call vit#AddFilesToGit(l:cmd_args)
-            elseif l:command == "reset"
+            elseif l:command ==# "reset"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
                 call vit#ResetFilesInGitIndex(l:cmd_args)
-            elseif l:command == "checkout" || l:command == "co"
+            elseif l:command ==# "checkout" || l:command ==# "co"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = "HEAD"
                 endif
                 call vit#GitCheckoutCurrentFile(l:cmd_args)
-            elseif l:command == "diff"
+            elseif l:command ==# "diff"
                 if len(l:cmd_args) <= 0
                     call vit#PopGitDiffPrompt()
                 else
                     call vit#PopGitDiff(l:cmd_args)
                 endif
-            elseif l:command == "push"
+            elseif l:command ==# "push"
                 if len(l:cmd_args) <= 0
                     call vit#GitPush("", "")
                 " elseif a:0 == 2
@@ -59,18 +59,18 @@ function! Git(...) " {{{
                 elseif a:0 > 2
                     call vit#GitPush(a:000[1], a:000[2])
                 endif
-            elseif l:command == "pull"
+            elseif l:command ==# "pull"
                 " if len(l:cmd_args) <= 0
                     " call vit#GitPull("", "", 0)
                 " else
                     " call vit#GitPull(a:000[2], a:000[3], 0)
                 " endif
                 call vit#GitPull("TODO", "TODO", 0)
-            elseif l:command == "commit"
+            elseif l:command ==# "commit"
                 call vit#GitCommit(l:cmd_args)
-            elseif l:command == "blame"
+            elseif l:command ==# "blame"
                 call vit#PopGitBlame()
-            elseif l:command == "status" || l:command == "st"
+            elseif l:command ==# "status" || l:command ==# "st"
                 call vit#GitStatus()
             else
                 echohl WarningMsg
