@@ -5,7 +5,11 @@ let g:autoloaded_vit = 1
 
 " Helpers {{{
 function! vit#init()
-    " echomsg "init: ".getcwd()
+    if exists("b:vit_initialized")
+        return
+    endif
+    let b:vit_initialized = 0
+
     " Determine if we have a git executable
     if !executable("git")
         return

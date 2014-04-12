@@ -87,6 +87,6 @@ endfunction " }}}
 
 command! DOrig :call vit#PopDiff("#")
 
-autocmd BufWinEnter * call vit#init()
+autocmd BufWinEnter * call vit#init() | call vit#RefreshGitStatus()
 
 " vim: set foldmethod=marker formatoptions-=tc:
