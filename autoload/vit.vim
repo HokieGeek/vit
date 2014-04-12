@@ -136,13 +136,13 @@ function! vit#LoadContent(location, command)
     let l:command = "!cd ".b:vit_root_dir."; ".a:command
     " echomsg "cmd: ".l:command
     let l:file_path = expand("%")
-    if a:location == "left"
+    if a:location ==? "left"
         topleft vnew
-    elseif a:location == "right"
+    elseif a:location ==? "right"
         botright vnew
-    elseif a:location == "top"
+    elseif a:location ==? "top"
         topleft new
-    elseif a:location == "bottom"
+    elseif a:location ==? "bottom"
         botright new
     endif
     set buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
@@ -151,7 +151,7 @@ function! vit#LoadContent(location, command)
     let b:vit_original_file = l:file_path
 endfunction
 function! vit#PopDiff(command)
-    if expand("%") != ""
+    if expand("%") !=? ""
         mkview! 9
     endif
     call vit#LoadContent("left", a:command)
@@ -165,7 +165,7 @@ function! vit#PopDiff(command)
     setlocal modifiable "syntax=off
 endfunction
 function! vit#PopSynched(command)
-    if expand("%") != ""
+    if expand("%") !=? ""
         mkview! 9
     endif
     let l:cline = line(".")
@@ -261,7 +261,7 @@ function! vit#GetRevFromGitLog()
     return l:rev
 endfunction
 function! vit#PopGitShow(rev)
-    if expand("%") != ""
+    if expand("%") !=? ""
         mkview! 9
     endif
     " let b:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
@@ -349,7 +349,7 @@ function! vit#GitStatus()
         endif
     endfor
 
-    let l:is_panel=(expand("%") != "" ? 1 : 0)
+    let l:is_panel=(expand("%") !=? "" ? 1 : 0)
     if l:is_panel
         mkview! 9
     endif
