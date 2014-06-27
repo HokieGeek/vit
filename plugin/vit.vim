@@ -49,7 +49,7 @@ function! Git(...) " {{{
                 if len(l:cmd_args) <= 0
                     call vit#PopGitDiffPrompt()
                 else
-                    call vit#PopGitDiff(l:cmd_args)
+                    call vit#PopGitDiff(l:cmd_args, "")
                 endif
             elseif l:command ==# "push"
                 if len(l:cmd_args) <= 0
