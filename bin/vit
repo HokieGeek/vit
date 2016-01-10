@@ -3,24 +3,24 @@
 usage() {
     {
     [ $# -gt 0 ] && echo -e "${1}\n"
-    echo "USAGE: `basename $0` <command> <arguments>"
+    echo "USAGE: `basename $0` [command [arguments]]"
     more << USAGE_INFO
         Commands:
 
-        log (lg) - Opens vim with the git log of the current repo
+        log (lg) - Opens vim with the git log of the current repo (default command)
         status (st) - Displays the status of the current repo
-        show (sh) - Displays the status of a revision
 USAGE_INFO
+        # show (sh) - Displays the status of a revision
     } >&2
 }
 
-if [ $# -le 0 ]; then
-    usage
-    exit 1
-fi
+# if [ $# -le 0 ]; then
+    # cmd="log"
+    # usage
+    # exit 1
+# fi
 
-cmd=$1
-shift
+[ $# -le 0 ] && cmd="log" || { cmd=$1; shift; }
 case $cmd in
 log|lg)
     if [ $# -gt 0 ]; then
@@ -31,7 +31,7 @@ log|lg)
     fi
     ;;
 status|st) exec vim -c "Git status" ;;
-show|sh) exec vim -c "Git show" ;;
+# show|sh) exec vim -c "Git show" ;;
 esac
 
 # exec vim ${vit_cmds}
