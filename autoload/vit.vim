@@ -2,6 +2,7 @@ if exists("g:autoloaded_vit") || v:version < 700
     finish
 endif
 let g:autoloaded_vit = 1
+scriptencoding utf-8
 
 " Helpers {{{
 function! vit#init()
@@ -44,17 +45,11 @@ function! vit#init()
 endfunction
 
 function! vit#GetFilenameRelativeToGit(file)
-    " echomsg "a:file = ".a:file
-    " echomsg "a:file (m) = ".fnamemodify(a:file, ":p")
-    " echomsg "b:vit_root_dir = ".b:vit_root_dir."/"
     let l:file = substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', '')
-    " echomsg "l:file = ".l:file
     return l:file
-    " return substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', '')
 endfunction
 
 function! vit#GetFilenamesRelativeToGit(file_list)
-    " return a:file_list
     let l:files = []
     for f in a:file_list
         call add(l:files, vit#GetFilenameRelativeToGit(f))
@@ -66,6 +61,7 @@ function! vit#GetGitRemote()
     let l:remote = ""
     if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
         execute "cd ".b:vit_root_dir
+        " TODO: grep out .gitconfig for this value?
         let l:remotes = split(system("git --git-dir=".b:vit_git_dir." remote -v | grep push | awk '{ print $1 }'"))
         cd -
         if len(l:remotes) == 0
@@ -85,15 +81,12 @@ function! vit#GetGitBranch()
     if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
         let l:file = readfile(b:vit_git_dir."/HEAD")
         return substitute(l:file[0], 'ref: refs/heads/', '', '')
-        " return l:branch
     else
         return ""
     endif
 endfunction
 
 function! vit#GitFileStatus(file)
-    " echomsg "GitFileStatus(".a:file.")"
-    " let l:file = vit#GetFilenameRelativeToGit(a:file)
     let l:file = fnamemodify(a:file, ":p")
     let l:status = vit#ExecuteGit("status --porcelain ".l:file)
 
@@ -152,20 +145,6 @@ function! vit#PopDiff(content)
     0
     setlocal modifiable "syntax=off
 endfunction
-function! vit#PopSynched(content)
-    if len(expand("%")) == 0
-        mkview! 9
-    endif
-    let l:cline = getcurpos()[1]
-    set nofoldenable
-    call vit#LoadContent("left", a:content)
-    windo setlocal scrollbind
-    " windo setlocal scrollbind nomodifiable nonumber
-    " if exists("&relativenumber")
-        " windo set norelativenumber
-    " endif
-    call cursor(l:cline, 0)
-endfunction
 " }}}
 
 " Loaded in windows {{{
@@ -214,7 +193,6 @@ endfunction
 function! vit#GetRevFromGitBlame()
     let l:rev = system("echo '".getline(".")."' | awk '{ print $1 }'")
     let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
-    " echomsg "Blame rev: ".l:rev
     return l:rev
 endfunction
 function! vit#PopGitFileLog(file)
@@ -349,11 +327,7 @@ function! vit#GitStatus()
 
     let l:git_dir = b:vit_git_dir
     let l:root_dir = b:vit_root_dir
-    " echomsg "git1: ".l:git_dir
-    " echomsg "root1: ".l:root_dir
-    execute "cd ".b:vit_root_dir
     call vit#LoadContent("right", vit#ExecuteGit("status -s"))
-    cd -
 
     " Set width of the window based on the widest text
     set winminwidth=1
@@ -365,8 +339,6 @@ function! vit#GitStatus()
     if exists("&relativenumber")
         set norelativenumber
     endif
-    " echomsg "git2: ".l:git_dir
-    " echomsg "root2: ".l:root_dir
     let b:vit_git_dir = l:git_dir
     let b:vit_root_dir = l:root_dir
 
@@ -377,9 +349,7 @@ function! vit#GitStatus()
     endif
 endfunction
 function! vit#LoadFileFromStatus(line)
-    " let l:file = vit#GetFilenameRelativeToGit(split(a:line)[1])
     let l:file = b:vit_root_dir."/".split(a:line)[1]
-    " echomsg "l:file = ".l:file
     execute bufwinnr(l:file)."wincmd w"
     if bufloaded(l:file)
         call vit#PopGitDiff('', '')
@@ -417,18 +387,13 @@ function! vit#CheckoutFromBuffer()
 endfunction
 function! vit#AddFilesToGit(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
-    " echomsg l:files
     call vit#ExecuteGit("add ".l:files)
-    " execute "cd ".b:vit_root_dir
-    " call system("git --git-dir=".b:vit_git_dir." add ".l:files)
-    " cd -
     echo "Added ".a:files." to the stage"
     call vit#RefreshGitStatus()
 endfunction
 function! vit#ResetFilesInGitIndex(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
     call vit#ExecuteGit("reset ".l:files)
-    " call system("git --git-dir=".b:vit_git_dir." reset ".l:files)
     echomsg "Unstaged ".a:files
     call vit#RefreshGitStatus()
 endfunction
@@ -476,9 +441,6 @@ function! vit#CreateCommitMessagePane(args)
         call system("echo '# ARGUMENTS: ".a:args."' > ".l:commit_message_file)
     endif
     call vit#ExecuteGit("status -sb | awk '{ print \"# \" $0 }' >> ".l:commit_message_file)
-    " execute "cd ".b:vit_root_dir
-    " call system("git --git-dir=".l:vit_git_dir." status -sb | awk '{ print \"# \" $0 }' >> ".l:commit_message_file)
-    " cd -
     if expand("%") != ""
         mkview! 9
     endif
@@ -494,9 +456,6 @@ function! vit#CreateCommitMessagePane(args)
 endfunction
 function! vit#PerformCommit(args)
     call vit#ExecuteGit("commit ".a:args)
-    " execute "cd ".b:vit_root_dir
-    " call system("git --git-dir=".b:vit_git_dir." commit ".a:args)
-    " cd -
     echomsg "Successfully committed"
     call vit#RefreshGitStatus()
     call vit#RefreshGitFileLog()
@@ -518,10 +477,8 @@ function! vit#GitCommitFinish()
     unlet l:commit_message_file
 endfunction
 function! vit#GitCheckoutCurrentFile(rev)
-    " let l:file = expand("%")
     let l:file = vit#GetFilenameRelativeToGit(expand("%"))
     call vit#ExecuteGit("checkout ".a:rev." ".l:file)
-    " call system("git --git-dir=".b:vit_git_dir." checkout ".a:rev." ".l:file)
     edit l:file
     call vit#RefreshGitStatus()
     call vit#RefreshGitFileLog()
@@ -534,10 +491,6 @@ function! vit#GitPush(remote, branch)
 
     call vit#ExecuteGit("push ".l:remote." ".l:branch)
     call vit#RefreshGitStatus()
-    " execute "cd ".b:vit_root_dir
-    " echomsg "git --git-dir=".b:vit_git_dir." push ".l:remote." ".l:branch
-    " call system("git --git-dir=".b:vit_git_dir." push ".l:remote." ".l:branch)
-    " cd -
 endfunction
 function! vit#GitPull(remote, branch, rebase)
     let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetGitRemote()
@@ -546,9 +499,6 @@ function! vit#GitPull(remote, branch, rebase)
 
     call vit#ExecuteGit("pull ".l:rebase." ".l:remote."/".l:branch)
     call vit#RefreshGitStatus()
-    " execute "cd ".b:vit_root_dir
-    " call system("git --git-dir=".b:vit_git_dir." ".l:rebase." pull ".l:remote."/".l:branch)
-    " cd -
 endfunction
 " }}}
 
