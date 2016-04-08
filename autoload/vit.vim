@@ -15,31 +15,27 @@ function! vit#init()
         return
     endif
 
+    " Check if we are inside a git directory
+    silent! call system("git rev-parse --is-inside-work-tree >/dev/null 2>&1")
+    if v:shell_error != 0
+        return
+    endif
+
+    " .... somehow determine we are in standalone mode ... ¯\_(ツ)_/¯
     if expand("%") ==# "" && argc() <= 0
         let b:vit_is_standalone = 0
     elseif strlen(bufname("%")) <= 0
         return
     endif
 
-    " Determine the git dir
-    let l:path = exists("b:vit_is_standalone") ?  getcwd() : expand("%:p:h")
-    while(l:path != "/" && l:path != "C:\\" && len(l:path) > 0)
-        if filereadable(l:path."/.git")
-            execute "cd ".l:path
-            let l:file = readfile(l:path."/.git")
-            let b:vit_git_dir = substitute(l:file[0], 'gitdir: ', '', '')
-            let b:vit_git_dir = fnamemodify(b:vit_git_dir, ":p")
-            let b:vit_root_dir = l:path
-            cd -
-            break
-        elseif isdirectory(l:path."/.git")
-            let b:vit_root_dir = l:path
-            let b:vit_git_dir = b:vit_root_dir."/.git"
-            break
-        endif
-        let l:path = fnamemodify(l:path, ":h")
-    endwhile
-    " echomsg "ROOT DIR: ".b:vit_root_dir
+    " Determine the git directories
+    let b:vit_git_dir = substitute(system("git rev-parse --git-dir"), "\n*$", '', '')
+    if b:vit_git_dir[0] != "/"
+        let b:vit_git_dir = getcwd()."/".b:vit_git_dir
+    endif
+    let b:vit_root_dir = substitute(system("git rev-parse --show-toplevel"), "\n*$", '', '')
+    " echomsg "GIT DIR:".b:vit_git_dir
+    " echomsg "ROOT DIR:".b:vit_root_dir
 
     " Add autocmds
     autocmd BufWritePost * call vit#RefreshGitStatus()
@@ -97,12 +93,12 @@ endfunction
 function! vit#GitFileStatus(file)
     " echomsg "GitFileStatus(".a:file.")"
     " let l:status = system("git status --porcelain | grep '\<".a:file."\>$'")
-    let l:file = vit#GetFilenameRelativeToGit(a:file)
-    execute "cd ".b:vit_root_dir
-    let l:status = system("git --git-dir=".b:vit_git_dir." status --porcelain | egrep '[/\s]\?".l:file."$'")
-    cd -
-    " let l:status = vit#ExecuteGit("status --porcelain | egrep '[/\s]\?".l:file."$'")
-    " echomsg "GitFileStatus(".a:file."[".l:file."]): ".l:status
+    " let l:file = vit#GetFilenameRelativeToGit(a:file)
+    let l:file = expand(a:file)
+    " echomsg "  file = ".l:file
+    " let l:status = system("git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir." status --porcelain ".l:file)
+    let l:status = vit#ExecuteGit("status --porcelain ".l:file)
+    " echomsg "  status = ".l:status
 
     if match(l:status, '^fatal') > -1
         let l:status_val = 0 " Not a git repo
@@ -126,9 +122,12 @@ endfunction
 function! vit#ExecuteGit(args)
     if exists("b:vit_root_dir") && exists("b:vit_git_dir") && strlen(a:args) > 0
         " echomsg "ExecuteGit(".a:args.")"
-        execute "cd ".b:vit_root_dir
-        let l:ret = system("git --git-dir=".b:vit_git_dir." ".a:args)
-        cd -
+        " execute "cd ".b:vit_root_dir
+        " let l:ret = system("git --git-dir=".b:vit_git_dir." ".a:args)
+        " echomsg getcwd()
+        " echomsg "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir." ".a:args
+        let l:ret = system("git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir." ".a:args)
+        " cd -
         " echomsg "ExecuteGit(): ".l:ret
         return l:ret
     endif
