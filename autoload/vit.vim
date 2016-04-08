@@ -15,8 +15,8 @@ function! vit#init()
         return
     endif
 
-    " Check if we are inside a git directory
-    silent! call system("git rev-parse --is-inside-work-tree >/dev/null 2>&1")
+    " Check if the *file* is inside a git directory
+    silent! call system("cd ".expand("%:p:h")."; git rev-parse --is-inside-work-tree >/dev/null 2>&1")
     if v:shell_error != 0
         return
     endif
@@ -34,11 +34,12 @@ function! vit#init()
         let b:vit_git_dir = getcwd()."/".b:vit_git_dir
     endif
     let b:vit_root_dir = substitute(system("git rev-parse --show-toplevel"), "\n*$", '', '')
+    let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
     " echomsg "GIT DIR:".b:vit_git_dir
     " echomsg "ROOT DIR:".b:vit_root_dir
 
     " Add autocmds
-    autocmd BufWritePost * call vit#RefreshGitStatus()
+    autocmd BufWritePost * call vit#RefreshGitStatus() "TODO: only do this autocmd when a VitStatus window is open
     command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
 endfunction
 
@@ -83,8 +84,8 @@ endfunction
 function! vit#GetGitBranch()
     if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
         let l:file = readfile(b:vit_git_dir."/HEAD")
-        let l:branch = substitute(l:file[0], 'ref: refs/heads/', '', '')
-        return l:branch
+        return substitute(l:file[0], 'ref: refs/heads/', '', '')
+        " return l:branch
     else
         return ""
     endif
@@ -92,13 +93,9 @@ endfunction
 
 function! vit#GitFileStatus(file)
     " echomsg "GitFileStatus(".a:file.")"
-    " let l:status = system("git status --porcelain | grep '\<".a:file."\>$'")
     " let l:file = vit#GetFilenameRelativeToGit(a:file)
-    let l:file = expand(a:file)
-    " echomsg "  file = ".l:file
-    " let l:status = system("git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir." status --porcelain ".l:file)
+    let l:file = fnamemodify(a:file, ":p")
     let l:status = vit#ExecuteGit("status --porcelain ".l:file)
-    " echomsg "  status = ".l:status
 
     if match(l:status, '^fatal') > -1
         let l:status_val = 0 " Not a git repo
@@ -116,29 +113,18 @@ function! vit#GitFileStatus(file)
     return l:status_val
 endfunction
 function! vit#GitCurrentFileStatus()
-    return vit#GitFileStatus(expand("%"))
+    return vit#GitFileStatus(expand("%:p:h"))
 endfunction
 
 function! vit#ExecuteGit(args)
-    if exists("b:vit_root_dir") && exists("b:vit_git_dir") && strlen(a:args) > 0
-        " echomsg "ExecuteGit(".a:args.")"
-        " execute "cd ".b:vit_root_dir
-        " let l:ret = system("git --git-dir=".b:vit_git_dir." ".a:args)
-        " echomsg getcwd()
-        " echomsg "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir." ".a:args
-        let l:ret = system("git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir." ".a:args)
-        " cd -
-        " echomsg "ExecuteGit(): ".l:ret
-        return l:ret
+    if exists("b:vit_git_cmd") && strlen(a:args) > 0
+        return system(b:vit_git_cmd." ".a:args)
     endif
 endfunction
 " }}}
 
 " Load Content {{{
-function! vit#LoadContent(location, command)
-    let l:command = "!cd ".b:vit_root_dir."; ".a:command
-    " echomsg "cmd: ".l:command
-    let l:file_path = expand("%")
+function! vit#LoadContent(location, content)
     if a:location ==? "left"
         topleft vnew
     elseif a:location ==? "right"
@@ -149,59 +135,50 @@ function! vit#LoadContent(location, command)
         botright new
     endif
     set buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
-    execute "silent read ".l:command
+    silent! put =a:content
     0d_
-    let b:vit_original_file = l:file_path
+    let b:vit_original_file = expand("%")
 endfunction
-function! vit#PopDiff(command)
-    if expand("%") !=? ""
+function! vit#PopDiff(content)
+    if len(expand("%")) == 0
         mkview! 9
     endif
-    call vit#LoadContent("left", a:command)
+    call vit#LoadContent("left", a:content)
     setlocal filetype=VitDiff nomodifiable
     diffthis
     autocmd BufDelete,BufWipeout <buffer> windo diffoff
-    "|windo silent loadview 9
     wincmd l
     diffthis
     0
     setlocal modifiable "syntax=off
 endfunction
-function! vit#PopSynched(command)
-    if expand("%") !=? ""
+function! vit#PopSynched(content)
+    if len(expand("%")) == 0
         mkview! 9
     endif
-    let l:cline = line(".")
+    let l:cline = getcurpos()[1]
     set nofoldenable
-    0
-    call vit#LoadContent("left", a:command)
-    windo setlocal scrollbind nomodifiable nonumber
-    if exists("&relativenumber")
-        windo set norelativenumber
-    endif
-    execute l:cline
-    setlocal modifiable
+    call vit#LoadContent("left", a:content)
+    windo setlocal scrollbind
+    " windo setlocal scrollbind nomodifiable nonumber
+    " if exists("&relativenumber")
+        " windo set norelativenumber
+    " endif
+    call cursor(l:cline, 0)
 endfunction
 " }}}
 
 " Loaded in windows {{{
 function! vit#PopGitDiff(rev, file)
     if len(a:file) > 0
-        let l:file = a:file
+        let l:file = fnamemodify(a:file, ":p")
     else
         let l:file = vit#GetFilenameRelativeToGit(expand("%"))
+        " let l:file = fnamemodify(expand("%"), ":p")
     endif
-    if !exists("b:vit_git_dir")
-        let l:vit_git_dir = getbufvar(l:file, "vit_git_dir")
-    else
-        let l:vit_git_dir = b:vit_git_dir
-    endif
-    call vit#PopDiff("git --git-dir=".l:vit_git_dir." show ".a:rev.":".l:file)
-    " call vit#PopDiff(vit#ExecuteGit("show ".a:rev.":".l:file))
-    " call vit#PopDiff("show ".a:rev.":".l:file)
+    call vit#PopDiff(vit#ExecuteGit("show ".a:rev.":".l:file))
     wincmd t
     let b:git_revision = a:rev
-    " wincmd l
 endfunction
 function! vit#PopGitDiffPrompt()
     call inputsave()
@@ -210,15 +187,29 @@ function! vit#PopGitDiffPrompt()
     call vit#PopGitDiff(l:response, "")
 endfunction
 function! vit#PopGitBlame()
+    if len(expand("%")) == 0
+        mkview! 9
+    endif
     let l:file = vit#GetFilenameRelativeToGit(expand("%"))
-    call vit#PopSynched("git --git-dir=".b:vit_git_dir." blame --date=short ".l:file)
-    wincmd p
+    let l:cline = getcurpos()[1]
+    set nofoldenable
+
+    "" Load blame file on left and confiugure the window
+    call vit#LoadContent("left", vit#ExecuteGit("blame --date=short ".l:file))
+
     let b:vit_ref_file = l:file
     set filetype=VitBlame cursorline
     normal f)
     execute "vertical resize ".col(".")
     normal 0
-    wincmd p
+    call cursor(l:cline, 0)
+
+    " Doing a windo will set the focus back on the original window
+    windo setlocal scrollbind nomodifiable nonumber
+    if exists("&relativenumber")
+        windo setlocal norelativenumber
+    endif
+    " call cursor(l:cline, 0)
 endfunction
 function! vit#GetRevFromGitBlame()
     let l:rev = system("echo '".getline(".")."' | awk '{ print $1 }'")
@@ -233,7 +224,7 @@ function! vit#PopGitFileLog(file)
         mkview! 9
         let l:file = vit#GetFilenameRelativeToGit(a:file)
     endif
-    call vit#LoadContent("top", "git --git-dir=".b:vit_git_dir." log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' -- ".l:file)
+    call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' -- ".l:file))
     set filetype=VitLog nolist cursorline
     if exists("b:vit_is_standalone")
         if bufnr("$") > 1
@@ -267,14 +258,13 @@ function! vit#PopGitShow(rev)
     if expand("%") !=? ""
         mkview! 9
     endif
-    " let b:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
     if exists("b:vit_ref_file")
         let l:vit_ref_file = b:vit_ref_file
     else
         let l:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
         let b:vit_ref_file = l:vit_ref_file
     endif
-    call vit#LoadContent("top", "git --git-dir=".b:vit_git_dir." show ".a:rev)
+    call vit#LoadContent("top", vit#ExecuteGit("show ".a:rev))
     let b:vit_ref_file = l:vit_ref_file
     set filetype=VitShow nolist nocursorline
     if exists("b:vit_is_standalone")
@@ -362,7 +352,7 @@ function! vit#GitStatus()
     " echomsg "git1: ".l:git_dir
     " echomsg "root1: ".l:root_dir
     execute "cd ".b:vit_root_dir
-    call vit#LoadContent("right", "git --git-dir=".b:vit_git_dir." status -sb")
+    call vit#LoadContent("right", vit#ExecuteGit("status -s"))
     cd -
 
     " Set width of the window based on the widest text
