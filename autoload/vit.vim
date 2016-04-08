@@ -224,7 +224,7 @@ function! vit#PopGitFileLog(file)
         mkview! 9
         let l:file = vit#GetFilenameRelativeToGit(a:file)
     endif
-    call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\\%h (\\%cr) <\\%an> -\\%d \\%s' -- ".l:file))
+    call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\%h (\%cr) <\%an> -\%d \%s' -- ".l:file))
     set filetype=VitLog nolist cursorline
     if exists("b:vit_is_standalone")
         if bufnr("$") > 1
