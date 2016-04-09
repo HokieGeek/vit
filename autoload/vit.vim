@@ -196,12 +196,16 @@ function! vit#GetRevFromGitBlame()
     return l:rev
 endfunction
 function! vit#PopGitFileLog(file)
-    if exists("b:vit_is_standalone")
-        let l:file = ""
-    else
+    " if exists("b:vit_is_standalone")
+    "     let l:file = ""
+    " else
+    "     mkview! 9
+    "     let l:file = vit#GetFilenameRelativeToGit(a:file)
+    " endif
+    if !exists("b:vit_is_standalone")
         mkview! 9
-        let l:file = vit#GetFilenameRelativeToGit(a:file)
     endif
+    let l:file = vit#GetFilenameRelativeToGit(a:file)
     call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\%h (\%cr) <\%an> -\%d \%s' -- ".l:file))
     set filetype=VitLog nolist cursorline
     if exists("b:vit_is_standalone")
@@ -214,7 +218,7 @@ function! vit#PopGitFileLog(file)
     endif
     setlocal nomodifiable nonumber
     if exists("&relativenumber")
-        set norelativenumber
+        setlocal norelativenumber
     endif
     call cursor(line("."), 2)
     let b:vit_ref_file = l:file

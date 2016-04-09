@@ -3,35 +3,14 @@
 usage() {
     {
     [ $# -gt 0 ] && echo -e "${1}\n"
-    echo "USAGE: `basename $0` [command [arguments]]"
-    more << USAGE_INFO
-        Commands:
-
-        log (lg) - Opens vim with the git log of the current repo (default command)
-        status (st) - Displays the status of the current repo
-USAGE_INFO
-        # show (sh) - Displays the status of a revision
+    echo "USAGE: `basename $0` [file]"
     } >&2
 }
+[ "$1" == "-h" -o "$1" == "--help" ] && usage
 
-# if [ $# -le 0 ]; then
-    # cmd="log"
-    # usage
-    # exit 1
+# if [ $# -gt 0 ]; then
+    # exec vim $@ -c "Git log"
+# else
+    exec vim -c "set nonumber" -c 'if exists("&relativenumber")|set norelativenumber|endif' \
+        -c "call vit#PopGitFileLog('"$1"')"
 # fi
-
-[ $# -le 0 ] && cmd="log" || { cmd=$1; shift; }
-case $cmd in
-log|lg)
-    if [ $# -gt 0 ]; then
-        exec vim $@ -c "Git log"
-    else
-        exec vim -c "set nonumber" -c 'if exists("&relativenumber")|set norelativenumber|endif' \
-                 -c "call vit#PopGitFileLog('')" #-c "only"
-    fi
-    ;;
-status|st) exec vim -c "Git status" ;;
-# show|sh) exec vim -c "Git show" ;;
-esac
-
-# exec vim ${vit_cmds}
