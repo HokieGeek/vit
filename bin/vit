@@ -1,16 +1,19 @@
 #!/bin/bash
 
-usage() {
-    {
-    [ $# -gt 0 ] && echo -e "${1}\n"
-    echo "USAGE: `basename $0` [file]"
-    } >&2
+[ "$1" == "-h" -o "$1" == "--help" ] && {
+    echo "USAGE: `basename $0` [file]" >&2
+    exit
 }
-[ "$1" == "-h" -o "$1" == "--help" ] && usage
 
-# if [ $# -gt 0 ]; then
-    # exec vim $@ -c "Git log"
-# else
-    exec vim -c "set nonumber" -c 'if exists("&relativenumber")|set norelativenumber|endif' \
-        -c "call vit#PopGitFileLog('"$1"')"
-# fi
+[ "$1" == "--profile" ] && {
+    shift
+    tmp=`mktemp`
+    vim --cmd "profile start ${tmp}" \
+        --cmd "profile func *" \
+        --cmd "let g:que__vcs_section_enabled = 0" \
+        -c "call vit#PopGitFileLog('"$1"')" \
+    && vim ${tmp} +/SORTED
+} || {
+    exec vim --cmd "let g:que__vcs_section_enabled = 0" \
+             -c "call vit#PopGitFileLog('"$1"')"
+}

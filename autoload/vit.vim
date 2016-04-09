@@ -196,16 +196,14 @@ function! vit#GetRevFromGitBlame()
     return l:rev
 endfunction
 function! vit#PopGitFileLog(file)
-    " if exists("b:vit_is_standalone")
-    "     let l:file = ""
-    " else
-    "     mkview! 9
-    "     let l:file = vit#GetFilenameRelativeToGit(a:file)
-    " endif
     if !exists("b:vit_is_standalone")
         mkview! 9
     endif
-    let l:file = vit#GetFilenameRelativeToGit(a:file)
+    if len(a:file) > 0
+        let l:file = vit#GetFilenameRelativeToGit(a:file)
+    else
+        let l:file = ""
+    endif
     call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\%h (\%cr) <\%an> -\%d \%s' -- ".l:file))
     set filetype=VitLog nolist cursorline
     if exists("b:vit_is_standalone")
@@ -232,9 +230,10 @@ function! vit#RefreshGitFileLog()
     endfor
 endfunction
 function! vit#GetRevFromGitLog()
-    let l:rev = system("echo '".getline(".")."' | cut -d '(' -f1 | awk '{ print $NF }'")
-    let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
-    return l:rev
+    " let l:rev = system("echo '".getline(".")."' | cut -d '(' -f1 | awk '{ print $NF }'")
+    " let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
+    " return l:rev
+    return substitute(getline("."), '^\*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 function! vit#PopGitShow(rev)
     if expand("%") !=? ""
