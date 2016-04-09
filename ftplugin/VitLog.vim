@@ -18,7 +18,7 @@ if exists("b:vit_is_standalone")
 
     function! LoadLogEntry()
         let l:rev = vit#GetRevFromGitLog()
-        if b:vit_log_lastshownrev != l:rev
+        if l:rev !~ "[\|\\/*]" && b:vit_log_lastshownrev != l:rev
             let b:vit_log_lastshownrev = l:rev
 
             " This needs to be executed before switching away from the log
@@ -32,6 +32,11 @@ if exists("b:vit_is_standalone")
             silent! 0d_
             resize 35
             setlocal nomodifiable
+            wincmd p
+        elseif l:rev =~ "[\|\\/*]"
+            wincmd j
+            setlocal modifiable
+            silent! 1,$d
             wincmd p
         endif
     endfunction

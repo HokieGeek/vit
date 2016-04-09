@@ -230,10 +230,7 @@ function! vit#RefreshGitFileLog()
     endfor
 endfunction
 function! vit#GetRevFromGitLog()
-    " let l:rev = system("echo '".getline(".")."' | cut -d '(' -f1 | awk '{ print $NF }'")
-    " let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
-    " return l:rev
-    return substitute(getline("."), '^\*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
+    return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 function! vit#PopGitShow(rev)
     if expand("%") !=? ""
