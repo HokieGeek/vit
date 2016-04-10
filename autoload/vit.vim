@@ -204,7 +204,8 @@ function! vit#PopGitFileLog(file)
     else
         let l:file = ""
     endif
-    call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\%h (\%cr) <\%an> -\%d \%s' -- ".l:file))
+    " call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\%h (\%cr) <\%an> -\%d \%s' -- ".l:file))
+    call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".l:file))
     set filetype=VitLog nolist cursorline
     if exists("b:vit_is_standalone")
         if bufnr("$") > 1
