@@ -5,6 +5,7 @@
     exit
 }
 
+        # --cmd "profile func *" \
 [ "$1" == "--profile" ] && {
     shift
     tmp=`mktemp`

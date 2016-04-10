@@ -275,16 +275,6 @@ function! vit#OpenFilesInCommit(rev)
         echohl None
     endif
 endfunction
-function! vit#HandleRevisionSelection()
-    let l:rev = vit#GetRevFromGitLog()
-    if exists("b:vit_is_standalone")
-        call vit#OpenFilesInCommit(l:rev)
-    else
-        let l:file = b:vit_ref_file
-        bdelete
-        call vit#PopGitDiff(l:rev, l:file)
-    endif
-endfunction
 function! vit#PopGitDiffFromShow()
     let l:rev = b:git_revision
     let l:file = b:vit_ref_file
