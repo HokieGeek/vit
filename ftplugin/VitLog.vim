@@ -58,6 +58,10 @@ if exists("b:vit_is_standalone")
 
     autocmd CursorMoved <buffer> call LoadLogEntry()
 
+    " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
+    nnoremap <buffer> j j
+    nnoremap <buffer> k k
+
     nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromGitLog())<cr>
 else
     function! CheckoutFromLog()
