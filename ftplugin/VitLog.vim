@@ -75,12 +75,11 @@ if exists("b:vit_is_standalone")
                 " execute b:vit_log_entries_winnr." wincmd w"
                 let l:rev_entry = vit#ExecuteGit("show ".l:rev)
                 enew
-                let g:vit_log_entry_cache = {l:rev: bufnr("%")}
+                execute "let g:vit_log_entry_cache = {'".l:rev."': ".bufnr("%")."}"
+                " let g:vit_log_entry_cache = {l:rev: bufnr("%")}
 
                 " call CreateNewLogEntryBuffer(l:rev_entry)
                 call CreateNewLogEntryBuffer("New: ".l:rev)
-
-                echomsg localtime()." HERE"
             endif
         endif
         if l:rev !~ "^[\|\\/*]" && b:vit_log_lastshownrev != l:rev
