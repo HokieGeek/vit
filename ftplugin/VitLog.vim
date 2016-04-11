@@ -1,3 +1,9 @@
+if exists("g:autoloaded_vit_log") || v:version < 700
+    finish
+endif
+let g:autoloaded_vit_log = 1
+scriptencoding utf-8
+
 function! GetRevFromGitLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
@@ -14,7 +20,7 @@ if exists("b:vit_is_standalone")
     if exists("&relativenumber")
         setlocal norelativenumber
     endif
-    " resize 40
+    execute "resize ".string(&lines * 0.60)
     wincmd p
 
     function! LoadLogEntry()
@@ -32,7 +38,9 @@ if exists("b:vit_is_standalone")
 
             silent! put =l:rev_show
             silent! 0d_
-            resize 35
+            if winheight(0) <= 1
+                execute "resize ".string(&lines * 0.60)
+            endif
 
             setlocal nomodifiable
             wincmd p
