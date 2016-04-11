@@ -18,7 +18,7 @@ if exists("b:vit_is_standalone")
     wincmd p
 
     function! LoadLogEntry()
-        let l:rev = vit#GetRevFromGitLog()
+        let l:rev = GetRevFromGitLog()
         if l:rev !~ "[\|\\/*]" && b:vit_log_lastshownrev != l:rev
             let b:vit_log_lastshownrev = l:rev
 
