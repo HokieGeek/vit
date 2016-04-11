@@ -13,9 +13,12 @@ if exists("b:vit_is_standalone")
         let b:vit_log_lastline = 0
     endif
 
+    setlocal modifiable
+
     " Create the new window to use for the git show output
     botright new
-    setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
+    " setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
+    setlocal filetype=VitShow buftype=nofile bufhidden=hide nobuflisted noswapfile
     setlocal nonumber nocursorline nolist
     if exists("&relativenumber")
         setlocal norelativenumber
@@ -23,9 +26,31 @@ if exists("b:vit_is_standalone")
     execute "resize ".string(&lines * 0.60)
     wincmd t
 
+    let b:vit_log_entry_cache = {"blank": bufnr(".") }
+
+    " let g:blah = "Nothing to display"
+   " " put =g:blah
+    " resize 40
+    wincmd p
+
+    " TODO: maybe load each rev history into its own buffer, add the buffer to
+    " a map (by rev) and switch to that? For invalid revs, all point to a
+    " blank buffer (0)
     function! LoadLogEntry()
         if b:vit_log_lastline != line(".")
             let l:rev = GetRevFromGitLog()
+        " if has_key(b:vit_log_entry_cache, l:rev)
+        "     " retrieve the buffer number
+        "     " let l:buf_num = get(b:vit_log_entry_cache, "l:rev)
+        " else
+        "     if l:rev =~ "^[\|\\/*]"
+        "         " let l:buf_num = get(b:vit_log_entry_cache, "blank")
+        "     else
+        "         " create a new buffer and load the results of execute git into it
+        "     endif
+        " endif
+        if l:rev !~ "^[\|\\/*]" && b:vit_log_lastshownrev != l:rev
+            let b:vit_log_lastshownrev = l:rev
 
             if l:rev !~ "[\|\\/*]"
                 " This needs to be executed before switching away from the log
