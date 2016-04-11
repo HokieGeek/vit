@@ -21,12 +21,10 @@ if exists("b:vit_is_standalone")
         setlocal norelativenumber
     endif
     execute "resize ".string(&lines * 0.60)
-    wincmd p
+    wincmd t
 
     function! LoadLogEntry()
         if b:vit_log_lastline != line(".")
-            let b:vit_log_lastline = line(".")
-            
             let l:rev = GetRevFromGitLog()
             
             if l:rev !~ "[\|\\/*]"
@@ -43,14 +41,20 @@ if exists("b:vit_is_standalone")
                 if winheight(0) <= 1
                     execute "resize ".string(&lines * 0.60)
                 endif
+                
+                setlocal nomodifiable
+                wincmd t
             else
-                wincmd j
-                setlocal modifiable
-                silent! 1,$d
+                if b:vit_log_lastline > line(".")
+                    let l:newline = line(".")-1
+                else
+                    let l:newline = line(".")+1
+                endif
+                call cursor(l:newline, 0)
+                call LoadLogEntry()
             endif
             
-            setlocal nomodifiable
-            wincmd p
+            let b:vit_log_lastline = line(".")
         endif
     endfunction
 
