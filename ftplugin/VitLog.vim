@@ -35,8 +35,8 @@ if exists("b:vit_is_standalone")
     " Create the new window to use for the git show output
     botright new
 
-    call CreateNewLogEntryBuffer("")
     let g:vit_log_entries_winnr = 2 "winnr()
+    call CreateNewLogEntryBuffer("")
 
     " setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
     setlocal filetype=VitShow buftype=nofile bufhidden=hide nobuflisted noswapfile
@@ -73,12 +73,14 @@ if exists("b:vit_is_standalone")
                 echom localtime()." Creating new entry"
                 " TODO: create a new buffer and load the results of execute git into it
                 " execute b:vit_log_entries_winnr." wincmd w"
-                enew
                 let l:rev_entry = vit#ExecuteGit("show ".l:rev)
-
-                call CreateNewLogEntryBuffer(l:rev_entry)
-
+                enew
                 let g:vit_log_entry_cache = {l:rev: bufnr("%")}
+
+                " call CreateNewLogEntryBuffer(l:rev_entry)
+                call CreateNewLogEntryBuffer("New: ".l:rev)
+
+                echomsg localtime()." HERE"
             endif
         endif
         if l:rev !~ "^[\|\\/*]" && b:vit_log_lastshownrev != l:rev
