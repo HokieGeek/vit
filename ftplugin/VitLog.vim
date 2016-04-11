@@ -14,10 +14,6 @@ if exists("b:vit_is_standalone")
     wincmd p
 
     function! LoadLogEntry()
-        if exists("b:skipone")
-            unlet b:skipone
-            return
-        endif
         let l:rev = vit#GetRevFromGitLog()
         if l:rev !~ "[\|\\/*]" && b:vit_log_lastshownrev != l:rev
             let b:vit_log_lastshownrev = l:rev
@@ -33,17 +29,20 @@ if exists("b:vit_is_standalone")
             silent! put =l:rev_show
             silent! 0d_
             resize 35
-        elseif l:rev =~ "[\|\\/*]"
+
+            setlocal nomodifiable
+            wincmd p
+        elseif l:rev =~ "^[\|\\/*]"
             wincmd j
             setlocal modifiable
             silent! 1,$d
+
+            setlocal nomodifiable
+            wincmd p
         endif
-        setlocal nomodifiable
-        wincmd p
     endfunction
 
     autocmd CursorMoved <buffer> call LoadLogEntry()
-    autocmd WinLeave <buffer> let b:skipone = 0
 
     nnoremap <buffer> <silent> v :call vit#OpenFilesInCommit(vit#GetRevFromGitLog())<cr>
 else
