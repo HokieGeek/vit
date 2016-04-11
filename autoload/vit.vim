@@ -190,11 +190,6 @@ function! vit#PopGitBlame()
     endif
     " call cursor(l:cline, 0)
 endfunction
-function! vit#GetRevFromGitBlame()
-    let l:rev = system("echo '".getline(".")."' | awk '{ print $1 }'")
-    let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
-    return l:rev
-endfunction
 function! vit#PopGitFileLog(file)
     if !exists("b:vit_is_standalone")
         mkview! 9
@@ -204,7 +199,6 @@ function! vit#PopGitFileLog(file)
     else
         let l:file = ""
     endif
-    " call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\%h (\%cr) <\%an> -\%d \%s' -- ".l:file))
     call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".l:file))
     set filetype=VitLog nolist cursorline
     if exists("b:vit_is_standalone")
@@ -229,9 +223,6 @@ function! vit#RefreshGitFileLog()
             break
         endif
     endfor
-endfunction
-function! vit#GetRevFromGitLog()
-    return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 function! vit#PopGitShow(rev)
     if expand("%") !=? ""
@@ -275,33 +266,6 @@ function! vit#OpenFilesInCommit(rev)
         echomsg "There are no files related to this commit"
         echohl None
     endif
-endfunction
-function! vit#PopGitDiffFromShow()
-    let l:rev = b:git_revision
-    let l:file = b:vit_ref_file
-    bdelete
-    call vit#PopGitDiff(l:rev, l:file)
-endfunction
-function! vit#PopGitDiffFromBlame()
-    let l:rev = vit#GetRevFromGitBlame()
-    let l:file = b:vit_ref_file
-    bdelete
-    call vit#PopGitDiff(l:rev, l:file)
-endfunction
-function! vit#ShowFromLog()
-    let l:rev = vit#GetRevFromGitLog()
-    bdelete
-    call vit#PopGitShow(l:rev)
-endfunction
-function! vit#ShowFromDiff()
-    let l:rev = b:git_revision
-    bdelete
-    call vit#PopGitShow(l:rev)
-endfunction
-function! vit#ShowFromBlame()
-    let l:rev = vit#GetRevFromGitBlame()
-    bdelete
-    call vit#PopGitShow(l:rev)
 endfunction
 function! vit#GitStatus()
     for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
@@ -361,16 +325,6 @@ endfunction
 " }}}
 
 " External manipulators {{{
-function! vit#CheckoutFromLog()
-    let l:rev = vit#GetRevFromGitLog()
-    bdelete
-    call vit#GitCheckoutCurrentFile(l:rev)
-endfunction
-function! vit#CheckoutFromBlame()
-    let l:rev = vit#GetRevFromGitBlame()
-    bdelete
-    call vit#GitCheckoutCurrentFile(l:rev)
-endfunction
 function! vit#CheckoutFromBuffer()
     let l:rev = b:git_revision
     bdelete

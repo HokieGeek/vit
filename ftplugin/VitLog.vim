@@ -1,3 +1,7 @@
+function! GetRevFromGitLog()
+    return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
+endfunction
+
 if exists("b:vit_is_standalone")
     if !exists("b:vit_log_lastshownrev")
         let b:vit_log_lastshownrev = ""
@@ -44,10 +48,21 @@ if exists("b:vit_is_standalone")
 
     autocmd CursorMoved <buffer> call LoadLogEntry()
 
-    nnoremap <buffer> <silent> v :call vit#OpenFilesInCommit(vit#GetRevFromGitLog())<cr>
+    nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromGitLog())<cr>
 else
-    nnoremap <buffer> <silent> o :call vit#CheckoutFromLog()<cr>
-    nnoremap <buffer> <silent> <enter> :let g:vit_log_lastline=line(".") <bar> call vit#ShowFromLog()<cr>
+    function! CheckoutFromLog()
+        let l:rev = GetRevFromGitLog()
+        bdelete
+        call vit#GitCheckoutCurrentFile(l:rev)
+    endfunction
+    function! ShowFromLog()
+        let l:rev = GetRevFromGitLog()
+        bdelete
+        call vit#PopGitShow(l:rev)
+    endfunction
+
+    nnoremap <buffer> <silent> o :call CheckoutFromLog()<cr>
+    nnoremap <buffer> <silent> <enter> :let g:vit_log_lastline=line(".") <bar> call ShowFromLog()<cr>
 
     nnoremap <buffer> <silent> v :let l:file = b:vit_ref_file <bar> bdelete <bar> call vit#PopGitDiff(vit#GetRevFromGitLog(), l:file)<cr>
 endif
