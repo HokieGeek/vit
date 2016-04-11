@@ -34,7 +34,7 @@ if exists("b:vit_is_standalone")
                 " Switch to the VitShow window and paste the new output
                 wincmd j
                 setlocal modifiable
-                
+
                 " Remove old entry and add new one
                 silent! 1,$d
                 silent! put =l:rev_entry
