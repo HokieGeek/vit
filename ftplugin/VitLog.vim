@@ -46,7 +46,6 @@ if exists("b:vit_is_standalone")
     autocmd WinLeave <buffer> let b:skipone = 0
 
     nnoremap <buffer> <silent> v :call vit#OpenFilesInCommit(vit#GetRevFromGitLog())<cr>
-    cnoremap <buffer> <silent> q qa
 else
     nnoremap <buffer> <silent> o :call vit#CheckoutFromLog()<cr>
     nnoremap <buffer> <silent> <enter> :let g:vit_log_lastline=line(".") <bar> call vit#ShowFromLog()<cr>
