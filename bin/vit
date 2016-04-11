@@ -16,5 +16,6 @@
     && vim ${tmp} +/SORTED
 } || {
     exec vim --cmd "let g:que__vcs_section_enabled = 0" \
+             -c "silent! %bwipeout" \
              -c "call vit#PopGitFileLog('"$1"')"
 }
