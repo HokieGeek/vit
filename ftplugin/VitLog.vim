@@ -26,22 +26,20 @@ if exists("b:vit_is_standalone")
     function! LoadLogEntry()
         if b:vit_log_lastline != line(".")
             let l:rev = GetRevFromGitLog()
-            
+
             if l:rev !~ "[\|\\/*]"
                 " This needs to be executed before switching away from the log
-                let l:rev_show = vit#ExecuteGit("show ".l:rev)
+                let l:rev_entry = vit#ExecuteGit("show ".l:rev)
 
                 " Switch to the VitShow window and paste the new output
                 wincmd j
                 setlocal modifiable
-                silent! 1,$d
-
-                silent! put =l:rev_show
-                silent! 0d_
-                if winheight(0) <= 1
-                    execute "resize ".string(&lines * 0.60)
-                endif
                 
+                " Remove old entry and add new one
+                silent! 1,$d
+                silent! put =l:rev_entry
+                silent! 0d_
+
                 setlocal nomodifiable
                 wincmd t
             else
@@ -53,7 +51,7 @@ if exists("b:vit_is_standalone")
                 call cursor(l:newline, 0)
                 call LoadLogEntry()
             endif
-            
+
             let b:vit_log_lastline = line(".")
         endif
     endfunction
