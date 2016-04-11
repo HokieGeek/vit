@@ -205,7 +205,6 @@ function! vit#PopGitFileLog(file)
         if bufnr("$") > 1
             bdelete #
         endif
-        resize
     else
         resize 10
     endif
