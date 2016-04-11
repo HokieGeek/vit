@@ -26,7 +26,7 @@ if exists("b:vit_is_standalone")
     execute "resize ".string(&lines * 0.60)
     wincmd t
 
-    let b:vit_log_entry_cache = {"blank": bufnr("%") }
+    let g:vit_log_entry_cache = {"blank": bufnr("%") }
 
     " let g:blah = "Nothing to display"
    " " put =g:blah
@@ -39,12 +39,12 @@ if exists("b:vit_is_standalone")
     function! LoadLogEntry()
         if b:vit_log_lastline != line(".")
             let l:rev = GetRevFromGitLog()
-        if has_key(b:vit_log_entry_cache, l:rev)
+        if has_key(g:vit_log_entry_cache, l:rev)
         "     " retrieve the buffer number
-            let l:buf_num = get(b:vit_log_entry_cache, l:rev)
+            let l:buf_num = get(g:vit_log_entry_cache, l:rev)
         else
             if l:rev =~ "^[\|\\/*]"
-                let l:buf_num = get(b:vit_log_entry_cache, "blank")
+                let l:buf_num = get(g:vit_log_entry_cache, "blank")
             else
         "         " TODO: create a new buffer and load the results of execute git into it
             endif
