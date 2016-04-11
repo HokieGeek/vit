@@ -9,8 +9,8 @@ function! GetRevFromGitLog()
 endfunction
 
 if exists("b:vit_is_standalone")
-    if !exists("b:vit_log_lastshownrev")
-        let b:vit_log_lastshownrev = ""
+    if !exists("b:vit_log_lastline")
+        let b:vit_log_lastline = 0
     endif
 
     " Create the new window to use for the git show output
@@ -24,31 +24,31 @@ if exists("b:vit_is_standalone")
     wincmd p
 
     function! LoadLogEntry()
-        let l:rev = GetRevFromGitLog()
-        if l:rev !~ "[\|\\/*]" && b:vit_log_lastshownrev != l:rev
-            let b:vit_log_lastshownrev = l:rev
+        if b:vit_log_lastline != line(".")
+            let b:vit_log_lastline = line(".")
+            
+            let l:rev = GetRevFromGitLog()
+            
+            if l:rev !~ "[\|\\/*]"
+                " This needs to be executed before switching away from the log
+                let l:rev_show = vit#ExecuteGit("show ".l:rev)
 
-            " This needs to be executed before switching away from the log
-            let l:rev_show = vit#ExecuteGit("show ".l:rev)
+                " Switch to the VitShow window and paste the new output
+                wincmd j
+                setlocal modifiable
+                silent! 1,$d
 
-            " Switch to the VitShow window and paste the new output
-            wincmd j
-            setlocal modifiable
-            silent! 1,$d
-
-            silent! put =l:rev_show
-            silent! 0d_
-            if winheight(0) <= 1
-                execute "resize ".string(&lines * 0.60)
+                silent! put =l:rev_show
+                silent! 0d_
+                if winheight(0) <= 1
+                    execute "resize ".string(&lines * 0.60)
+                endif
+            else
+                wincmd j
+                setlocal modifiable
+                silent! 1,$d
             endif
-
-            setlocal nomodifiable
-            wincmd p
-        elseif l:rev =~ "^[\|\\/*]"
-            wincmd j
-            setlocal modifiable
-            silent! 1,$d
-
+            
             setlocal nomodifiable
             wincmd p
         endif
