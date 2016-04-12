@@ -4,11 +4,23 @@ endif
 let g:autoloaded_vit_log = 1
 scriptencoding utf-8
 
+call vit#LoadContent("current", vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file))
+setlocal nolist cursorline nomodifiable nonumber
+if exists("&relativenumber")
+    setlocal norelativenumber
+endif
+    
+" call cursor(line("."), 2)
+
 function! GetRevFromLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
 if exists("b:vit_is_standalone")
+    if bufnr("$") > 1
+        bdelete #
+    endif
+
     if !exists("b:vit_log_lastline")
         let b:vit_log_lastline = 0
     endif
@@ -70,6 +82,8 @@ if exists("b:vit_is_standalone")
 
     " nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromLog())<cr>
 else
+    resize 10
+
     function! CheckoutFromLog()
         let l:rev = GetRevFromLog()
         bdelete
