@@ -27,7 +27,7 @@ function! vit#init()
 
     " Add autocmds
     autocmd BufWritePost <buffer> call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
-    command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
+    command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call Git(<f-args>)
 endfunction
 function! vit#GetGitConfig(file)
     " Check if the *file* is inside a git directory
@@ -160,24 +160,13 @@ endfunction
 
 "" Blame {{{
 function! vit#Blame()
-    if len(expand("%")) == 0
-        mkview! 9
-    endif
     let l:file = vit#GetFilenameRelativeToGit(expand("%"))
-    let l:cline = getcurpos()[1]
-    set nofoldenable
 
-    "" Load blame file on left and confiugure the window
     topleft vnew
     let b:vit_ref_file = l:file
-    set filetype=VitBlame
+    set filetype=VitBlame 
     
-    " Doing a windo will set the focus back on the original window
-    " windo setlocal scrollbind nomodifiable nonumber
-    " if exists("&relativenumber")
-    "    windo setlocal norelativenumber
-    " endif
-    " call cursor(l:cline, 0)
+    wincmd p
 endfunction
 " }}}
 
