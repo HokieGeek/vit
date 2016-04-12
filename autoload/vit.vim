@@ -15,20 +15,27 @@ function! vit#init()
     if !executable("git")
         return
     endif
-
-    " Check if the *file* is inside a git directory
-    silent! call system("cd ".expand("%:p:h")."; git rev-parse --is-inside-work-tree >/dev/null 2>&1")
-    if v:shell_error != 0
-        return
-    endif
-
+    
     " .... somehow determine we are in standalone mode ... ¯\_(ツ)_/¯
     if expand("%") ==# "" && argc() <= 0
         let b:vit_is_standalone = 0
     elseif strlen(bufname("%")) <= 0
         return
     endif
+    
+    call vit#GetGitConfig("%")
 
+    " Add autocmds
+    autocmd BufWritePost <buffer> call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
+    command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
+endfunction
+function! vit#GetGitConfig(file)
+    " Check if the *file* is inside a git directory
+    silent! call system("cd ".expand(a:file.":p:h")."; git rev-parse --is-inside-work-tree >/dev/null 2>&1")
+    if v:shell_error != 0
+        return
+    endif
+    
     " Determine the git directories
     let b:vit_git_dir = substitute(system("git rev-parse --git-dir"), "\n*$", '', '')
     if b:vit_git_dir[0] != "/"
@@ -38,10 +45,9 @@ function! vit#init()
     let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
     " echomsg "GIT DIR:".b:vit_git_dir
     " echomsg "ROOT DIR:".b:vit_root_dir
-
-    " Add autocmds
-    autocmd BufWritePost * call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
-    command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
+    
+    " Determine the version of git
+    let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
 endfunction
 
 function! vit#ExecuteGit(args)
@@ -103,8 +109,10 @@ function! vit#LoadContent(location, content)
         topleft new
     elseif a:location ==? "bottom"
         botright new
-    elseif a:location ==? "current"
+    elseif a:location ==? "current-new"
         enew
+    elseif a:location ==? "current"
+        " no-op
     endif
     set buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
     silent! put =a:content
@@ -126,17 +134,17 @@ function! vit#Diff(rev, file)
     if len(expand("%")) == 0
         mkview! 9
     endif
-    call vit#LoadContent("left", vit#ExecuteGit("show ".a:rev.":".l:file))
-    setlocal filetype=VitDiff nomodifiable
-    diffthis
-    autocmd BufDelete,BufWipeout <buffer> windo diffoff
+    topleft vnew
+    let b:vit_ref_file = l:file
+    let b:git_revision = a:rev
+    setlocal filetype=VitDiff
+    
     wincmd l
     diffthis
     0
     setlocal modifiable "syntax=off
 
     wincmd t
-    let b:git_revision = a:rev
 endfunction
 function! vit#DiffPrompt()
     call inputsave()
@@ -160,20 +168,15 @@ function! vit#Blame()
     set nofoldenable
 
     "" Load blame file on left and confiugure the window
-    call vit#LoadContent("left", vit#ExecuteGit("blame --date=short ".l:file))
-
+    topleft vnew
     let b:vit_ref_file = l:file
-    set filetype=VitBlame cursorline
-    normal f)
-    execute "vertical resize ".col(".")
-    normal 0
-    call cursor(l:cline, 0)
-
+    set filetype=VitBlame
+    
     " Doing a windo will set the focus back on the original window
-    windo setlocal scrollbind nomodifiable nonumber
-    if exists("&relativenumber")
-        windo setlocal norelativenumber
-    endif
+    " windo setlocal scrollbind nomodifiable nonumber
+    " if exists("&relativenumber")
+    "    windo setlocal norelativenumber
+    " endif
     " call cursor(l:cline, 0)
 endfunction
 " }}}
@@ -188,21 +191,10 @@ function! vit#Log(file)
     else
         let l:file = ""
     endif
-    call vit#LoadContent("top", vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".l:file))
-    set filetype=VitLog nolist cursorline
-    if exists("b:vit_is_standalone")
-        if bufnr("$") > 1
-            bdelete #
-        endif
-    else
-        resize 10
-    endif
-    setlocal nomodifiable nonumber
-    if exists("&relativenumber")
-        setlocal norelativenumber
-    endif
-    call cursor(line("."), 2)
+    topleft vnew
     let b:vit_ref_file = l:file
+    
+    setlocal filetype=VitLog
 endfunction
 function! vit#RefreshLog()
     for win_num in range(1, winnr('$'))
@@ -225,19 +217,10 @@ function! vit#Show(rev)
         let l:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
         let b:vit_ref_file = l:vit_ref_file
     endif
-    call vit#LoadContent("top", vit#ExecuteGit("show ".a:rev))
+    topleft new
     let b:vit_ref_file = l:vit_ref_file
-    set filetype=VitShow nolist nocursorline
-    if exists("b:vit_is_standalone")
-        bdelete #
-    else
-        resize 25
-    endif
-    setlocal nomodifiable nonumber
-    if exists("&relativenumber")
-        setlocal norelativenumber
-    endif
     let b:git_revision = a:rev
+    setlocal filetype=VitShow
 endfunction
 " }}}
 
@@ -255,28 +238,15 @@ function! vit#Status()
         mkview! 9
     endif
 
-    let l:git_dir = b:vit_git_dir
-    let l:root_dir = b:vit_root_dir
-    call vit#LoadContent("right", vit#ExecuteGit("status -sb"))
-
-    " Set width of the window based on the widest text
-    set winminwidth=1
-    let l:max_cols = max(map(getline(1, "$"), "len(v:val)")) + 1
-    execute "vertical resize ".l:max_cols
-
-    set filetype=VitStatus
-    setlocal nolist nomodifiable nonumber "cursorline
-    if exists("&relativenumber")
-        set norelativenumber
-    endif
-    let b:vit_git_dir = l:git_dir
-    let b:vit_root_dir = l:root_dir
-
-    " if l:is_panel
-        wincmd t
-    " else
-        " only
-    " endif
+    let l:git_cmd = b:vit_git_cmd
+    let l:git_version = b:vit_git_version
+    botright vnew
+    let b:vit_git_cmd = l:git_cmd
+    let b:vit_git_version = l:git_version
+    
+    setlocal filetype=VitStatus
+    
+    wincmd t
 endfunction
 function! vit#RefreshStatus()
     for win_num in range(1, winnr('$'))
