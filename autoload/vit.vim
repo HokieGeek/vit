@@ -17,11 +17,11 @@ function! vit#init()
     endif
     
     " .... somehow determine we are in standalone mode ... ¯\_(ツ)_/¯
-    if expand("%") ==# "" && argc() <= 0
-        let b:vit_is_standalone = 0
-    elseif strlen(bufname("%")) <= 0
-        return
-    endif
+    " if expand("%") ==# "" && argc() <= 0
+    "     let b:vit_is_standalone = 0
+    " elseif strlen(bufname("%")) <= 0
+    "     return
+    " endif
     
     call vit#GetGitConfig("%")
 
