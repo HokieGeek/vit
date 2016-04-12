@@ -27,13 +27,11 @@ if exists("b:vit_is_standalone")
 
     " Create the new window to use for the git show output
     botright new
+    " let b:vit_is_standalone = 1
     execute "resize ".string(&lines * 0.60)
 
-    setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
-    setlocal nonumber nocursorline nolist
-    if exists("&relativenumber")
-        setlocal norelativenumber
-    endif
+    setlocal filetype=VitShow
+    setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
     wincmd t
 
     let g:vit_log_entry_cache = {}
