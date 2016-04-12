@@ -29,49 +29,50 @@ function! Git(...) " {{{
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
-                call vit#PopGitFileLog(l:cmd_args)
+                call vit#Log(l:cmd_args)
             elseif l:command ==# "add"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
-                call vit#AddFilesToGit(l:cmd_args)
+                call vit#Add(l:cmd_args)
             elseif l:command ==# "reset"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
-                call vit#ResetFilesInGitIndex(l:cmd_args)
+                call vit#Reset(l:cmd_args)
             elseif l:command ==# "checkout" || l:command ==# "co"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = "HEAD"
                 endif
-                call vit#GitCheckoutCurrentFile(l:cmd_args)
+                call vit#Checkout(l:cmd_args)
             elseif l:command ==# "diff"
                 if len(l:cmd_args) <= 0
-                    call vit#PopGitDiffPrompt()
+                    call vit#DiffPrompt()
                 else
-                    call vit#PopGitDiff(l:cmd_args, "")
+                    call vit#Diff(l:cmd_args, "")
                 endif
             elseif l:command ==# "push"
                 if len(l:cmd_args) <= 0
-                    call vit#GitPush("", "")
+                    call vit#Push("", "")
                 " elseif a:0 == 2
-                    " call vit#GitPush(a:000[1], "")
+                    " call vit#Push(a:000[1], "")
                 elseif a:0 > 2
-                    call vit#GitPush(a:000[1], a:000[2])
+                    call vit#Push(a:000[1], a:000[2])
                 endif
             elseif l:command ==# "pull"
+                echoerr "TODO"
                 " if len(l:cmd_args) <= 0
-                    " call vit#GitPull("", "", 0)
+                    " call vit#Pull("", "", 0)
                 " else
-                    " call vit#GitPull(a:000[2], a:000[3], 0)
+                    " call vit#Pull(a:000[2], a:000[3], 0)
                 " endif
-                call vit#GitPull("TODO", "TODO", 0)
+                " call vit#GitPull("TODO", "TODO", 0)
             elseif l:command ==# "commit"
-                call vit#GitCommit(l:cmd_args)
+                call vit#Commit(l:cmd_args)
             elseif l:command ==# "blame"
-                call vit#PopGitBlame()
+                call vit#Blame()
             elseif l:command ==# "status" || l:command ==# "st"
-                call vit#GitStatus()
+                call vit#Status()
             else
                 echohl WarningMsg
                 echomsg "Unrecognized git command: ".l:command
@@ -85,8 +86,8 @@ function! Git(...) " {{{
     endif
 endfunction " }}}
 
-command! DOrig :call vit#PopDiff("#")
+command! DOrig :call vit#Diff("#")
 
-autocmd BufWinEnter * call vit#init() | call vit#RefreshGitStatus()
+autocmd BufWinEnter * call vit#init() | call vit#RefreshStatus()
 
 " vim: set foldmethod=marker formatoptions-=tc:

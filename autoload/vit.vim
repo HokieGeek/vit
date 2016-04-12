@@ -40,50 +40,35 @@ function! vit#init()
     " echomsg "ROOT DIR:".b:vit_root_dir
 
     " Add autocmds
-    autocmd BufWritePost * call vit#RefreshGitStatus() "TODO: only do this autocmd when a VitStatus window is open
+    autocmd BufWritePost * call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
     command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :execute Git(<f-args>)
 endfunction
 
-function! vit#GetFilenameRelativeToGit(file)
-    let l:file = substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', '')
-    return l:file
-endfunction
-
-function! vit#GetFilenamesRelativeToGit(file_list)
-    let l:files = []
-    for f in a:file_list
-        call add(l:files, vit#GetFilenameRelativeToGit(f))
-    endfor
-    return l:files
-endfunction
-
-function! vit#GetGitRemote()
-    let l:remote = ""
-    if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
-        execute "cd ".b:vit_root_dir
-        " TODO: grep out .gitconfig for this value?
-        let l:remotes = split(system("git --git-dir=".b:vit_git_dir." remote -v | grep push | awk '{ print $1 }'"))
-        cd -
-        if len(l:remotes) == 0
-            echohl WarningMsg
-            echomsg "No remotes found!"
-            echohl
-        elseif len(l:remotes) > 1
-            let l:choices = join(l:remotes, "\n")
-            let l:remote = confirm("Choose remote: ", l:choices, 1)
-        else
-            let l:remote = l:remotes[0]
-        endif
+function! vit#ExecuteGit(args)
+    if exists("b:vit_git_cmd") && strlen(a:args) > 0
+        return system(b:vit_git_cmd." ".a:args)
     endif
-    return l:remote
 endfunction
-function! vit#GetGitBranch()
+
+function! vit#GetBranch()
     if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
         let l:file = readfile(b:vit_git_dir."/HEAD")
         return substitute(l:file[0], 'ref: refs/heads/', '', '')
     else
         return ""
     endif
+endfunction
+
+function! vit#GetFilenameRelativeToGit(file)
+    let l:file = substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', '')
+    return l:file
+endfunction
+function! vit#GetFilenamesRelativeToGit(file_list)
+    let l:files = []
+    for f in a:file_list
+        call add(l:files, vit#GetFilenameRelativeToGit(f))
+    endfor
+    return l:files
 endfunction
 
 function! vit#GitFileStatus(file)
@@ -109,14 +94,6 @@ function! vit#GitCurrentFileStatus()
     return vit#GitFileStatus(expand("%:p:h"))
 endfunction
 
-function! vit#ExecuteGit(args)
-    if exists("b:vit_git_cmd") && strlen(a:args) > 0
-        return system(b:vit_git_cmd." ".a:args)
-    endif
-endfunction
-" }}}
-
-" Load Content {{{
 function! vit#LoadContent(location, content)
     if a:location ==? "left"
         topleft vnew
@@ -134,11 +111,22 @@ function! vit#LoadContent(location, content)
     0d_
     let b:vit_original_file = expand("%")
 endfunction
-function! vit#PopDiff(content)
+" }}}
+
+" Commands {{{
+"" Diff {{{
+function! vit#Diff(rev, file)
+    if len(a:file) > 0
+        let l:file = fnamemodify(a:file, ":p")
+    else
+        let l:file = vit#GetFilenameRelativeToGit(expand("%"))
+        " let l:file = fnamemodify(expand("%"), ":p")
+    endif
+
     if len(expand("%")) == 0
         mkview! 9
     endif
-    call vit#LoadContent("left", a:content)
+    call vit#LoadContent("left", vit#ExecuteGit("show ".a:rev.":".l:file))
     setlocal filetype=VitDiff nomodifiable
     diffthis
     autocmd BufDelete,BufWipeout <buffer> windo diffoff
@@ -146,28 +134,24 @@ function! vit#PopDiff(content)
     diffthis
     0
     setlocal modifiable "syntax=off
-endfunction
-" }}}
 
-" Loaded in windows {{{
-function! vit#PopGitDiff(rev, file)
-    if len(a:file) > 0
-        let l:file = fnamemodify(a:file, ":p")
-    else
-        let l:file = vit#GetFilenameRelativeToGit(expand("%"))
-        " let l:file = fnamemodify(expand("%"), ":p")
-    endif
-    call vit#PopDiff(vit#ExecuteGit("show ".a:rev.":".l:file))
     wincmd t
     let b:git_revision = a:rev
 endfunction
-function! vit#PopGitDiffPrompt()
+function! vit#DiffPrompt()
     call inputsave()
     let l:response = input('Commit, tag or branch: ')
     call inputrestore()
-    call vit#PopGitDiff(l:response, "")
+    call vit#Diff(l:response, "")
 endfunction
-function! vit#PopGitBlame()
+function! DiffFromRev(rev, file)
+    bdelete
+    call vit#Diff(a:rev, a:file)
+endfunction
+" }}}
+
+"" Blame {{{
+function! vit#Blame()
     if len(expand("%")) == 0
         mkview! 9
     endif
@@ -192,7 +176,10 @@ function! vit#PopGitBlame()
     endif
     " call cursor(l:cline, 0)
 endfunction
-function! vit#PopGitFileLog(file)
+" }}}
+
+"" Log {{{
+function! vit#Log(file)
     if !exists("b:vit_is_standalone")
         mkview! 9
     endif
@@ -217,15 +204,18 @@ function! vit#PopGitFileLog(file)
     call cursor(line("."), 2)
     let b:vit_ref_file = l:file
 endfunction
-function! vit#RefreshGitFileLog()
+function! vit#RefreshLog()
     for win_num in range(1, winnr('$'))
         if getbufvar(winbufnr(win_num), '&filetype') == "VitLog"
-            call vit#PopGitFileLog(getbufvar(winbufnr(win_num), "vit_ref_file"))
+            call vit#Log(getbufvar(winbufnr(win_num), "vit_ref_file"))
             break
         endif
     endfor
 endfunction
-function! vit#PopGitShow(rev)
+" }}}
+
+"" Show {{{
+function! vit#Show(rev)
     if expand("%") !=? ""
         mkview! 9
     endif
@@ -240,7 +230,6 @@ function! vit#PopGitShow(rev)
     set filetype=VitShow nolist nocursorline
     if exists("b:vit_is_standalone")
         bdelete #
-        " resize
     else
         resize 25
     endif
@@ -250,25 +239,10 @@ function! vit#PopGitShow(rev)
     endif
     let b:git_revision = a:rev
 endfunction
-function! vit#OpenFilesInCommit(rev)
-    let l:rel_dir = substitute(getcwd(), b:vit_root_dir."/", "", "")."/"
-    let l:ret = system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ sub(\"".l:rel_dir."\", \"\", $2); print $2 }'")
-    let l:files = split(l:ret)
-    if len(l:files) > 0
-        bdelete
-        setlocal modifiable
-        silent execute "argadd ".join(l:files, ' ')
-        bdelete %
-        if exists("b:vit_is_standalone")
-            unlet! b:vit_is_standalone
-        endif
-    else
-        echohl WarningMsg
-        echomsg "There are no files related to this commit"
-        echohl None
-    endif
-endfunction
-function! vit#GitStatus()
+" }}}
+
+"" Status {{{
+function! vit#Status()
     for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
         if getbufvar(b, "&filetype") ==? "VitStatus"
             execute "bdelete! ".b
@@ -283,7 +257,7 @@ function! vit#GitStatus()
 
     let l:git_dir = b:vit_git_dir
     let l:root_dir = b:vit_root_dir
-    call vit#LoadContent("right", vit#ExecuteGit("status -s"))
+    call vit#LoadContent("right", vit#ExecuteGit("status -sb"))
 
     " Set width of the window based on the widest text
     set winminwidth=1
@@ -304,37 +278,29 @@ function! vit#GitStatus()
         only
     endif
 endfunction
-function! vit#RefreshGitStatus()
+function! vit#RefreshStatus()
     for win_num in range(1, winnr('$'))
         let l:buf_num = winbufnr(win_num)
         if getbufvar(l:buf_num, '&filetype') == "VitStatus"
             execute "bdelete! ".l:buf_num
-            call vit#GitStatus()
+            call vit#Status()
             break
         endif
     endfor
 endfunction
 " }}}
 
-" External manipulators {{{
-function! vit#CheckoutFromBuffer()
-    let l:rev = b:git_revision
-    bdelete
-    call vit#GitCheckoutCurrentFile(l:rev)
-endfunction
-function! vit#AddFilesToGit(files)
+"" Reset {{{
+function! vit#Add(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
     call vit#ExecuteGit("add ".l:files)
     echo "Added ".a:files." to the stage"
-    call vit#RefreshGitStatus()
+    call vit#RefreshStatus()
 endfunction
-function! vit#ResetFilesInGitIndex(files)
-    let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
-    call vit#ExecuteGit("reset ".l:files)
-    echomsg "Unstaged ".a:files
-    call vit#RefreshGitStatus()
-endfunction
-function! vit#GitCommit(args)
+" }}}
+
+"" Commit {{{
+function! vit#Commit(args)
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
     " if &modified && confirm("Current file has changed. Save it?", "Y\nn", 1) == 1
         " write
@@ -344,7 +310,7 @@ function! vit#GitCommit(args)
     " endif
     if vit#GitCurrentFileStatus() != 4
         if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
-            call vit#AddFilesToGit(expand("%"))
+            call vit#Add(expand("%"))
         endif
     endif
 
@@ -394,8 +360,8 @@ endfunction
 function! vit#PerformCommit(args)
     call vit#ExecuteGit("commit ".a:args)
     echomsg "Successfully committed"
-    call vit#RefreshGitStatus()
-    call vit#RefreshGitFileLog()
+    call vit#RefreshStatus()
+    call vit#RefreshLog()
 endfunction
 function! vit#GitCommitFinish()
     let l:commit_message_file = expand("%")
@@ -413,29 +379,97 @@ function! vit#GitCommitFinish()
     call delete(l:commit_message_file)
     unlet l:commit_message_file
 endfunction
-function! vit#GitCheckoutCurrentFile(rev)
-    let l:file = vit#GetFilenameRelativeToGit(expand("%"))
-    call vit#ExecuteGit("checkout ".a:rev." ".l:file)
-    edit l:file
-    call vit#RefreshGitStatus()
-    call vit#RefreshGitFileLog()
-endfunction
-function! vit#GitPush(remote, branch)
-    let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetGitRemote()
-    let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetGitBranch()
+" }}}
+
+"" Push && Pull {{{
+function! vit#Push(remote, branch)
+    let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetRemote()
+    let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetBranch()
     " echomsg "REMOTE: ".l:remote
     " echomsg "BRANCH: ".l:branch
 
     call vit#ExecuteGit("push ".l:remote." ".l:branch)
-    call vit#RefreshGitStatus()
+    call vit#RefreshStatus()
 endfunction
-function! vit#GitPull(remote, branch, rebase)
-    let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetGitRemote()
-    let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetGitBranch()
+function! vit#Pull(remote, branch, rebase)
+    let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetRemote()
+    let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetBranch()
     let l:rebase = a:rebase ? "--rebase" : ""
 
     call vit#ExecuteGit("pull ".l:rebase." ".l:remote."/".l:branch)
-    call vit#RefreshGitStatus()
+    call vit#RefreshStatus()
+endfunction
+function! vit#GetRemote()
+    let l:remote = ""
+    if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
+        execute "cd ".b:vit_root_dir
+        " TODO: grep out .gitconfig for this value?
+        let l:remotes = split(system("git --git-dir=".b:vit_git_dir." remote -v | grep push | awk '{ print $1 }'"))
+        cd -
+        if len(l:remotes) == 0
+            echohl WarningMsg
+            echomsg "No remotes found!"
+            echohl
+        elseif len(l:remotes) > 1
+            let l:choices = join(l:remotes, "\n")
+            let l:remote = confirm("Choose remote: ", l:choices, 1)
+        else
+            let l:remote = l:remotes[0]
+        endif
+    endif
+    return l:remote
+endfunction
+" }}}
+
+"" Reset {{{
+function! vit#Reset(args)
+    call vit#ResetFilesInGitIndex(a:args)
+endfunction
+function! vit#ResetFilesInGitIndex(files)
+    let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
+    call vit#ExecuteGit("reset ".l:files)
+    echomsg "Unstaged ".a:files
+    call vit#RefreshStatus()
+endfunction
+" }}}
+
+"" Checkout {{{
+function! vit#Checkout(args)
+    call vit#CheckoutCurrentFile(a:args)
+endfunction
+function! vit#CheckoutCurrentFile(rev)
+    let l:file = vit#GetFilenameRelativeToGit(expand("%"))
+    call vit#ExecuteGit("checkout ".a:rev." ".l:file)
+    edit l:file
+    call vit#RefreshStatus()
+    call vit#RefreshLog()
+endfunction
+function! vit#CheckoutFromBuffer()
+    let l:rev = b:git_revision
+    bdelete
+    call vit#CheckoutCurrentFile(l:rev)
+endfunction
+" }}}
+" }}}
+
+" Other {{{
+function! vit#OpenFilesInCommit(rev)
+    let l:rel_dir = substitute(getcwd(), b:vit_root_dir."/", "", "")."/"
+    let l:ret = system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ sub(\"".l:rel_dir."\", \"\", $2); print $2 }'")
+    let l:files = split(l:ret)
+    if len(l:files) > 0
+        bdelete
+        setlocal modifiable
+        silent execute "argadd ".join(l:files, ' ')
+        bdelete %
+        if exists("b:vit_is_standalone")
+            unlet! b:vit_is_standalone
+        endif
+    else
+        echohl WarningMsg
+        echomsg "There are no files related to this commit"
+        echohl None
+    endif
 endfunction
 " }}}
 

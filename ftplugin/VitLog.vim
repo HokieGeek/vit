@@ -4,7 +4,7 @@ endif
 let g:autoloaded_vit_log = 1
 scriptencoding utf-8
 
-function! GetRevFromGitLog()
+function! GetRevFromLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
@@ -28,7 +28,7 @@ if exists("b:vit_is_standalone")
 
     function! LoadLogEntry()
         if b:vit_log_lastline != line(".")
-            let l:rev = GetRevFromGitLog()
+            let l:rev = GetRevFromLog()
 
             if l:rev !~ "^[\|\\/*]"
                 if has_key(g:vit_log_entry_cache, l:rev)
@@ -68,21 +68,21 @@ if exists("b:vit_is_standalone")
     nnoremap <buffer> j j
     nnoremap <buffer> k k
 
-    " nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromGitLog())<cr>
+    " nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromLog())<cr>
 else
     function! CheckoutFromLog()
-        let l:rev = GetRevFromGitLog()
+        let l:rev = GetRevFromLog()
         bdelete
-        call vit#GitCheckoutCurrentFile(l:rev)
+        call vit#CheckoutCurrentFile(l:rev)
     endfunction
     function! ShowFromLog()
-        let l:rev = GetRevFromGitLog()
+        let l:rev = GetRevFromLog()
         bdelete
-        call vit#PopGitShow(l:rev)
+        call vit#Show(l:rev)
     endfunction
 
     nnoremap <buffer> <silent> o :call CheckoutFromLog()<cr>
     nnoremap <buffer> <silent> <enter> :let g:vit_log_lastline=line(".") <bar> call ShowFromLog()<cr>
 
-    nnoremap <buffer> <silent> v :let l:file = b:vit_ref_file <bar> bdelete <bar> call vit#PopGitDiff(vit#GetRevFromGitLog(), l:file)<cr>
+    nnoremap <buffer> <silent> v :let l:file = b:vit_ref_file <bar> bdelete <bar> call vit#PopGitDiff(vit#GetRevFromLog(), l:file)<cr>
 endif

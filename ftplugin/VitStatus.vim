@@ -1,8 +1,14 @@
+if exists("g:autoloaded_vit_status") || v:version < 700
+    finish
+endif
+let g:autoloaded_vit_status = 1
+scriptencoding utf-8
+
 function! LoadFileFromStatus(line)
     let l:file = b:vit_root_dir."/".split(a:line)[1]
     execute bufwinnr(l:file)."wincmd w"
     if bufloaded(l:file)
-        call vit#PopGitDiff('', '')
+        call vit#Diff('', '')
     else
         execute "edit ".l:file
     endif
