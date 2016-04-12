@@ -4,7 +4,7 @@ endif
 let g:autoloaded_vit_status = 1
 scriptencoding utf-8
 
-call vit#LoadContent("current", vit#ExecuteGit("status -sb"))
+call vit#LoadContent("current", vit#ExecuteGit("status -s".((b:vit_git_version[2] > 2) ? "b" : "")))
 
 " Set width of the window based on the widest text
 set winminwidth=1
@@ -26,9 +26,9 @@ function! LoadFileFromStatus(line)
     endif
 endfunction
 
-autocmd CursorMoved <buffer> execute "let &cursorline=".((line(".") == 1) ? "0" : "1")
-nnoremap <buffer> <silent> <enter> :if line(".") != 1<bar>call LoadFileFromStatus(getline("."))<bar>endif<cr>
-" if exists("b:vit_is_standalone")
-    " nnoremap <buffer> <silent> q :quitall!<cr>
-    " nnoremap <buffer> <silent> <esc> :quitall!<cr>
-" endif
+if getline(1) !~ "^##"
+    nnoremap <buffer> <silent> <enter> :call LoadFileFromStatus(getline("."))<cr>
+else
+    autocmd CursorMoved <buffer> execute "let &cursorline=".((line(".") == 1) ? "0" : "1")
+    nnoremap <buffer> <silent> <enter> :if line(".") != 1<bar>call LoadFileFromStatus(getline("."))<bar>endif<cr>
+endif
