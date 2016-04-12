@@ -8,7 +8,7 @@ unlet b:vit_git_dir
 call vit#LoadContent("current", vit#ExecuteGit("show ".b:git_revision.":".b:vit_ref_file))
 setlocal nomodifiable
 
-diffthis
+windo diffthis
 autocmd BufDelete,BufWipeout <buffer> windo diffoff
 
 function! ShowFromDiff()
