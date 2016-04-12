@@ -4,6 +4,19 @@ endif
 let g:autoloaded_vit_blame = 1
 scriptencoding utf-8
 
+call vit#LoadContent("current", vit#ExecuteGit("blame --date=short ".b:vit_ref_file))
+
+normal f)
+execute "vertical resize ".col(".")
+normal 0
+call cursor(b:vit_blame_start_cursor, 0)
+setlocal cursorline
+
+windo setlocal scrollbind nomodifiable nonumber
+if exists("&relativenumber")
+    windo setlocal norelativenumber
+endif
+
 function! GetRevFromBlame()
     let l:rev = system("echo '".getline(".")."' | awk '{ print $1 }'")
     let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
