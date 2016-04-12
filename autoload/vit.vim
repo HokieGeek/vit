@@ -185,7 +185,7 @@ function! vit#Show(rev)
         let l:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
         let b:vit_ref_file = l:vit_ref_file
     endif
-    topleft new
+    botright new
     let b:vit_ref_file = l:vit_ref_file
     let b:git_revision = a:rev
     setlocal filetype=VitShow
