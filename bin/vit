@@ -5,20 +5,7 @@
     exit
 }
 
-        # --cmd "profile func *" \
-[ "$1" == "--profile" ] && {
-    shift
-    tmp=`mktemp`
-    vim --cmd "profile start ${tmp}" \
-        --cmd "profile func *" \
-        --cmd "let g:que__vcs_section_enabled = 0" \
-        --cmd "let g:vit_log_use_new_colors = 1" \
-        -c "silent! %bwipeout" \
-        -c "call vit#PopGitFileLog('"$1"')" \
-    && vim ${tmp} +/SORTED
-} || {
-    exec vim --cmd "let g:que__vcs_section_enabled = 0" \
-             --cmd "let g:vit_log_use_new_colors = 1" \
-             -c "silent! %bwipeout" \
-             -c "call vit#PopGitFileLog('"$1"')"
-}
+exec vim --cmd "let g:que__vcs_section_enabled = 0" \
+         --cmd "let g:vit_log_use_new_colors = 1" \
+         -c "silent! %bwipeout" \
+         -c "call vit#PopGitFileLog('"$1"')"
