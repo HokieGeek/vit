@@ -9,14 +9,12 @@ setlocal nolist cursorline nomodifiable nonumber
 if exists("&relativenumber")
     setlocal norelativenumber
 endif
-    
-" call cursor(line("."), 2)
 
 function! GetRevFromLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-if exists("b:vit_is_standalone")
+if strlen(b:vit_is_standalone) <= 0
     if bufnr("$") > 1
         bdelete #
     endif
