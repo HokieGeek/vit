@@ -4,6 +4,18 @@ endif
 let g:autoloaded_vit_status = 1
 scriptencoding utf-8
 
+call vit#LoadContent("current", vit#ExecuteGit("status -sb"))
+
+" Set width of the window based on the widest text
+set winminwidth=1
+let b:max_cols = max(map(getline(1, "$"), "len(v:val)")) + 1
+execute "vertical resize ".b:max_cols
+
+setlocal nolist nomodifiable nonumber "cursorline
+if exists("&relativenumber")
+    setlocal norelativenumber
+endif
+
 function! LoadFileFromStatus(line)
     let l:file = b:vit_root_dir."/".split(a:line)[1]
     execute bufwinnr(l:file)."wincmd w"
