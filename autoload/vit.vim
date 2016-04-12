@@ -126,6 +126,8 @@ function! vit#LoadContent(location, content)
         topleft new
     elseif a:location ==? "bottom"
         botright new
+    elseif a:location ==? "current"
+        enew
     endif
     set buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
     silent! put =a:content
@@ -238,13 +240,13 @@ function! vit#PopGitShow(rev)
     set filetype=VitShow nolist nocursorline
     if exists("b:vit_is_standalone")
         bdelete #
-        resize
+        " resize
     else
         resize 25
     endif
     setlocal nomodifiable nonumber
     if exists("&relativenumber")
-        set norelativenumber
+        setlocal norelativenumber
     endif
     let b:git_revision = a:rev
 endfunction
@@ -300,15 +302,6 @@ function! vit#GitStatus()
         wincmd t
     else
         only
-    endif
-endfunction
-function! vit#LoadFileFromStatus(line)
-    let l:file = b:vit_root_dir."/".split(a:line)[1]
-    execute bufwinnr(l:file)."wincmd w"
-    if bufloaded(l:file)
-        call vit#PopGitDiff('', '')
-    else
-        execute "edit ".l:file
     endif
 endfunction
 function! vit#RefreshGitStatus()

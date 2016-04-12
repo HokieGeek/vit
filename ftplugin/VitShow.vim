@@ -1,3 +1,9 @@
+if exists("g:autoloaded_vit_show") || v:version < 700
+    finish
+endif
+let g:autoloaded_vit_show = 1
+scriptencoding utf-8
+
 function! GetRevFromGitShow()
     return substitute(getline(1), '^commit \([0-9a-f].*\)$', '\1', '')
 endfunction
