@@ -1,7 +1,7 @@
-if exists("g:autoloaded_vit_log") || v:version < 700
+if exists("b:autoloaded_vit_log") || v:version < 700
     finish
 endif
-let g:autoloaded_vit_log = 1
+let b:autoloaded_vit_log = 1
 scriptencoding utf-8
 
 call vit#LoadContent("current", vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file))
@@ -80,7 +80,7 @@ if exists("b:vit_is_standalone")
 
     " nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromLog())<cr>
 else
-    resize 10
+    resize 20
 
     function! CheckoutFromLog()
         let l:rev = GetRevFromLog()
