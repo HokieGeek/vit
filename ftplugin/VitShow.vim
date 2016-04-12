@@ -19,7 +19,7 @@ endfunction
 
 if !exists("b:vit_is_standalone")
     " resize 25
-    nnoremap <buffer> <silent> <enter> :call DiffFromRev(b:git_revision, b:vit_ref_file)<cr>
+    nnoremap <buffer> <silent> <enter> :bdelete<bar>call vit#Diff(b:git_revision, b:vit_ref_file)<cr>
     " nnoremap <buffer> <silent> o :call vit#CheckoutFromBuffer()<cr>
 endif
 nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromShow())<cr>
