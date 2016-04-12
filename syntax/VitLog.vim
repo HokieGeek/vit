@@ -12,6 +12,7 @@ syntax match VitLogHash     "\v^[\* |/\\]*\s[0-9a-z]{7} "   contains=VitLogGraph
 syntax match VitLogGraph    "\v^[\* |/\\]*"                 contained
 syntax match VitLogDash     "- "                            contained
 
+highlight CursorLine    ctermbg=235      ctermfg=none        cterm=none
 highlight VitLogGraph   ctermbg=none     ctermfg=darkgray    cterm=none
 highlight VitLogDash    ctermbg=none     ctermfg=white       cterm=none
 highlight VitLogHash    ctermbg=none     ctermfg=darkred     cterm=none
@@ -25,7 +26,5 @@ else
     highlight VitLogAuthor  ctermbg=none     ctermfg=green       cterm=none
     highlight VitLogBranch  ctermbg=none     ctermfg=yellow      cterm=none
 endif
-
-highlight CursorLine    ctermbg=235      ctermfg=none        cterm=none
 
 let b:current_syntax = "VitLog"

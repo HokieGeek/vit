@@ -272,11 +272,11 @@ function! vit#Status()
     let b:vit_git_dir = l:git_dir
     let b:vit_root_dir = l:root_dir
 
-    if l:is_panel
+    " if l:is_panel
         wincmd t
-    else
-        only
-    endif
+    " else
+        " only
+    " endif
 endfunction
 function! vit#RefreshStatus()
     for win_num in range(1, winnr('$'))
@@ -290,7 +290,7 @@ function! vit#RefreshStatus()
 endfunction
 " }}}
 
-"" Reset {{{
+"" Add {{{
 function! vit#Add(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
     call vit#ExecuteGit("add ".l:files)
