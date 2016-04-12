@@ -80,21 +80,13 @@ if exists("b:vit_is_standalone")
 
     " nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromLog())<cr>
 else
-    resize 20
+    resize 30
 
-    function! CheckoutFromLog()
-        let l:rev = GetRevFromLog()
-        bdelete
-        call vit#CheckoutCurrentFile(l:rev)
-    endfunction
-    function! ShowFromLog()
-        let l:rev = GetRevFromLog()
-        bdelete
-        call vit#Show(l:rev)
-    endfunction
+    " nnoremap <buffer> <silent> c :call vit#CheckoutCurrentfile(GetRevFromLog())<cr>
+    nnoremap <buffer> <silent> s :call vit#Show(GetRevFromLog())<cr>
 
-    nnoremap <buffer> <silent> o :call CheckoutFromLog()<cr>
-    nnoremap <buffer> <silent> <enter> :let g:vit_log_lastline=line(".") <bar> call ShowFromLog()<cr>
+    " nnoremap <buffer> <silent> o :call CheckoutFromLog()<cr>
+    " nnoremap <buffer> <silent> <enter> :let g:vit_log_lastline=line(".") <bar> call ShowFromLog()<cr>
 
-    nnoremap <buffer> <silent> v :let l:file = b:vit_ref_file <bar> bdelete <bar> call vit#PopGitDiff(vit#GetRevFromLog(), l:file)<cr>
+    " nnoremap <buffer> <silent> v :let l:file = b:vit_ref_file <bar> bdelete <bar> call vit#PopGitDiff(vit#GetRevFromLog(), l:file)<cr>
 endif
