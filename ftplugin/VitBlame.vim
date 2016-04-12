@@ -8,7 +8,7 @@ call vit#GetGitConfig(b:vit_ref_file)
 unlet b:vit_git_dir
 call vit#LoadContent("current", vit#ExecuteGit("blame --date=short ".b:vit_ref_file))
 
-normal f)
+normal f)bbEl
 execute "vertical resize ".col(".")
 normal 0
 call cursor(b:vit_blame_start_cursor, 0)
