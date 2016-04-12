@@ -101,23 +101,23 @@ function! vit#GitCurrentFileStatus()
 endfunction
 
 function! vit#LoadContent(location, content)
-    if a:location ==? "left"
-        topleft vnew
-    elseif a:location ==? "right"
-        botright vnew
-    elseif a:location ==? "top"
-        topleft new
-    elseif a:location ==? "bottom"
-        botright new
-    elseif a:location ==? "current-new"
-        enew
-    elseif a:location ==? "current"
+    " if a:location ==? "left"
+    "    topleft vnew
+    " elseif a:location ==? "right"
+    "    botright vnew
+    " elseif a:location ==? "top"
+    "     topleft new
+    " elseif a:location ==? "bottom"
+    "    botright new
+    " elseif a:location ==? "current-new"
+    "    enew
+    " elseif a:location ==? "current"
         " no-op
-    endif
+    " endif
     set buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
     silent! put =a:content
     0d_
-    let b:vit_original_file = expand("%")
+    " let b:vit_original_file = expand("%")
 endfunction
 " }}}
 
@@ -128,33 +128,20 @@ function! vit#Diff(rev, file)
         let l:file = fnamemodify(a:file, ":p")
     else
         let l:file = vit#GetFilenameRelativeToGit(expand("%"))
-        " let l:file = fnamemodify(expand("%"), ":p")
     endif
 
-    if len(expand("%")) == 0
-        mkview! 9
-    endif
     topleft vnew
     let b:vit_ref_file = l:file
     let b:git_revision = a:rev
     setlocal filetype=VitDiff
     
-    wincmd l
-    diffthis
-    0
-    setlocal modifiable "syntax=off
-
-    wincmd t
+    wincmd p
 endfunction
 function! vit#DiffPrompt()
     call inputsave()
     let l:response = input('Commit, tag or branch: ')
     call inputrestore()
     call vit#Diff(l:response, "")
-endfunction
-function! DiffFromRev(rev, file)
-    bdelete
-    call vit#Diff(a:rev, a:file)
 endfunction
 " }}}
 
@@ -172,24 +159,16 @@ endfunction
 
 "" Log {{{
 function! vit#Log(file)
-    if !exists("b:vit_is_standalone")
-        mkview! 9
-    endif
-    if len(a:file) > 0
-        let l:file = vit#GetFilenameRelativeToGit(a:file)
-    else
-        let l:file = ""
-    endif
+    let l:file = vit#GetFilenameRelativeToGit(a:file)
+
     topleft vnew
     let b:vit_ref_file = l:file
-    
     setlocal filetype=VitLog
 endfunction
 function! vit#RefreshLog()
     for win_num in range(1, winnr('$'))
         if getbufvar(winbufnr(win_num), '&filetype') == "VitLog"
             call vit#Log(getbufvar(winbufnr(win_num), "vit_ref_file"))
-            break
         endif
     endfor
 endfunction
