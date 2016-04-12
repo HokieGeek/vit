@@ -8,38 +8,15 @@ function! GetRevFromGitLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-function! CreateNewLogEntryBuffer(content)
-    " setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
-    setlocal filetype=VitShow buftype=nofile bufhidden=hide nobuflisted noswapfile
-    setlocal nonumber nocursorline nolist
-    if exists("&relativenumber")
-        setlocal norelativenumber
-    endif
-
-    if strlen(a:content) > 0
-        silent! put =a:content
-        silent! 0d_
-    else
-        silent! put ="Foobar"
-    endif
-    resize 35 "Would be nice if I didn't have to do this every time
-endfunction
-
 if exists("b:vit_is_standalone")
     if !exists("b:vit_log_lastline")
         let b:vit_log_lastline = 0
     endif
 
-    " let b:vit_log_winnr = winnr()
-
     " Create the new window to use for the git show output
     botright new
 
-    " let g:vit_log_entries_winnr = 2 "winnr()
-    " call CreateNewLogEntryBuffer("")
-
-    " setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
-    setlocal filetype=VitShow buftype=nofile bufhidden=hide nobuflisted noswapfile
+    setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
     setlocal nonumber nocursorline nolist
     if exists("&relativenumber")
         setlocal norelativenumber
@@ -91,7 +68,7 @@ if exists("b:vit_is_standalone")
     nnoremap <buffer> j j
     nnoremap <buffer> k k
 
-    nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromGitLog())<cr>
+    " nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromGitLog())<cr>
 else
     function! CheckoutFromLog()
         let l:rev = GetRevFromGitLog()
