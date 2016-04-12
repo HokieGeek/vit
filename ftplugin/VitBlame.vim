@@ -11,30 +11,33 @@ call vit#LoadContent("current", vit#ExecuteGit("blame --date=short ".b:vit_ref_f
 normal f)bbEl
 execute "vertical resize ".col(".")
 normal 0
-call cursor(b:vit_blame_start_cursor, 0)
-setlocal cursorline
 
-windo setlocal scrollbind nomodifiable nonumber
+setlocal cursorline nomodifiable nonumber nofoldenable
 if exists("&relativenumber")
-    windo setlocal norelativenumber
+    setlocal norelativenumber
 endif
 
-function! GetRevFromBlame()
-    let l:rev = system("echo '".getline(".")."' | awk '{ print $1 }'")
-    let l:rev = substitute(substitute(l:rev, '\s*\n*$', '', ''), '^\s*', '', '')
-    return l:rev
-endfunction
-function! CheckoutFromBlame()
-    let l:rev = GetRevFromBlame()
-    bdelete
-    call vit#CheckoutCurrentFile(l:rev)
-endfunction
-function! ShowFromBlame()
-    let l:rev = GetRevFromBlame()
-    bdelete
-    call vit#Show(l:rev)
+function! MoveVitBlameCursor()
+    let l:currline = line(".")
+    wincmd h
+    execute "normal ".l:currline."gg"
+    wincmd p
 endfunction
 
-nnoremap <buffer> <silent> <enter> :call DiffFromRev(GetRevFromBlame(), b:vit_ref_file)<cr>
-nnoremap <buffer> <silent> o :call CheckoutFromBlame()<cr>
-nnoremap <buffer> <silent> v :call ShowFromBlame()<cr>
+augroup VitBlame
+    autocmd!
+    autocmd CursorMoved <buffer=1> call MoveVitBlameCursor() " FIXME: buffer=1
+augroup END
+
+function! GetRevFromBlame()
+    return substitute(getline(".", '^\([0-9a-f]\{7,}\) .*', '\1', '')
+endfunction
+" function! CheckoutFromBlame()
+"     let l:rev = GetRevFromBlame()
+"     bdelete
+"     call vit#CheckoutCurrentFile(l:rev)
+" endfunction
+
+" nnoremap <buffer> <silent> <enter> :call DiffFromRev(GetRevFromBlame(), b:vit_ref_file)<cr>
+" nnoremap <buffer> <silent> c :call CheckoutFromBlame()<cr>
+nnoremap <buffer> <silent> s :call vit#Show(GetRevFromBlame())<cr>
