@@ -4,6 +4,13 @@ endif
 let g:autoloaded_vit_diff = 1
 scriptencoding utf-8
 
+unlet b:vit_git_dir
+call vit#LoadContent("current", vit#ExecuteGit("show ".b:git_revision.":".b:vit_ref_file))
+setlocal nomodifiable
+
+diffthis
+autocmd BufDelete,BufWipeout <buffer> windo diffoff
+
 function! ShowFromDiff()
     let l:rev = b:git_revision
     bdelete
