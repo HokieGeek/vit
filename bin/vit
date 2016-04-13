@@ -5,8 +5,11 @@
     exit
 }
 
-exec vim --cmd "let g:que__vcs_section_enabled = 0" \
-         --cmd "let g:vit_log_use_new_colors = 1" \
-         -c "silent! %bwipeout" \
-         -c "Git log "$1 \
-         -c "Git status"
+git rev-pasre --is-inside-work-tree >/dev/null 2>&1 || {
+    echo "Not inside a git working tree" >&2
+    exit 1
+}
+
+exec vim -c "Git log "$1 \
+         -c "Git status" \
+         $@
