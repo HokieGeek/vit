@@ -1,11 +1,11 @@
-if exists("g:autoloaded_vit_show") || v:version < 700
+if exists("b:autoloaded_vit_show") || v:version < 700
     finish
 endif
-let g:autoloaded_vit_show = 1
+let b:autoloaded_vit_show = 1
 scriptencoding utf-8
 
 if exists("b:git_revision")
-    call vit#LoadContent("current", vit#ExecuteGit("show ".b:git_revision))
+    call vit#LoadContent(vit#ExecuteGit("show ".b:git_revision))
 endif
 
 setlocal nolist nocursorline nomodifiable nonumber

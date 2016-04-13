@@ -5,6 +5,7 @@ let g:autoloaded_vit = 1
 scriptencoding utf-8
 
 " Helpers {{{
+"" Repo info {{{
 function! vit#init()
     if exists("b:vit_initialized")
         return
@@ -15,27 +16,28 @@ function! vit#init()
     if !executable("git")
         return
     endif
-    
+
     " .... somehow determine we are in standalone mode ... ¯\_(ツ)_/¯
     " if expand("%") ==# "" && argc() <= 0
     "     let b:vit_is_standalone = 0
     " elseif strlen(bufname("%")) <= 0
     "     return
     " endif
-    
+
     call vit#GetGitConfig("%")
 
     " Add autocmds
     autocmd BufWritePost <buffer> call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
     command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call Git(<f-args>)
 endfunction
+
 function! vit#GetGitConfig(file)
     " Check if the *file* is inside a git directory
     silent! call system("cd ".expand(a:file.":p:h")."; git rev-parse --is-inside-work-tree >/dev/null 2>&1")
     if v:shell_error != 0
         return
     endif
-    
+
     " Determine the git directories
     let b:vit_git_dir = substitute(system("git rev-parse --git-dir"), "\n*$", '', '')
     if b:vit_git_dir[0] != "/"
@@ -45,15 +47,9 @@ function! vit#GetGitConfig(file)
     let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
     " echomsg "GIT DIR:".b:vit_git_dir
     " echomsg "ROOT DIR:".b:vit_root_dir
-    
+
     " Determine the version of git
     let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
-endfunction
-
-function! vit#ExecuteGit(args)
-    if exists("b:vit_git_cmd") && strlen(a:args) > 0
-        return system(b:vit_git_cmd." ".a:args)
-    endif
 endfunction
 
 function! vit#GetBranch()
@@ -64,7 +60,9 @@ function! vit#GetBranch()
         return ""
     endif
 endfunction
+" }}}
 
+"" File info {{{
 function! vit#GetFilenameRelativeToGit(file)
     let l:file = substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', '')
     return l:file
@@ -103,29 +101,23 @@ endfunction
 function! vit#GitCurrentFileStatus()
     return vit#GitFileStatus(expand("%:p:h"))
 endfunction
+" }}}
 
-function! vit#LoadContent(location, content)
-    " if a:location ==? "left"
-    "    topleft vnew
-    " elseif a:location ==? "right"
-    "    botright vnew
-    " elseif a:location ==? "top"
-    "     topleft new
-    " elseif a:location ==? "bottom"
-    "    botright new
-    " elseif a:location ==? "current-new"
-    "    enew
-    " elseif a:location ==? "current"
-        " no-op
-    " endif
-    set buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
+function! vit#ExecuteGit(args)
+    if exists("b:vit_git_cmd") && strlen(a:args) > 0
+        return system(b:vit_git_cmd." ".a:args)
+    endif
+endfunction
+
+function! vit#LoadContent(content)
+    setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
     silent! put =a:content
     0d_
-    " let b:vit_original_file = expand("%")
 endfunction
 " }}}
 
 " Commands {{{
+"""" Loaded in windows
 "" Diff {{{
 function! vit#Diff(rev, file)
     if len(a:file) > 0
@@ -138,7 +130,7 @@ function! vit#Diff(rev, file)
     let b:vit_ref_file = l:file
     let b:git_revision = a:rev
     setlocal filetype=VitDiff
-    
+
     wincmd p
 endfunction
 function! vit#DiffPrompt()
@@ -165,7 +157,7 @@ endfunction
 function! vit#Log(file)
     let l:file = vit#GetFilenameRelativeToGit(a:file)
 
-    botright vnew
+    topleft new
     let b:vit_ref_file = l:file
     setlocal filetype=VitLog
 endfunction
@@ -232,6 +224,7 @@ function! vit#RefreshStatus()
 endfunction
 " }}}
 
+""" External manipulators
 "" Add {{{
 function! vit#Add(files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
@@ -395,24 +388,24 @@ endfunction
 " }}}
 
 " Other {{{
-function! vit#OpenFilesInCommit(rev)
-    let l:rel_dir = substitute(getcwd(), b:vit_root_dir."/", "", "")."/"
-    let l:ret = system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ sub(\"".l:rel_dir."\", \"\", $2); print $2 }'")
-    let l:files = split(l:ret)
-    if len(l:files) > 0
-        bdelete
-        setlocal modifiable
-        silent execute "argadd ".join(l:files, ' ')
-        bdelete %
-        if exists("b:vit_is_standalone")
-            unlet! b:vit_is_standalone
-        endif
-    else
-        echohl WarningMsg
-        echomsg "There are no files related to this commit"
-        echohl None
-    endif
-endfunction
+" function! vit#OpenFilesInRevision(rev)
+"     let l:rel_dir = substitute(getcwd(), b:vit_root_dir."/", "", "")."/"
+"     let l:ret = system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ sub(\"".l:rel_dir."\", \"\", $2); print $2 }'")
+"     let l:files = split(l:ret)
+"     if len(l:files) > 0
+"         " bdelete
+"         setlocal modifiable
+"         silent execute "argadd ".join(l:files, ' ')
+"         bdelete %
+"         " if exists("b:vit_is_standalone")
+"             " unlet! b:vit_is_standalone
+"         " endif
+"     else
+"         echohl WarningMsg
+"         echomsg "There are no files related to this commit"
+"         echohl None
+"     endif
+" endfunction
 " }}}
 
 " vim: set foldmethod=marker formatoptions-=tc:

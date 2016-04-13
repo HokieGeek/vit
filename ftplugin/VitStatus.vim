@@ -1,14 +1,18 @@
-if exists("g:autoloaded_vit_status") || v:version < 700
+if exists("b:autoloaded_vit_status") || v:version < 700
     finish
 endif
-let g:autoloaded_vit_status = 1
+let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
-call vit#LoadContent("current", vit#ExecuteGit("status -s".((b:vit_git_version[2] > 2) ? "b" : "")))
+if exists("b:vit_git_version") && (b:vit_git_version[0] > 1 || b:vit_git_version[1] > 7 || (b:vit_git_version[1] == 7 && b:vit_git_version[2] > 2))
+    call vit#LoadContent(vit#ExecuteGit("status -sb"))
+else
+    call vit#LoadContent(vit#ExecuteGit("status -s"))
+endif
 
 " Set width of the window based on the widest text
 set winminwidth=1
-let b:max_cols = max(map(getline(1, "$"), "len(v:val)")) + 1
+let b:max_cols = max(map(getline(1, "$"), "len(v:val)")) + 5
 execute "vertical resize ".b:max_cols
 
 setlocal nolist nomodifiable nonumber "cursorline
@@ -16,19 +20,27 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-function! LoadFileFromStatus(line)
-    let l:file = b:vit_root_dir."/".split(a:line)[1]
-    execute bufwinnr(l:file)."wincmd w"
-    if bufloaded(l:file)
-        call vit#Diff('', '')
+function! VitStatus#LoadFileFromStatus(line)
+    if a:line !~ "^##" && exists("b:vit_root_dir")
+        " echomsg a:line
+        let l:file = b:vit_root_dir."/".split(a:line)[1]
+        " echomsg l:file
+        " execute bufwinnr(l:file)."wincmd w"
+        wincmd h
+        if bufloaded(l:file)
+            echom "Already exists"
+        "     call vit#Diff('', '')
+        else
+            execute "edit ".l:file
+        endif
     else
-        execute "edit ".l:file
+        echo "root = ".b:vit_root_dir
     endif
 endfunction
 
-if getline(1) !~ "^##"
-    nnoremap <buffer> <silent> <enter> :call LoadFileFromStatus(getline("."))<cr>
-else
+nnoremap <buffer> <silent> + :if getline(".") !~ "^##"<bar>call vit#Add(split(getline("."))[1])<bar>endif<cr>
+nnoremap <buffer> <silent> - :if getline(".") !~ "^##"<bar>call vit#Reset(split(getline("."))[1])<bar>endif<cr>
+" nnoremap <buffer> <silent> <enter> :call VitStatus#LoadFileFromStatus(getline("."))<cr>
+if getline(1) =~ "^##"
     autocmd CursorMoved <buffer> execute "let &cursorline=".((line(".") == 1) ? "0" : "1")
-    nnoremap <buffer> <silent> <enter> :if line(".") != 1<bar>call LoadFileFromStatus(getline("."))<bar>endif<cr>
 endif

@@ -2,13 +2,18 @@ if exists("b:current_syntax")
     finish
 endif
 
-syntax match VitBlameHash "\v^[\^0-9a-z]{8} "
+syntax match VitBlameFile "\v^[\^0-9a-z]{7,} [a-zA-Z\._\-]* " contains=VitBlameHash
+syntax match VitBlameHash "\v^[\^0-9a-z]{7,} " contained
 syntax match VitBlameTime "\v\s[0-9]{4}(-[0-9]{2}){2}\s"
-" syntax match VitBlameAuthor "\s([0-9a-zA-Z]?\s"
 
-highlight VitBlameHash ctermbg=none ctermfg=darkred cterm=none
-highlight VitBlameTime ctermbg=none ctermfg=cyan cterm=none
-" highlight VitBlameAuthor ctermbg=none ctermfg=green cterm=none
-highlight CursorLine ctermbg=darkblue ctermfg=white cterm=none
+highlight CursorLine    ctermbg=235     ctermfg=none        cterm=none
+highlight VitBlameHash  ctermbg=none    ctermfg=darkred     cterm=none
+highlight VitBlameFile  ctermbg=none    ctermfg=darkgrey     cterm=none
+
+if exists("g:vit_log_use_new_colors")
+    highlight VitBlameTime  ctermbg=none    ctermfg=148         cterm=none
+else
+    highlight VitBlameTime  ctermbg=none    ctermfg=cyan        cterm=none
+endif
 
 let b:current_syntax = "VitBlame"

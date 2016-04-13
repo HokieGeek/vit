@@ -4,7 +4,7 @@ endif
 let b:autoloaded_vit_log = 1
 scriptencoding utf-8
 
-call vit#LoadContent("current", vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file))
+call vit#LoadContent(vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file))
 setlocal nolist cursorline nomodifiable nonumber
 if exists("&relativenumber")
     setlocal norelativenumber
@@ -14,7 +14,7 @@ function! GetRevFromLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-if strlen(b:vit_is_standalone) <= 0
+if strlen(b:vit_ref_file) <= 0
     if bufnr("$") > 1
         bdelete #
     endif
@@ -81,7 +81,7 @@ else
     resize 30
 
     " nnoremap <buffer> <silent> c :call vit#CheckoutCurrentfile(GetRevFromLog())<cr>
-    nnoremap <buffer> <silent> s :call vit#Show(GetRevFromLog())<cr>
+    nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromLog())<cr>
 
     " nnoremap <buffer> <silent> o :call CheckoutFromLog()<cr>
     " nnoremap <buffer> <silent> <enter> :let g:vit_log_lastline=line(".") <bar> call ShowFromLog()<cr>

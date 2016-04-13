@@ -79,7 +79,7 @@ function! Git(...) " {{{
                 echohl None
             endif
         else
-            call vit#GitStatus()
+            call vit#Status()
         endif
     else
         echomsg "Not in a git repository"
