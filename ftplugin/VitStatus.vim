@@ -38,8 +38,8 @@ function! VitStatus#LoadFileFromStatus(line)
     endif
 endfunction
 
-nnoremap <buffer> <silent> + :if getline(".") !~ "^##"<bar>call vit#Add(split(getline("."))[1])<bar>endif<cr>
-nnoremap <buffer> <silent> - :if getline(".") !~ "^##"<bar>call vit#Reset(split(getline("."))[1])<bar>endif<cr>
+nnoremap <buffer> <silent> + :if getline(".") !~ "^##"<bar>call vit#Add(split(getline("."))[1])<bar>wincmd p<bar>endif<cr>
+nnoremap <buffer> <silent> - :if getline(".") !~ "^##"<bar>call vit#Unstage(split(getline("."))[1])<bar>wincmd p<bar>endif<cr>
 " nnoremap <buffer> <silent> <enter> :call VitStatus#LoadFileFromStatus(getline("."))<cr>
 if getline(1) =~ "^##"
     autocmd CursorMoved <buffer> execute "let &cursorline=".((line(".") == 1) ? "0" : "1")
