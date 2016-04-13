@@ -10,13 +10,33 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
+if !exists("b:vit_log_lastline")
+    let b:vit_log_lastline = 0
+endif
+
 function! GetRevFromLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-if !exists("b:vit_log_lastline")
-    let b:vit_log_lastline = 0
-endif
+function! SkipNonCommits()
+    if b:vit_log_lastline != line(".")
+        let l:rev = GetRevFromLog()
+        if l:rev =~ "^[\|\\/*]"
+            if b:vit_log_lastline > line(".")
+                let l:newline = line(".")-1
+            else
+                let l:newline = line(".")+1
+            endif
+            call cursor(l:newline, 0)
+            call SkipNonCommits()
+            
+            " return 0
+        endif
+        let b:vit_log_lastline = line(".")
+        
+        " return 1
+    endif
+endfunction
 
 if strlen(b:vit_ref_file) <= 0
     if bufnr("$") > 1
@@ -74,22 +94,6 @@ if strlen(b:vit_ref_file) <= 0
     " nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromLog())<cr>
 else
     resize 30
-    
-    function! SkipNonCommits()
-        if b:vit_log_lastline != line(".")
-            let l:rev = GetRevFromLog()
-            if l:rev =~ "^[\|\\/*]"
-                if b:vit_log_lastline > line(".")
-                    let l:newline = line(".")-1
-                else
-                    let l:newline = line(".")+1
-                endif
-                call cursor(l:newline, 0)
-                call SkipNonCommits()
-            endif
-            let b:vit_log_lastline = line(".")
-        endif
-    endfunction
 
     autocmd CursorMoved <buffer> call SkipNonCommits()
 
