@@ -60,6 +60,27 @@ function! vit#GetBranch()
         return ""
     endif
 endfunction
+
+function! vit#GetRemote()
+    let l:remote = ""
+    if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
+        execute "cd ".b:vit_root_dir
+        " TODO: grep out .gitconfig for this value?
+        let l:remotes = split(system("git --git-dir=".b:vit_git_dir." remote -v | grep push | awk '{ print $1 }'"))
+        cd -
+        if len(l:remotes) == 0
+            echohl WarningMsg
+            echomsg "No remotes found!"
+            echohl
+        elseif len(l:remotes) > 1
+            let l:choices = join(l:remotes, "\n")
+            let l:remote = confirm("Choose remote: ", l:choices, 1)
+        else
+            let l:remote = l:remotes[0]
+        endif
+    endif
+    return l:remote
+endfunction
 " }}}
 
 "" File info {{{
@@ -118,8 +139,7 @@ endfunction
 
 " Commands {{{
 """" Loaded in windows
-"" Diff {{{
-function! vit#Diff(rev, file)
+function! vit#Diff(rev, file) " {{{
     if len(a:file) > 0
         let l:file = fnamemodify(a:file, ":p")
     else
@@ -138,23 +158,19 @@ function! vit#DiffPrompt()
     let l:response = input('Commit, tag or branch: ')
     call inputrestore()
     call vit#Diff(l:response, "")
-endfunction
-" }}}
+endfunction " }}}
 
-"" Blame {{{
-function! vit#Blame()
+function! vit#Blame() " {{{
     let l:file = vit#GetFilenameRelativeToGit(expand("%"))
 
     topleft vnew
     let b:vit_ref_file = l:file
     set filetype=VitBlame 
-    
-    wincmd p
-endfunction
-" }}}
 
-"" Log {{{
-function! vit#Log(file)
+    wincmd p
+endfunction " }}}
+
+function! vit#Log(file) " {{{
     let l:file = vit#GetFilenameRelativeToGit(a:file)
 
     topleft new
@@ -167,11 +183,9 @@ function! vit#RefreshLog()
             call vit#Log(getbufvar(winbufnr(win_num), "vit_ref_file"))
         endif
     endfor
-endfunction
-" }}}
+endfunction " }}}
 
-"" Show {{{
-function! vit#Show(rev)
+function! vit#Show(rev) " {{{
     if exists("b:vit_ref_file")
         let l:vit_ref_file = b:vit_ref_file
     else
@@ -182,22 +196,15 @@ function! vit#Show(rev)
     let b:vit_ref_file = l:vit_ref_file
     let b:git_revision = a:rev
     setlocal filetype=VitShow
-endfunction
-" }}}
+endfunction " }}}
 
-"" Status {{{
-function! vit#Status()
+function! vit#Status() " {{{
     for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
         if getbufvar(b, "&filetype") ==? "VitStatus"
             execute "bdelete! ".b
             break
         endif
     endfor
-
-    " let l:is_panel=(expand("%") !=? "" ? 1 : 0)
-    " if l:is_panel
-        " mkview! 9
-    " endif
 
     let l:git_cmd = b:vit_git_cmd
     let l:git_version = b:vit_git_version
@@ -218,21 +225,17 @@ function! vit#RefreshStatus()
             break
         endif
     endfor
-endfunction
-" }}}
+endfunction " }}}
 
 """ External manipulators
-"" Add {{{
-function! vit#Add(files)
+function! vit#Add(files) " {{{
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
     call vit#ExecuteGit("add ".l:files)
     echo "Added ".a:files." to the stage"
     call vit#RefreshStatus()
-endfunction
-" }}}
+endfunction " }}}
 
-"" Commit {{{
-function! vit#Commit(args)
+function! vit#Commit(args) " {{{
     " Maybe, if the current file is marked as unstaged in any way, ask to add it?
     " if &modified && confirm("Current file has changed. Save it?", "Y\nn", 1) == 1
         " write
@@ -310,11 +313,9 @@ function! vit#GitCommitFinish()
     silent execute "bdelete! ".l:commit_message_file
     call delete(l:commit_message_file)
     unlet l:commit_message_file
-endfunction
-" }}}
+endfunction " }}}
 
-"" Push && Pull {{{
-function! vit#Push(remote, branch)
+function! vit#Push(remote, branch) " {{{
     let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetRemote()
     let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetBranch()
     " echomsg "REMOTE: ".l:remote
@@ -322,39 +323,18 @@ function! vit#Push(remote, branch)
 
     call vit#ExecuteGit("push ".l:remote." ".l:branch)
     call vit#RefreshStatus()
-endfunction
-function! vit#Pull(remote, branch, rebase)
+endfunction " }}}
+
+function! vit#Pull(remote, branch, rebase) " {{{
     let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetRemote()
     let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetBranch()
     let l:rebase = a:rebase ? "--rebase" : ""
 
     call vit#ExecuteGit("pull ".l:rebase." ".l:remote."/".l:branch)
     call vit#RefreshStatus()
-endfunction
-function! vit#GetRemote()
-    let l:remote = ""
-    if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
-        execute "cd ".b:vit_root_dir
-        " TODO: grep out .gitconfig for this value?
-        let l:remotes = split(system("git --git-dir=".b:vit_git_dir." remote -v | grep push | awk '{ print $1 }'"))
-        cd -
-        if len(l:remotes) == 0
-            echohl WarningMsg
-            echomsg "No remotes found!"
-            echohl
-        elseif len(l:remotes) > 1
-            let l:choices = join(l:remotes, "\n")
-            let l:remote = confirm("Choose remote: ", l:choices, 1)
-        else
-            let l:remote = l:remotes[0]
-        endif
-    endif
-    return l:remote
-endfunction
-" }}}
+endfunction " }}}
 
-"" Reset {{{
-function! vit#Reset(args)
+function! vit#Reset(args) " {{{
     call vit#ResetFilesInGitIndex(a:args)
 endfunction
 function! vit#ResetFilesInGitIndex(files)
@@ -362,11 +342,9 @@ function! vit#ResetFilesInGitIndex(files)
     call vit#ExecuteGit("reset ".l:files)
     echomsg "Unstaged ".a:files
     call vit#RefreshStatus()
-endfunction
-" }}}
+endfunction " }}}
 
-"" Checkout {{{
-function! vit#Checkout(args)
+function! vit#Checkout(args) " {{{
     call vit#CheckoutCurrentFile(a:args)
 endfunction
 function! vit#CheckoutCurrentFile(rev)
@@ -380,8 +358,7 @@ function! vit#CheckoutFromBuffer()
     let l:rev = b:git_revision
     bdelete
     call vit#CheckoutCurrentFile(l:rev)
-endfunction
-" }}}
+endfunction " }}}
 " }}}
 
 " Other {{{

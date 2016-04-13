@@ -19,6 +19,7 @@ function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
         endif
     endif
 endfunction " }}}
+
 function! Git(...) " {{{
     if exists("b:vit_git_dir")
         if a:0 > 0
@@ -26,7 +27,15 @@ function! Git(...) " {{{
             let l:command = a:1
             let l:cmd_args = join(a:000[1:], ' ')
 
-            if l:command ==# "log" || l:command ==# "lg"
+            if l:command ==# "diff"
+                if len(l:cmd_args) <= 0
+                    call vit#DiffPrompt()
+                else
+                    call vit#Diff(l:cmd_args, "")
+                endif
+            elseif l:command ==# "blame"
+                call vit#Blame()
+            elseif l:command ==# "log" || l:command ==# "lg"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
@@ -41,22 +50,8 @@ function! Git(...) " {{{
                     let l:cmd_args = expand("%")
                 endif
                 call vit#Add(l:cmd_args)
-            elseif l:command ==# "reset"
-                if len(l:cmd_args) <= 0
-                    let l:cmd_args = expand("%")
-                endif
-                call vit#Reset(l:cmd_args)
-            elseif l:command ==# "checkout" || l:command ==# "co"
-                if len(l:cmd_args) <= 0
-                    let l:cmd_args = "HEAD"
-                endif
-                call vit#Checkout(l:cmd_args)
-            elseif l:command ==# "diff"
-                if len(l:cmd_args) <= 0
-                    call vit#DiffPrompt()
-                else
-                    call vit#Diff(l:cmd_args, "")
-                endif
+            elseif l:command ==# "commit"
+                call vit#Commit(l:cmd_args)
             elseif l:command ==# "push"
                 if len(l:cmd_args) <= 0
                     call vit#Push("", "")
@@ -73,12 +68,16 @@ function! Git(...) " {{{
                     " call vit#Pull(a:000[2], a:000[3], 0)
                 " endif
                 " call vit#GitPull("TODO", "TODO", 0)
-            elseif l:command ==# "commit"
-                call vit#Commit(l:cmd_args)
-            elseif l:command ==# "blame"
-                call vit#Blame()
-            elseif l:command ==# "status" || l:command ==# "st"
-                call vit#Status()
+            elseif l:command ==# "reset"
+                if len(l:cmd_args) <= 0
+                    let l:cmd_args = expand("%")
+                endif
+                call vit#Reset(l:cmd_args)
+            elseif l:command ==# "checkout" || l:command ==# "co"
+                if len(l:cmd_args) <= 0
+                    let l:cmd_args = "HEAD"
+                endif
+                call vit#Checkout(l:cmd_args)
             else
                 echohl WarningMsg
                 echomsg "Unrecognized git command: ".l:command
@@ -91,8 +90,6 @@ function! Git(...) " {{{
         echomsg "Not in a git repository"
     endif
 endfunction " }}}
-
-command! DOrig :call vit#Diff("#")
 
 autocmd BufWinEnter * call vit#init() | call vit#RefreshStatus()
 
