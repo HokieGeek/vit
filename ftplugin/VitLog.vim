@@ -14,18 +14,17 @@ function! GetRevFromLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
+if !exists("b:vit_log_lastline")
+    let b:vit_log_lastline = 0
+endif
+
 if strlen(b:vit_ref_file) <= 0
     if bufnr("$") > 1
         bdelete #
     endif
 
-    if !exists("b:vit_log_lastline")
-        let b:vit_log_lastline = 0
-    endif
-
     " Create the new window to use for the git show output
     botright new
-    " let b:vit_is_standalone = 1
     execute "resize ".string(&lines * 0.60)
 
     setlocal filetype=VitShow
@@ -72,13 +71,27 @@ if strlen(b:vit_ref_file) <= 0
 
     autocmd CursorMoved <buffer> call LoadLogEntry()
 
-    " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
-    nnoremap <buffer> j j
-    nnoremap <buffer> k k
-
     " nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromLog())<cr>
 else
     resize 30
+    
+    function! SkipNonCommits()
+        if b:vit_log_lastline != line(".")
+            let l:rev = GetRevFromLog()
+            if l:rev =~ "^[\|\\/*]"
+                if b:vit_log_lastline > line(".")
+                    let l:newline = line(".")-1
+                else
+                    let l:newline = line(".")+1
+                endif
+                call cursor(l:newline, 0)
+                call SkipNonCommits()
+            endif
+            let b:vit_log_lastline = line(".")
+        endif
+    endfunction
+
+    autocmd CursorMoved <buffer> call SkipNonCommits()
 
     " nnoremap <buffer> <silent> c :call vit#CheckoutCurrentfile(GetRevFromLog())<cr>
     nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromLog())<cr>
@@ -88,3 +101,8 @@ else
 
     " nnoremap <buffer> <silent> v :let l:file = b:vit_ref_file <bar> bdelete <bar> call vit#PopGitDiff(vit#GetRevFromLog(), l:file)<cr>
 endif
+
+
+" Makes way more sense to make sure that gj/gk aren't used by default when wrapping
+nnoremap <buffer> j j
+nnoremap <buffer> k k
