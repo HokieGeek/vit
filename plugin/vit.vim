@@ -72,7 +72,8 @@ function! Git(...) " {{{
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
                 endif
-                call vit#Reset(l:cmd_args)
+                " call vit#Reset(l:cmd_args)
+                call vit#ResetFilesInGitIndex("", l:cmd_args)
             elseif l:command ==# "checkout" || l:command ==# "co"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = "HEAD"
