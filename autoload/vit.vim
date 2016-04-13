@@ -85,8 +85,7 @@ endfunction
 
 "" File info {{{
 function! vit#GetFilenameRelativeToGit(file)
-    let l:file = substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', '')
-    return l:file
+    return substitute(substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', ''), '/$', '', '')
 endfunction
 function! vit#GetFilenamesRelativeToGit(file_list)
     let l:files = []
@@ -206,11 +205,9 @@ function! vit#Status() " {{{
         endif
     endfor
 
-    let l:git_cmd = b:vit_git_cmd
-    let l:git_version = b:vit_git_version
+    let l:file = expand("%")
     botright vnew
-    let b:vit_git_cmd = l:git_cmd
-    let b:vit_git_version = l:git_version
+    let b:vit_ref_file = l:file
 
     setlocal filetype=VitStatus
 
@@ -220,7 +217,7 @@ function! vit#RefreshStatus()
     for win_num in range(1, winnr('$'))
         let l:buf_num = winbufnr(win_num)
         if getbufvar(l:buf_num, '&filetype') == "VitStatus"
-            execute "bdelete! ".l:buf_num
+            " execute "bdelete! ".l:buf_num
             call vit#Status()
             break
         endif
@@ -335,13 +332,16 @@ function! vit#Pull(remote, branch, rebase) " {{{
 endfunction " }}}
 
 function! vit#Reset(args) " {{{
-    call vit#ResetFilesInGitIndex(a:args)
-endfunction
-function! vit#ResetFilesInGitIndex(files)
-    let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
-    call vit#ExecuteGit("reset ".l:files)
-    echomsg "Unstaged ".a:files
+    call vit#ExecuteGit("reset ".a:args)
     call vit#RefreshStatus()
+endfunction
+function! vit#ResetFilesInGitIndex(opts, files)
+    let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
+    call vit#Reset(a:opts." -- ".l:files)
+endfunction
+function! vit#Unstage(files)
+    call vit#ResetFilesInGitIndex("HEAD", a:files)
+    echomsg "Unstaged ".a:files
 endfunction " }}}
 
 function! vit#Checkout(args) " {{{
