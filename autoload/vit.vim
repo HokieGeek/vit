@@ -172,9 +172,6 @@ endfunction
 
 "" Show {{{
 function! vit#Show(rev)
-    if expand("%") !=? ""
-        mkview! 9
-    endif
     if exists("b:vit_ref_file")
         let l:vit_ref_file = b:vit_ref_file
     else
@@ -197,19 +194,19 @@ function! vit#Status()
         endif
     endfor
 
-    let l:is_panel=(expand("%") !=? "" ? 1 : 0)
-    if l:is_panel
-        mkview! 9
-    endif
+    " let l:is_panel=(expand("%") !=? "" ? 1 : 0)
+    " if l:is_panel
+        " mkview! 9
+    " endif
 
     let l:git_cmd = b:vit_git_cmd
     let l:git_version = b:vit_git_version
     botright vnew
     let b:vit_git_cmd = l:git_cmd
     let b:vit_git_version = l:git_version
-    
+
     setlocal filetype=VitStatus
-    
+
     wincmd t
 endfunction
 function! vit#RefreshStatus()

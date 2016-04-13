@@ -2,7 +2,8 @@ if exists("g:loaded_vit") || v:version < 700
     finish
 endif
 let g:loaded_vit = 1
-let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commit", "status", "push", "pull"]
+
+let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commit", "status", "push", "pull", "show"]
 
 function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
     if a:cmd_line =~# "^Git add "
@@ -30,6 +31,11 @@ function! Git(...) " {{{
                     let l:cmd_args = expand("%")
                 endif
                 call vit#Log(l:cmd_args)
+            elseif l:command ==# "show"
+                call vit#Show(l:cmd_args)
+            elseif l:command ==# "status" || l:command ==# "st"
+                call vit#Status()
+
             elseif l:command ==# "add"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
