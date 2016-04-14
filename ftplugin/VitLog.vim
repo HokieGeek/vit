@@ -18,26 +18,6 @@ function! GetRevFromLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-function! SkipNonCommits()
-    if b:vit_log_lastline != line(".")
-        let l:rev = GetRevFromLog()
-        if l:rev =~ "^[\|\\/*]"
-            if b:vit_log_lastline > line(".")
-                let l:newline = line(".")-1
-            else
-                let l:newline = line(".")+1
-            endif
-            call cursor(l:newline, 0)
-            call SkipNonCommits()
-            
-            " return 0
-        endif
-        let b:vit_log_lastline = line(".")
-        
-        " return 1
-    endif
-endfunction
-
 if strlen(b:vit_ref_file) <= 0
     if bufnr("$") > 1
         bdelete #
@@ -93,13 +73,27 @@ if strlen(b:vit_ref_file) <= 0
 else
     resize 30
 
+    function! SkipNonCommits()
+        if b:vit_log_lastline != line(".")
+            let l:rev = GetRevFromLog()
+            if l:rev =~ "^[\|\\/*]"
+                if b:vit_log_lastline > line(".")
+                    let l:newline = line(".")-1
+                else
+                    let l:newline = line(".")+1
+                endif
+                call cursor(l:newline, 0)
+                call SkipNonCommits()
+
+                " return 0
+            endif
+            let b:vit_log_lastline = line(".")
+
+            " return 1
+        endif
+    endfunction
+
     autocmd CursorMoved <buffer> call SkipNonCommits()
-
-    " nnoremap <buffer> <silent> c :call vit#CheckoutCurrentfile(GetRevFromLog())<cr>
-    nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromLog())<cr>
-
-    " nnoremap <buffer> <silent> o :call CheckoutFromLog()<cr>
-    " nnoremap <buffer> <silent> <enter> :let g:vit_log_lastline=line(".") <bar> call ShowFromLog()<cr>
 
     nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromLog())<cr>
 endif
