@@ -17,13 +17,6 @@ function! vit#init()
         return
     endif
 
-    " .... somehow determine we are in standalone mode ... ¯\_(ツ)_/¯
-    " if expand("%") ==# "" && argc() <= 0
-    "     let b:vit_is_standalone = 0
-    " elseif strlen(bufname("%")) <= 0
-    "     return
-    " endif
-
     call vit#GetGitConfig("%")
 
     " Add autocmds
@@ -60,27 +53,6 @@ function! vit#GetBranch()
         return ""
     endif
 endfunction
-
-" function! vit#GetRemote()
-"     let l:remote = ""
-"     if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
-"         execute "cd ".b:vit_root_dir
-"         " TODO: grep out .gitconfig for this value?
-"         let l:remotes = split(system("git --git-dir=".b:vit_git_dir." remote -v | grep push | awk '{ print $1 }'"))
-"         cd -
-"         if len(l:remotes) == 0
-"             echohl WarningMsg
-"             echomsg "No remotes found!"
-"             echohl
-"         elseif len(l:remotes) > 1
-"             let l:choices = join(l:remotes, "\n")
-"             let l:remote = confirm("Choose remote: ", l:choices, 1)
-"         else
-"             let l:remote = l:remotes[0]
-"         endif
-"     endif
-"     return l:remote
-" endfunction
 " }}}
 
 "" File info {{{
@@ -207,7 +179,7 @@ function! vit#RefreshStatus()
         let l:buf_num = winbufnr(win_num)
         if getbufvar(l:buf_num, '&filetype') == "VitStatus"
             " execute "bdelete! ".l:buf_num
-            call vit#Status()
+            call vit#Status("")
             break
         endif
     endfor
@@ -317,25 +289,6 @@ function! vit#CheckoutCurrentFile(rev)
     call vit#RefreshStatus()
     call vit#RefreshLog()
 endfunction " }}}
-
-" function! vit#Push(remote, branch) " {{{
-"     let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetRemote()
-"     let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetBranch()
-"     " echomsg "REMOTE: ".l:remote
-"     " echomsg "BRANCH: ".l:branch
-
-"     call vit#ExecuteGit("push ".l:remote." ".l:branch)
-"     call vit#RefreshStatus()
-" endfunction " }}}
-
-" function! vit#Pull(remote, branch, rebase) " {{{
-"     let l:remote = (strlen(a:remote) > 0) ? a:remote : vit#GetRemote()
-"     let l:branch = (strlen(a:branch) > 0) ? a:branch : vit#GetBranch()
-"     let l:rebase = a:rebase ? "--rebase" : ""
-
-"     call vit#ExecuteGit("pull ".l:rebase." ".l:remote."/".l:branch)
-"     call vit#RefreshStatus()
-" endfunction " }}}
 " }}}
 
 " Opening files {{{
