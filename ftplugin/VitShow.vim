@@ -17,9 +17,16 @@ function! GetRevFromShow()
     return substitute(getline(1), '^commit \([0-9a-f].*\)$', '\1', '')
 endfunction
 
-if !exists("b:vit_is_standalone")
-    " resize 25
-    nnoremap <buffer> <silent> <enter> :bdelete<bar>call vit#Diff(b:git_revision, b:vit_ref_file)<cr>
-    " nnoremap <buffer> <silent> o :call vit#CheckoutFromBuffer()<cr>
-endif
-nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromShow())<cr>
+function! GetFileUnderCursor()
+    let l:currline = line(".")
+    if getline(".") !~ "^diff"
+        execute "silent! normal! ?diff\<cr>"
+    endif
+    let l:file = substitute(getline("."), '.* b/\(.*\)$', '\1', '')
+    execute "normal ".l:currline."gg"
+
+    call vit#OpenFileAsDiff(l:file)
+endfunction
+
+nnoremap <buffer> <silent> o :call GetFileUnderCursor()<cr>
+nnoremap <buffer> <silent> O :call vit#OpenFilesInRevisionAsDiff(GetRevFromShow())<cr>
