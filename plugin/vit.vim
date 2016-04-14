@@ -3,7 +3,7 @@ if exists("g:loaded_vit") || v:version < 700
 endif
 let g:loaded_vit = 1
 
-let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commit", "status", "push", "pull", "show"]
+let g:vit_commands = ["log", "add", "reset", "checkout", "diff", "blame", "commit", "status", "show"]
 
 function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
     if a:cmd_line =~# "^Git add "
@@ -52,22 +52,6 @@ function! Git(...) " {{{
                 call vit#Add(l:cmd_args)
             elseif l:command ==# "commit"
                 call vit#Commit(l:cmd_args)
-            elseif l:command ==# "push"
-                if len(l:cmd_args) <= 0
-                    call vit#Push("", "")
-                " elseif a:0 == 2
-                    " call vit#Push(a:000[1], "")
-                elseif a:0 > 2
-                    call vit#Push(a:000[1], a:000[2])
-                endif
-            elseif l:command ==# "pull"
-                echoerr "TODO"
-                " if len(l:cmd_args) <= 0
-                    " call vit#Pull("", "", 0)
-                " else
-                    " call vit#Pull(a:000[2], a:000[3], 0)
-                " endif
-                " call vit#GitPull("TODO", "TODO", 0)
             elseif l:command ==# "reset"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
@@ -79,6 +63,22 @@ function! Git(...) " {{{
                     let l:cmd_args = "HEAD"
                 endif
                 call vit#Checkout(l:cmd_args)
+            " elseif l:command ==# "push"
+            "     if len(l:cmd_args) <= 0
+            "         call vit#Push("", "")
+            "     " elseif a:0 == 2
+            "         " call vit#Push(a:000[1], "")
+            "     elseif a:0 > 2
+            "         call vit#Push(a:000[1], a:000[2])
+            "     endif
+            " elseif l:command ==# "pull"
+            "     echoerr "TODO"
+            "     " if len(l:cmd_args) <= 0
+            "         " call vit#Pull("", "", 0)
+            "     " else
+            "         " call vit#Pull(a:000[2], a:000[3], 0)
+            "     " endif
+            "     " call vit#GitPull("TODO", "TODO", 0)
             else
                 echohl WarningMsg
                 echomsg "Unrecognized git command: ".l:command

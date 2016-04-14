@@ -10,5 +10,3 @@ setlocal nomodifiable
 
 windo diffthis
 autocmd BufDelete,BufWipeout <buffer> windo diffoff
-
-" nnoremap <buffer> <silent> o :call vit#CheckoutFromBuffer()<cr>
