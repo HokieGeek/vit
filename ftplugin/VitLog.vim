@@ -90,8 +90,6 @@ if strlen(b:vit_ref_file) <= 0
     endfunction
 
     autocmd CursorMoved <buffer> call LoadLogEntry()
-
-    " nnoremap <buffer> <silent> o :call vit#OpenFilesInCommit(GetRevFromLog())<cr>
 else
     resize 30
 
@@ -103,9 +101,10 @@ else
     " nnoremap <buffer> <silent> o :call CheckoutFromLog()<cr>
     " nnoremap <buffer> <silent> <enter> :let g:vit_log_lastline=line(".") <bar> call ShowFromLog()<cr>
 
-    " nnoremap <buffer> <silent> v :let l:file = b:vit_ref_file <bar> bdelete <bar> call vit#PopGitDiff(vit#GetRevFromLog(), l:file)<cr>
+    nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromLog())<cr>
 endif
 
+nnoremap <buffer> <silent> o :call vit#OpenFilesInRevisionAsDiff(GetRevFromLog())<cr>
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j

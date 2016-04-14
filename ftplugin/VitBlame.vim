@@ -30,14 +30,8 @@ augroup VitBlame
 augroup END
 
 function! GetRevFromBlame()
-    return substitute(getline("."), '^\([0-9a-f]\{7,}\) .*', '\1', '')
+    return substitute(getline("."), '^\([\^0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
-" function! CheckoutFromBlame()
-"     let l:rev = GetRevFromBlame()
-"     bdelete
-"     call vit#CheckoutCurrentFile(l:rev)
-" endfunction
 
-" nnoremap <buffer> <silent> <enter> :call DiffFromRev(GetRevFromBlame(), b:vit_ref_file)<cr>
-" nnoremap <buffer> <silent> c :call CheckoutFromBlame()<cr>
 nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromBlame())<cr>
+nnoremap <buffer> <silent> o :call vit#OpenFilesInRevisionAsDiff(GetRevFromBlame())<cr>
