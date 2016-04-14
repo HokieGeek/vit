@@ -1,0 +1,72 @@
+*vit.txt* Git integration in Vim
+                _ _    ~
+         /\   /(_) |_  ~
+         \ \ / / | __| ~
+          \ V /| | |_  ~
+           \_/ |_|\__| ~
+
+Provides a suite of tools and commands to allow a user to view and manipulate the git status of files available to the vim session they are running in.
+
+Author: Andrés Pérez <andres.f.perez@gmail.com>
+
+==========================================================
+CONTENTS                                     *vit-contents*
+
+    1. Usage ..................... |vit-usage|
+    2. Commands .................. |vit-commands|
+    3. Interactive Windows ....... |vit-windows|
+    4. Shell script .............. |vit-shellscript|
+
+==========================================================
+USAGE                                          *vit-usage*
+
+:Git [|vit-commands|] [arguments]            *vit-git* *vit-command*
+
+==========================================================
+COMANDS                                     *vit-commands*
+
+log                                     *vit-log*
+
+See |VitLog| for more information about the interactive window.
+
+show                                    *vit-show*
+
+See |VitShow| for more information about the interactive window.
+
+status                                  *vit-status*
+
+See |VitStatus| for more information about the interactive window.
+
+diff                                    *vit-diff*
+
+See |VitDiff| for more information about the interactive window.
+
+blame                                   *vit-blame*
+
+See |VitBlame| for more information about the interactive window.
+
+add                                     *vit-add*
+
+reset                                   *vit-reset*
+
+checkout                                *vit-checkout*
+
+commit                                  *vit-commit*
+
+==========================================================
+INTERACTIVE WINDOWS                          *vit-windows*
+
+VitLog                                     *VitLog*
+
+VitShow                                    *VitShow*
+
+VitStatus                                  *VitStatus*
+
+VitDiff                                    *VitDiff*
+
+VitBlame                                   *VitBlame*
+
+==========================================================
+SHELL SCRIPT                             *vit-shellscript*
+
+bin/vit
