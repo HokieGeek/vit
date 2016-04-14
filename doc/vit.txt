@@ -11,7 +11,7 @@ Author: Andrés Pérez <andres.f.perez@gmail.com>
 License: TODO
 
 ================================================================================
-CONTENTS                                                         *vit-contents*
+CONTENTS                                                   *vit*  *vit-contents*
 
     1. Usage ..................... |vit-usage|
     2. Commands .................. |vit-commands|
