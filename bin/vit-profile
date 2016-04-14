@@ -5,5 +5,5 @@ eval -- vim \
     --cmd \"profile start ${tmp}\" \
     --cmd \"profile func *\" \
     $(awk '$0 ~ /--cmd/ || $0 ~ / -c / { sub("exec vim ", ""); sub("\\\\$", ""); \
-                                         gsub("\"", "\\\""); print $0 }' vit | xargs) \
+                                         gsub("\"", "\\\""); print $0 }' $(which vit) | xargs) \
 && vim ${tmp} +/SORTED
