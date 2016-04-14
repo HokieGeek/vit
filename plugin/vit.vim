@@ -31,10 +31,10 @@ function! Git(...) " {{{
                 if len(l:cmd_args) <= 0
                     call vit#DiffPrompt()
                 else
-                    call vit#Diff(l:cmd_args, "")
+                    call vit#Diff(a:000[1], a:000[2])
                 endif
             elseif l:command ==# "blame"
-                call vit#Blame()
+                call vit#Blame(expand("%"))
             elseif l:command ==# "log" || l:command ==# "lg"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
