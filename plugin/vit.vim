@@ -43,7 +43,7 @@ function! Git(...) " {{{
             elseif l:command ==# "show"
                 call vit#Show(l:cmd_args)
             elseif l:command ==# "status" || l:command ==# "st"
-                call vit#Status()
+                call vit#Status("")
 
             elseif l:command ==# "add"
                 if len(l:cmd_args) <= 0
@@ -85,7 +85,7 @@ function! Git(...) " {{{
                 echohl None
             endif
         else
-            call vit#Status()
+            call vit#Status("")
         endif
     else
         echomsg "Not in a git repository"
