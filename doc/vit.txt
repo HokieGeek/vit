@@ -23,36 +23,80 @@ USAGE                                                               *vit-usage*
 
 :Git [|vit-commands|] [arguments]                       *vit-git* *vit-command*
 
+TODO
+
+If no arguments are given, the vit-command defaults to status. See |vit-status|
+for more information.
+
 ================================================================================
 COMANDS                                                          *vit-commands*
 
 -------------------------------------------------------------------------------
-log                                                             *vit-log*
+log [file]                                                        *vit-log*
+
+Opens an interactive window with the `git log` of the given file.
+
+If not arguments are given, it defaults to the currently open buffer.
 
 See |VitLog| for more information about the interactive window.
 
 -------------------------------------------------------------------------------
-show                                                            *vit-show*
+show [revision]                                                  *vit-show*
+
+Opens an interactive window displaying information about what was changed in the 
+given revision.
+
+If no arguments are given, it displays the last committed revision.
+
+The equivalent git command is: >
+    git show <rev>
+>
 
 See |VitShow| for more information about the interactive window.
 
 -------------------------------------------------------------------------------
 status                                                          *vit-status*
 
+Displays an interactive window displaying the status of the files in the working
+directory.
+
+The equivalent git command is: >
+    git status --short
+>
+
 See |VitStatus| for more information about the interactive window.
-
--------------------------------------------------------------------------------
-diff                                                            *vit-diff*
-
-See |VitDiff| for more information about the interactive window.
 
 -------------------------------------------------------------------------------
 blame                                                           *vit-blame*
 
+Opens an interactive window which displays the revision, filename, author and timestamp
+of each line of the currently open buffer.
+
 See |VitBlame| for more information about the interactive window.
 
 -------------------------------------------------------------------------------
-add                                                             *vit-add*
+diff [rev [file]]                                                *vit-diff*
+
+If arguments are given, revision is required and is defined as the revision with
+which to compare the given file at HEAD. "file" is the repository file which the 
+comparison will be made with. It defaults to the currently open buffer.
+
+If no arguments are given, it defaults 'file' to currently open buffer and prompts
+the user for the revision to compare against.
+
+The equivalent git command  is: >
+    git diff <rev> -- <file>
+>
+
+A successful execution will open a split panel of the two versions of the file being compared.
+See |VitDiff| for more information about the window.
+
+-------------------------------------------------------------------------------
+add [files]                                                       *vit-add*
+
+Performs a {git add} to each file given.
+
+If no arguments are given, it defaults to the currently open buffer.
 
 -------------------------------------------------------------------------------
 reset                                                           *vit-reset*
@@ -69,19 +113,58 @@ INTERACTIVE WINDOWS                                                 *vit-windows
 -------------------------------------------------------------------------------
 VitLog                                                          *VitLog*
 
+Mappings:                                                       *VitLog-mappings*
+
+o            Opens a tab with a VitDiff for each file in the selected revision
+<enter>      Opens a VitShow of the selected revision
+
 -------------------------------------------------------------------------------
 VitShow                                                         *VitShow*
+
+Mappings:                                                       *VitShow-mappings*
+
+o            Opens VitDiff of file under cursor
+O            Opens VitDiff of files in selected revision
 
 -------------------------------------------------------------------------------
 VitStatus                                                       *VitStatus*
 
--------------------------------------------------------------------------------
-VitDiff                                                         *VitDiff*
+Only opens if there are any relevant changes
+
+Mappings:                                                       *VitStatus-mappings*
+
+o            Opens VitDiff of file under cursor
++            Adds file under cursor to the index
+-            Removes file under cursor from the index
 
 -------------------------------------------------------------------------------
 VitBlame                                                        *vitBlame*
 
+Displays a partial view of a git blame command
+
+Mappings:                                                       *VitBlame-mappings*
+
+o            Opens VitDiff of files in selected revision
+<enter>      Opens a VitShow of the selected revision
+
+-------------------------------------------------------------------------------
+VitDiff                                                         *VitDiff*
+
+This view is of a vimdiff of the selected file with the indicated revision on the 
+left window
+
 ================================================================================
 SHELL SCRIPT                                                    *vit-shellscript*
 
-bin/vit
+bin/vit [files]
+
+When executed, it will open a vim session with 3 windows. In the top there will be a
+|VitLog| of the first file in the argument list. The bottom will have a |VitShow| of
+the first revision in the log. On the right a |VitStatus| window will be open if applicable.
+
+If no arguments are given, the |VitLog| window defaults to showing the log of full log 
+of the repository. 
+
+This command is relatively similar to the gitk application which you might be familiar with.
+
+vim:tw=78 ts=8: ft=help:norl:
