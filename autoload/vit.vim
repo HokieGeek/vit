@@ -90,7 +90,7 @@ endfunction
 function! vit#GetFilenamesRelativeToGit(file_list)
     let l:files = []
     for f in a:file_list
-        call add(l:files, vit#GetFilenameRelativeToGit(f))
+        call add(l:files, vit#GetFilenameRelativeToGit(fnamemodify(f, ":p")))
     endfor
     return l:files
 endfunction
@@ -139,15 +139,11 @@ endfunction
 " Commands {{{
 """" Loaded in windows
 function! vit#Diff(rev, file) " {{{
-    if len(a:file) > 0
-        let l:file = fnamemodify(a:file, ":p")
-    else
-        let l:file = vit#GetFilenameRelativeToGit(expand("%"))
-    endif
+    let l:file = vit#GetFilenameRelativeToGit(a:file)
 
     topleft vnew
     let b:vit_ref_file = l:file
-    let b:git_revision = a:rev
+    let b:vit_revision = a:rev
     setlocal filetype=VitDiff
 endfunction
 function! vit#DiffPrompt()
@@ -157,12 +153,12 @@ function! vit#DiffPrompt()
     call vit#Diff(l:response, "")
 endfunction " }}}
 
-function! vit#Blame() " {{{
-    let l:file = vit#GetFilenameRelativeToGit(expand("%"))
+function! vit#Blame(file) " {{{
+    let l:file = vit#GetFilenameRelativeToGit(a:file)
 
     topleft vnew
     let b:vit_ref_file = l:file
-    set filetype=VitBlame 
+    set filetype=VitBlame
 
     wincmd p
 endfunction " }}}
@@ -183,19 +179,12 @@ function! vit#RefreshLog()
 endfunction " }}}
 
 function! vit#Show(rev) " {{{
-    if exists("b:vit_ref_file")
-        let l:vit_ref_file = b:vit_ref_file
-    else
-        let l:vit_ref_file = vit#GetFilenameRelativeToGit(expand("%"))
-        let b:vit_ref_file = l:vit_ref_file
-    endif
     botright new
-    let b:vit_ref_file = l:vit_ref_file
     let b:git_revision = a:rev
     setlocal filetype=VitShow
 endfunction " }}}
 
-function! vit#Status() " {{{
+function! vit#Status(refdir) " {{{
     for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
         if getbufvar(b, "&filetype") ==? "VitStatus"
             execute "bdelete! ".b
@@ -203,7 +192,9 @@ function! vit#Status() " {{{
         endif
     endfor
 
-    let l:file = expand("%")
+    if len(a:refdir) <= 0
+        let l:file = expand("%") " TODO: would be better if it got a directory as an argument
+    endif
     botright vnew
     let b:vit_ref_file = l:file
 
