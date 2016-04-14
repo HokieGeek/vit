@@ -111,12 +111,18 @@ endfunction
 " Commands {{{
 """" Loaded in windows
 function! vit#Diff(rev, file) " {{{
-    let l:file = vit#GetFilenameRelativeToGit(a:file)
+    if isdirectory(a:file)
+        echohl WarningMsg
+        echomsg "Cannot perform a diff against a directory
+        echohl None
+    else
+        let l:file = vit#GetFilenameRelativeToGit(a:file)
 
-    topleft vnew
-    let b:vit_ref_file = l:file
-    let b:vit_revision = a:rev
-    setlocal filetype=VitDiff
+        topleft vnew
+        let b:vit_ref_file = l:file
+        let b:vit_revision = a:rev
+        setlocal filetype=VitDiff
+    endif
 endfunction
 function! vit#DiffPrompt()
     call inputsave()
@@ -301,7 +307,9 @@ function! vit#OpenFilesInRevisionAsDiff(rev)
     if len(l:files) > 0
         let l:currtab = tabpagenr()
         for file in l:files
-            call vit#OpenFileAsDiff(file)
+            if !isdirectory(file)
+                call vit#OpenFileAsDiff(file)
+            endif
         endfor
         execute "tabnext ".l:currtab
     else
