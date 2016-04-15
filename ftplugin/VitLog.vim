@@ -4,7 +4,8 @@ endif
 let b:autoloaded_vit_log = 1
 scriptencoding utf-8
 
-call vit#LoadContent(vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file))
+let b:file = vit#GetFilenameRelativeToGit(b:vit_ref_file)
+call vit#LoadContent(vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:file))
 setlocal nolist cursorline nomodifiable nonumber
 if exists("&relativenumber")
     setlocal norelativenumber

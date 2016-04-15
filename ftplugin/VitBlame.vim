@@ -5,8 +5,8 @@ let b:autoloaded_vit_blame = 1
 scriptencoding utf-8
 
 call vit#GetGitConfig(b:vit_ref_file)
-unlet b:vit_git_dir
-call vit#LoadContent(vit#ExecuteGit("blame --date=short ".b:vit_ref_file))
+let b:file = vit#GetFilenameRelativeToGit(b:vit_ref_file)
+call vit#LoadContent(vit#ExecuteGit("blame --date=short ".b:file))
 
 normal f)bbEl
 execute "vertical resize ".col(".")

@@ -8,7 +8,8 @@ if !exists("b:vit_ref_file") || !exists("b:vit_revision")
     finish
 endif
 
-call vit#LoadContent(vit#ExecuteGit("show ".b:git_revision.":".b:vit_ref_file))
+let b:file = vit#GetFilenameRelativeToGit(b:vit_ref_file)
+call vit#LoadContent(vit#ExecuteGit("show ".b:vit_revision.":".b:file))
 setlocal nomodifiable
 
 windo diffthis

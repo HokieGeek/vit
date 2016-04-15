@@ -113,13 +113,11 @@ endfunction
 function! vit#Diff(rev, file) " {{{
     if isdirectory(a:file)
         echohl WarningMsg
-        echomsg "Cannot perform a diff against a directory
+        echomsg "Cannot perform a diff against a directory"
         echohl None
     else
-        let l:file = vit#GetFilenameRelativeToGit(a:file)
-
         topleft vnew
-        let b:vit_ref_file = l:file
+        let b:vit_ref_file = a:file
         let b:vit_revision = a:rev
         setlocal filetype=VitDiff
     endif
@@ -132,20 +130,16 @@ function! vit#DiffPrompt()
 endfunction " }}}
 
 function! vit#Blame(file) " {{{
-    let l:file = vit#GetFilenameRelativeToGit(a:file)
-
     topleft vnew
-    let b:vit_ref_file = l:file
+    let b:vit_ref_file = a:file
     set filetype=VitBlame
 
     wincmd p
 endfunction " }}}
 
 function! vit#Log(file) " {{{
-    let l:file = vit#GetFilenameRelativeToGit(a:file)
-
     topleft new
-    let b:vit_ref_file = l:file
+    let b:vit_ref_file = a:file
     setlocal filetype=VitLog
 endfunction
 function! vit#RefreshLog()
@@ -300,17 +294,21 @@ endfunction " }}}
 " Opening files {{{
 function! vit#OpenFileAsDiff(file)
     execute "tabnew ".fnamemodify(a:file, ":p")
-    call vit#Diff("", "")
+    call vit#Diff("", a:file)
 endfunction
 function! vit#OpenFilesInRevisionAsDiff(rev)
     let l:files = split(system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ print $2 }'"))
-    if len(l:files) > 0
-        let l:currtab = tabpagenr()
-        for file in l:files
-            if !isdirectory(file)
-                call vit#OpenFileAsDiff(file)
-            endif
-        endfor
+
+    let l:num_files_opened = 0
+    let l:currtab = tabpagenr()
+    for file in l:files
+        if !isdirectory(file)
+            let l:num_files_opened += 1
+            call vit#OpenFileAsDiff(file)
+        endif
+    endfor
+
+    if l:num_files_opened > 0
         execute "tabnext ".l:currtab
     else
         echohl WarningMsg
