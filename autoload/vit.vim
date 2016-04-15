@@ -25,24 +25,40 @@ function! vit#init()
 endfunction
 
 function! vit#GetGitConfig(file)
-    " Check if the *file* is inside a git directory
-    silent! call system("cd ".expand(a:file.":p:h")."; git rev-parse --is-inside-work-tree >/dev/null 2>&1")
-    if v:shell_error != 0
-        return
+    if len(a:file) <= 0
+        if exists("b:vit_ref_file")
+            let l:reffile = b:vit_ref_file
+        else
+            return
+        endif
+    else
+        let l:reffile = a:file
     endif
+    
+    let l:currdir = getcwd()
+    execute "cd ".expand(l:reffile.":p:h")
 
     " Determine the git directories
-    let b:vit_git_dir = substitute(system("git rev-parse --git-dir"), "\n*$", '', '')
-    if b:vit_git_dir[0] != "/"
-        let b:vit_git_dir = getcwd()."/".b:vit_git_dir
-    endif
     let b:vit_root_dir = substitute(system("git rev-parse --show-toplevel"), "\n*$", '', '')
-    let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
-    " echomsg "GIT DIR:".b:vit_git_dir
-    " echomsg "ROOT DIR:".b:vit_root_dir
+    if v:shell_error == 0 && len(b:vit_root_dir) > 0
+        if b:vit_root_dir[0] != "/"
+            let b:vit_root_dir = getcwd()."/".b:vit_root_dir
+        endif
+    
+        let b:vit_git_dir = substitute(system("git rev-parse --git-dir"), "\n*$", '', '')
+        if b:vit_git_dir[0] != "/"
+            let b:vit_git_dir = getcwd()."/".b:vit_git_dir
+        endif
+        
+        let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
 
-    " Determine the version of git
-    let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
+        " Determine the version of git
+        let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
+        
+        " echomsg "ROOT DIR: ".b:vit_root_dir
+        " echomsg " GIT DIR: ".b:vit_git_dir
+    endif
+    execute "cd ".l:currdir
 endfunction
 
 function! vit#GetBranch()
