@@ -1,10 +1,11 @@
 *vit.txt* Git integration in Vim
 
-       _ _    ~
-__   _(_) |_  ~
-\ \ / / | __| ~
- \ V /| | |_  ~
-  \_/ |_|\__| ~
+               _ _    ~
+        __   _(_) |_  ~
+        \ \ / / | __| ~
+         \ V /| | |_  ~
+          \_/ |_|\__| ~
+
 
 Provides a suite of tools and commands to allow a user to view and manipulate the git status of files available to the vim session they are running in.
 
@@ -151,7 +152,7 @@ o            Opens VitDiff of files in selected revision
 -------------------------------------------------------------------------------
 VitDiff                                                         *VitDiff*
 
-This view is of a vimdiff of the selected file with the indicated revision on the 
+This view is of a vimdiff of the selected file with the indicated revision on the
 left window
 
 ================================================================================
@@ -163,9 +164,10 @@ When executed, it will open a vim session with 3 windows. In the top there will 
 |VitLog| of the first file in the argument list. The bottom will have a |VitShow| of
 the first revision in the log. On the right a |VitStatus| window will be open if applicable.
 
-If no arguments are given, the |VitLog| window defaults to showing the log of full log 
-of the repository. 
+If no arguments are given, the |VitLog| window defaults to showing the log of full log
+of the repository.
 
 This command is relatively similar to the gitk application which you might be familiar with.
+
 
 vim:tw=78 ts=8: ft=help:norl:
