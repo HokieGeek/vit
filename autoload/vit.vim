@@ -53,7 +53,7 @@ function! vit#GetGitConfig(file)
         let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
 
         " Determine the version of git
-        let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
+        " let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
         
         " echomsg "ROOT DIR: ".b:vit_root_dir
         " echomsg " GIT DIR: ".b:vit_git_dir
