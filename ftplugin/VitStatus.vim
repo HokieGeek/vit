@@ -4,7 +4,7 @@ endif
 let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
-call vit#GetGitConfig(b:vit_ref_file)
+" call vit#GetGitConfig(b:vit_ref_file)
 if exists("b:vit_git_version") && (b:vit_git_version[0] > 1 || b:vit_git_version[1] > 7 || (b:vit_git_version[1] == 7 && b:vit_git_version[2] > 2))
     call vit#LoadContent(vit#ExecuteGit("status --short --branch"))
 else
