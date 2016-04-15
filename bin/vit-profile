@@ -1,9 +1,10 @@
 #!/bin/bash
 
 tmp=`mktemp`
-eval -- vim \
-    --cmd \"profile start ${tmp}\" \
-    --cmd \"profile func *\" \
-    $(awk '$0 ~ /--cmd/ || $0 ~ / -c / { sub("exec vim ", ""); sub("\\\\$", ""); \
-                                         gsub("\"", "\\\""); print $0 }' $(which vit) | xargs) \
+    # -c "Git status" \
+vim \
+    --cmd "profile start ${tmp}" \
+    --cmd "profile func *" \
+    -c "Git log "$1 \
+    $@ \
 && vim ${tmp} +/SORTED
