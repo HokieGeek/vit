@@ -11,6 +11,6 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
         exit 1
     }
 }
-         # -c "Git status" \
 exec vim -c "Git log "$1 \
+         -c "Git status" \
          $@
