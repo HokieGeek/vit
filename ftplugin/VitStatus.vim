@@ -5,13 +5,13 @@ let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
 " call vit#GetGitConfig(b:vit_ref_file)
-if exists("b:vit_git_version") && (b:vit_git_version[0] > 1 || b:vit_git_version[1] > 7 || (b:vit_git_version[1] == 7 && b:vit_git_version[2] > 2))
-    call vit#LoadContent(vit#ExecuteGit("status --short --branch"))
-else
+" if exists("b:vit_git_version") && (b:vit_git_version[0] > 1 || b:vit_git_version[1] > 7 || (b:vit_git_version[1] == 7 && b:vit_git_version[2] > 2))
+"     call vit#LoadContent(vit#ExecuteGit("status --short --branch"))
+" else
     " GET CHANGED (must be in root dir) let l:changedfiles = call vit#ExecuteGit("ls-files --exclude-from='".b:vit_root_dir."/.gitignore" -t --modified --deleted --others")
     " GET STAGED  let l:stagedfiles = call vit#ExecuteGit("diff-index --cached HEAD --")
     call vit#LoadContent(vit#ExecuteGit("status --short"))
-endif
+" endif
 
 " Set width of the window based on the widest text
 set winminwidth=1
