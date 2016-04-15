@@ -107,7 +107,7 @@ reset  [git reset args]                                          *vit-reset*
 checkout  [revision]                                           *vit-checkout*
 
 -------------------------------------------------------------------------------
-commit  [git commit args]                                       *vit-commit*
+commit  [[-m|--message=]                                       *vit-commit*
 
 ================================================================================
 INTERACTIVE WINDOWS                                                 *vit-windows*

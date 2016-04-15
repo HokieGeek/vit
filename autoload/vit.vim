@@ -172,13 +172,12 @@ function! vit#Status(refdir) " {{{
 
     setlocal filetype=VitStatus
 
-    wincmd t
+    wincmd t " TODO: is there a better place for this? Or should it just go away?
 endfunction
 function! vit#RefreshStatus()
     for win_num in range(1, winnr('$'))
         let l:buf_num = winbufnr(win_num)
         if getbufvar(l:buf_num, '&filetype') == "VitStatus"
-            " execute "bdelete! ".l:buf_num
             call vit#Status("")
             break
         endif
@@ -219,51 +218,19 @@ function! vit#Commit(args) " {{{
     if match(l:args, " *-m ") > -1 || match(l:args, " *--message=") > -1
         call vit#PerformCommit(l:args)
     else " otherwise, open a window to enter the message
-        call vit#CreateCommitMessagePane(l:args)
+        let l:vit_git_dir = b:vit_git_dir
+
+        botright new
+        let b:vit_git_dir = l:vit_git_dir
+        let b:vit_commit_args = a:args
+        set filetype=VitCommit
     endif
-endfunction
-function! vit#CreateCommitMessagePane(args)
-    " Pop up a small window with for commit message
-    let l:commit_message_file = tempname()
-    let l:vit_git_dir = b:vit_git_dir
-    if strlen(a:args) > 0
-        call system("echo '# ARGUMENTS: ".a:args."' > ".l:commit_message_file)
-    endif
-    call vit#ExecuteGit("status -s | awk '{ print \"# \" $0 }' >> ".l:commit_message_file)
-    if expand("%") != ""
-        mkview! 9
-    endif
-    botright new
-    let b:vit_git_dir = l:vit_git_dir
-    let b:vit_commit_args = a:args
-    resize 10
-    execute "edit ".l:commit_message_file
-    set filetype=gitcommit
-    setlocal modifiable
-    call append(0, "")
-    " TODO autocmd BufWinLeave <buffer> call vit#GitCommitFinish()
 endfunction
 function! vit#PerformCommit(args)
     call vit#ExecuteGit("commit ".a:args)
     echomsg "Successfully committed"
     call vit#RefreshStatus()
     call vit#RefreshLog()
-endfunction
-function! vit#GitCommitFinish()
-    let l:commit_message_file = expand("%")
-    call system("sed -i -e '/^#/d' -e '/^\\s*$/d' ".l:commit_message_file)
-    " Check the size of the file. If it's empty or blank, we don't commmit
-    if len(readfile(l:commit_message_file)) > 0
-        let l:file_args = "--file=".l:commit_message_file." ".b:vit_commit_args
-        call vit#PerformCommit(l:file_args)
-    else
-        echohl WarningMsg
-        echomsg "Cannot commit without a commit message"
-        echohl None
-    endif
-    silent execute "bdelete! ".l:commit_message_file
-    call delete(l:commit_message_file)
-    unlet l:commit_message_file
 endfunction " }}}
 
 function! vit#Reset(args) " {{{
