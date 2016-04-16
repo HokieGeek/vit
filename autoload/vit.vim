@@ -20,7 +20,6 @@ function! vit#init()
     call vit#GetGitConfig("%")
 
     " Add autocmds
-    " autocmd BufWritePost <buffer> call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
     command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call Git(<f-args>)
 endfunction
 
