@@ -20,7 +20,7 @@ function! vit#init()
     call vit#GetGitConfig("%")
 
     " Add autocmds
-    autocmd BufWritePost <buffer> call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
+    " autocmd BufWritePost <buffer> call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
     command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call Git(<f-args>)
 endfunction
 
@@ -34,9 +34,9 @@ function! vit#GetGitConfig(file)
     else
         let l:reffile = a:file
     endif
-    
+
     let l:currdir = getcwd()
-    execute "cd ".expand(l:reffile.":p:h")
+    execute "cd ".fnamemodify(l:reffile, ":p:h")
 
     " Determine the git directories
     let b:vit_root_dir = substitute(system("git rev-parse --show-toplevel"), "\n*$", '', '')
@@ -44,17 +44,17 @@ function! vit#GetGitConfig(file)
         if b:vit_root_dir[0] != "/"
             let b:vit_root_dir = getcwd()."/".b:vit_root_dir
         endif
-    
+
         let b:vit_git_dir = substitute(system("git rev-parse --git-dir"), "\n*$", '', '')
         if b:vit_git_dir[0] != "/"
             let b:vit_git_dir = getcwd()."/".b:vit_git_dir
         endif
-        
+
         let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
 
         " Determine the version of git
         " let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
-        
+
         " echomsg "ROOT DIR: ".b:vit_root_dir
         " echomsg " GIT DIR: ".b:vit_git_dir
     endif

@@ -4,7 +4,7 @@ endif
 let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
-" call vit#GetGitConfig(b:vit_ref_file)
+call vit#GetGitConfig(b:vit_ref_file)
 " if exists("b:vit_git_version") && (b:vit_git_version[0] > 1 || b:vit_git_version[1] > 7 || (b:vit_git_version[1] == 7 && b:vit_git_version[2] > 2))
 "     call vit#LoadContent(vit#ExecuteGit("status --short --branch"))
 " else
@@ -28,7 +28,13 @@ if getline(1) =~ "^##"
     normal 2gg
 endif
 
+augroup VitStatus
+    autocmd!
+    autocmd BufWritePost * call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
+augroup END
+
 nnoremap <buffer> <silent> + :if getline(".") !~ "^##"<bar>call vit#Add(split(getline("."))[1])<bar>wincmd p<bar>endif<cr>
 nnoremap <buffer> <silent> - :if getline(".") !~ "^##"<bar>call vit#Unstage(split(getline("."))[1])<bar>wincmd p<bar>endif<cr>
 
 nnoremap <buffer> <silent> o :if getline(".") !~ "^##"<bar>call vit#OpenFileAsDiff(split(getline("."))[1])<bar>endif<cr>
+" TODO nnoremap <buffer> <silent> O :call vit#OpenFilesInRevisionAsDiff(GetRevFromShow())<cr>
