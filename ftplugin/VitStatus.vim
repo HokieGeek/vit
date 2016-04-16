@@ -16,8 +16,10 @@ function! LoadStatus(ref_file)
 endfunction
 
 function! ReloadStatus(ref_file)
+    set modifiable
     silent! 1,$d
     call LoadStatus(a:ref_file)
+    set nomodifiable
 endfunction
 
 call LoadStatus(b:vit_ref_file)
@@ -40,7 +42,7 @@ endif
 augroup VitStatus
     autocmd!
     autocmd BufWritePost * call vit#RefreshStatus()
-    " execute "autocmd BufWritePost * wincmd b | call ReloadStatus('".b:vit_ref_file."') | wincmd p"
+    " execute "autocmd BufWritePost * ".winnr()."wincmd w | call ReloadStatus('".b:vit_ref_file."') | wincmd p"
     autocmd BufDelete,BufWipeout <buffer> autocmd! VitStatus
 augroup END
 
