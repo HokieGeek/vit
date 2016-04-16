@@ -60,9 +60,10 @@ function! Git(...) " {{{
                 call vit#ResetFilesInGitIndex("", l:cmd_args)
             elseif l:command ==# "checkout" || l:command ==# "co"
                 if len(l:cmd_args) <= 0
-                    let l:cmd_args = "HEAD"
+                    call vit#CheckoutCurrentFile("HEAD")
+                else
+                    call vit#Checkout(l:cmd_args)
                 endif
-                call vit#Checkout(l:cmd_args)
             else
                 echohl WarningMsg
                 echomsg "Unrecognized git command: ".l:command

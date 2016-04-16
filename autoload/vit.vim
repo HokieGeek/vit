@@ -263,14 +263,14 @@ function! vit#Unstage(files)
 endfunction " }}}
 
 function! vit#Checkout(args) " {{{
-    call vit#CheckoutCurrentFile(a:args)
+    call vit#ExecuteGit("checkout ".a:args)
+    call vit#RefreshStatus()
+    call vit#RefreshLog()
 endfunction
 function! vit#CheckoutCurrentFile(rev)
     let l:file = vit#GetFilenameRelativeToGit(expand("%"))
-    call vit#ExecuteGit("checkout ".a:rev." ".l:file)
+    call vit#Checkout(a:rev, l:file)
     edit l:file
-    call vit#RefreshStatus()
-    call vit#RefreshLog()
 endfunction " }}}
 " }}}
 
