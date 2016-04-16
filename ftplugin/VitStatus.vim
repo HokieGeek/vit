@@ -7,12 +7,16 @@ scriptencoding utf-8
 function! GetStatus()
     " GET CHANGED (must be in root dir) let l:changedfiles = call vit#ExecuteGit("ls-files --exclude-from='".b:vit_root_dir."/.gitignore" -t --modified --deleted --others")
     " GET STAGED  let l:stagedfiles = call vit#ExecuteGit("diff-index --cached HEAD --")
+    let l:status = vit#ExecuteGit("status --short")
+    if len(l:status) <= 0
+        let l:status = "  Nothing"
+    endif
+    return l:status
 endfunction
 
 function! LoadStatus(ref_file)
     call vit#GetGitConfig(a:ref_file)
-    call vit#LoadContent(vit#ExecuteGit("status --short"))
-    " call vit#LoadContent(GetStatus())
+    call vit#LoadContent(GetStatus())
 endfunction
 
 function! ReloadStatus(ref_file)
@@ -25,8 +29,8 @@ endfunction
 call LoadStatus(b:vit_ref_file)
 
 " Set width of the window based on the widest text
-set winminwidth=1
-let b:max_cols = max(map(getline(1, "$"), "len(v:val)")) + 5
+setlocal winminwidth=20
+let b:max_cols = max(map(getline(1, "$"), "len(v:val)"))
 execute "vertical resize ".b:max_cols
 
 setlocal nolist nomodifiable nonumber cursorline
