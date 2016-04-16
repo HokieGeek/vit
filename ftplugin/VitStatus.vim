@@ -31,6 +31,7 @@ endif
 augroup VitStatus
     autocmd!
     autocmd BufWritePost * call vit#RefreshStatus() "TODO: only do this autocmd when a VitStatus window is open
+    autocmd BufDelete,BufWipeout <buffer> autocmd! VitStatus
 augroup END
 
 nnoremap <buffer> <silent> + :if getline(".") !~ "^##"<bar>call vit#Add(split(getline("."))[1])<bar>wincmd p<bar>endif<cr>
