@@ -1,10 +1,11 @@
 #!/bin/bash
 
 tmp=`mktemp`
-    # -c "Git status" \
 vim \
     --cmd "profile start ${tmp}" \
     --cmd "profile func *" \
+    --cmd "profile file *" \
     -c "Git log "$1 \
+    -c "Git status" \
     $@ \
 && vim ${tmp} +/SORTED
