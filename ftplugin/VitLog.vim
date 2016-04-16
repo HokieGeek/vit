@@ -5,7 +5,14 @@ let b:autoloaded_vit_log = 1
 scriptencoding utf-8
 
 let b:file = vit#GetFilenameRelativeToGit(b:vit_ref_file)
-call vit#LoadContent(vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:file))
+let b:log = vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:file)
+if strlen(b:log) <= 0
+    echom "No log found?"
+    finish
+endif
+
+call vit#LoadContent(b:log)
+" call vit#LoadContent(vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:file))
 setlocal nolist cursorline nomodifiable nonumber
 if exists("&relativenumber")
     setlocal norelativenumber
@@ -37,6 +44,9 @@ if strlen(b:vit_ref_file) <= 0
     function! LoadLogEntry()
         if b:vit_log_lastline != line(".")
             let l:rev = GetRevFromLog()
+            if strlen(l:rev) <= 0
+                break
+            endif
 
             if l:rev !~ "^[\|\\/*]"
                 if has_key(g:vit_log_entry_cache, l:rev)
