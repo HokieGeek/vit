@@ -2,6 +2,7 @@ if exists("b:current_syntax")
     finish
 endif
 
+syntax match VitStatusEmpty "  Nothing"
 syntax match VitStatusColumn2    "^.. " contains=VitStatusColumn1,VitStatusUntracked,VitStatusUnmerged
 syntax match VitStatusColumn1  "\v^." contained
 syntax match VitStatusUntracked    "\v^\?" contained
@@ -15,6 +16,7 @@ syntax match VitStatusBranchBehind  "\vbehind [0-9]*\]" contained contains=VitSt
 syntax match VitStatusBranchRemoteStatus "\[[a-z]* " contained
 syntax match VitStatusBranchRemoteStatus "\]" contained
 
+highlight VitStatusEmpty            ctermbg=none ctermfg=darkgrey   cterm=none
 highlight VitStatusColumn1          ctermbg=none ctermfg=darkgreen   cterm=none
 highlight VitStatusColumn2          ctermbg=none ctermfg=darkred   cterm=none
 highlight VitStatusUntracked        ctermbg=none ctermfg=darkred   cterm=none
