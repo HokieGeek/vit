@@ -3,7 +3,7 @@ if exists("g:loaded_vit") || v:version < 700
 endif
 let g:loaded_vit = 1
 
-let g:vit_commands = ["log", "status", "blame", "diff", "show", "add", "reset", "checkout", "commit"]
+let g:vit_commands = ["log", "status", "blame", "diff", "show", "add", "reset", "checkout", "commit", "stash"]
 
 function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
     if a:cmd_line =~# "^Git add "
@@ -71,6 +71,8 @@ function! Git(...) " {{{
                 else
                     call vit#Checkout(l:cmd_args)
                 endif
+            elseif l:command ==# "stash"
+                call vit#Stash()
             else
                 echohl WarningMsg
                 echomsg "Unrecognized git command: ".l:command
