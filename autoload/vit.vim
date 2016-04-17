@@ -245,7 +245,8 @@ function! vit#Add(files) " {{{
 endfunction " }}}
 
 function! vit#Commit(args) " {{{
-    if vit#GitCurrentFileStatus() != 4
+    let l:currFileStatus = vit#GitCurrentFileStatus()
+    if l:currFileStatus == 2 || l:currFileStatus == 3
         if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
             call vit#Add(expand("%"))
         endif
