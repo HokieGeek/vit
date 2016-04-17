@@ -26,7 +26,19 @@ function! GetRevFromLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-if exists("g:vit_standalone")
+function! VitLog#Git(...) " {{{
+    let l:args = join(a:000[1:], ' ')
+    echomsg "VitLog#Git(".string(a:000).")"
+    if a:1 ==# "reset"
+        echom "VitLog: reset"
+    else
+        call vit#Git(join(a:000, ' '))
+    endif
+endfunction
+" command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitLog#Git(<f-args>)
+" }}}
+
+if exists("g:vit_standalone") " {{{
     if bufnr("$") > 1
         bdelete #
     endif
@@ -81,7 +93,9 @@ if exists("g:vit_standalone")
     endfunction
 
     autocmd CursorMoved <buffer> call LoadLogEntry()
-else
+" }}}
+else " {{{
+
     resize 30
 
     function! SkipNonCommits()
@@ -107,10 +121,12 @@ else
     autocmd CursorMoved <buffer> call SkipNonCommits()
 
     nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromLog())<cr>
-endif
+endif " }}}
 
 nnoremap <buffer> <silent> o :call vit#OpenFilesInRevisionAsDiff(GetRevFromLog())<cr>
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j
 nnoremap <buffer> k k
+
+" vim: set foldmethod=marker formatoptions-=tc:

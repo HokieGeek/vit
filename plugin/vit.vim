@@ -20,7 +20,7 @@ function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
     endif
 endfunction " }}}
 
-function! Git(...) " {{{
+function! vit#Git(...) " {{{
     if exists("b:vit_git_dir")
         if a:0 > 0
             " echomsg "Git(".string(a:000).")"
@@ -50,7 +50,11 @@ function! Git(...) " {{{
             elseif l:command ==# "show"
                 call vit#Show(l:cmd_args)
             elseif l:command ==# "status" || l:command ==# "st"
-                call vit#Status("")
+                if strlen(expand("%")) == 0
+                    call vit#Status(getcwd())
+                else
+                    call vit#Status(expand("%:p:h"))
+                endif
 
             elseif l:command ==# "add"
                 if len(l:cmd_args) <= 0

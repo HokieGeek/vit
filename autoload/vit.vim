@@ -20,7 +20,7 @@ function! vit#init()
     call vit#GetGitConfig("%")
 
     " Add autocmds
-    command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call Git(<f-args>)
+    command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call vit#Git(<f-args>)
 endfunction
 
 function! vit#GetGitConfig(file)
@@ -184,8 +184,10 @@ function! vit#Status(refdir) " {{{
         endif
     endfor
 
-    if len(a:refdir) <= 0
+    if strlen(a:refdir) <= 0
         let l:file = expand("%") " TODO: would be better if it got a directory as an argument
+    else
+        let l:file = a:refdir
     endif
     botright vnew
     let b:vit_ref_file = l:file
