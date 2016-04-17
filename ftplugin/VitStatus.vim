@@ -15,7 +15,9 @@ function! GetStatus() " {{{
 endfunction " }}}
 
 function! LoadStatus(ref_file) " {{{
-    call vit#GetGitConfig(a:ref_file)
+    if !exists("b:vit_git_cmd")
+        call vit#GetGitConfig(a:ref_file)
+    endif
     call vit#LoadContent(GetStatus())
 endfunction " }}}
 
