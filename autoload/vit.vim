@@ -147,6 +147,30 @@ function! vit#Diff(rev, file) " {{{
         let b:vit_revision = a:rev
         setlocal filetype=VitDiff
     endif
+endfunction
+function! vit#OpenFileAsDiff(file)
+    execute "tabnew ".vit#GetAbsolutePath(a:file)
+    call vit#Diff("", a:file)
+endfunction
+function! vit#OpenFilesInRevisionAsDiff(rev)
+    let l:files = split(system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ print $2 }'"))
+
+    let l:num_files_opened = 0
+    let l:first_tab = tabpagenr() + 1
+    for file in l:files
+        if !isdirectory(file)
+            let l:num_files_opened += 1
+            call vit#OpenFileAsDiff(file)
+        endif
+    endfor
+
+    if l:num_files_opened > 0
+        execute "tabnext ".l:first_tab
+    else
+        echohl WarningMsg
+        echomsg "There are no files related to the selected revision"
+        echohl None
+    endif
 endfunction " }}}
 
 function! vit#Blame(file) " {{{
@@ -298,30 +322,6 @@ endfunction " }}}
 " }}}
 
 " Opening files {{{
-function! vit#OpenFileAsDiff(file)
-    execute "tabnew ".vit#GetAbsolutePath(a:file)
-    call vit#Diff("", a:file)
-endfunction
-function! vit#OpenFilesInRevisionAsDiff(rev)
-    let l:files = split(system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ print $2 }'"))
-
-    let l:num_files_opened = 0
-    let l:currtab = tabpagenr()
-    for file in l:files
-        if !isdirectory(file)
-            let l:num_files_opened += 1
-            call vit#OpenFileAsDiff(file)
-        endif
-    endfor
-
-    if l:num_files_opened > 0
-        execute "tabnext ".l:currtab
-    else
-        echohl WarningMsg
-        echomsg "There are no files related to the selected revision"
-        echohl None
-    endif
-endfunction
 " }}}
 
 " vim: set foldmethod=marker formatoptions-=tc:
