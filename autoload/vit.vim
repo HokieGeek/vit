@@ -81,6 +81,9 @@ function! vit#GetFilenamesRelativeToGit(file_list)
     endfor
     return l:files
 endfunction
+function! vit#GetAbsolutePath(file)
+    return fnamemodify(b:vit_root_dir."/".vit#GetFilenameRelativeToGit(a:file), ":p")
+endfunction
 
 function! vit#GitFileStatus(file)
     if strlen(a:file) > 0
@@ -112,6 +115,7 @@ endfunction
 
 function! vit#ExecuteGit(args)
     if exists("b:vit_git_cmd") && strlen(a:args) > 0
+        " echom b:vit_git_cmd." ".a:args
         return system(b:vit_git_cmd." ".a:args)
     endif
 endfunction
@@ -121,6 +125,13 @@ function! vit#LoadContent(content)
     silent! put =a:content
     0d_
 endfunction
+
+function! vit#GetUserInput(message)
+    call inputsave()
+    let l:response = input(a:message)
+    call inputrestore()
+    return l:response
+endfunction " }}}
 " }}}
 
 " Commands {{{
@@ -136,12 +147,6 @@ function! vit#Diff(rev, file) " {{{
         let b:vit_revision = a:rev
         setlocal filetype=VitDiff
     endif
-endfunction
-function! vit#DiffPrompt()
-    call inputsave()
-    let l:response = input('Commit, tag or branch: ')
-    call inputrestore()
-    call vit#Diff(l:response, "")
 endfunction " }}}
 
 function! vit#Blame(file) " {{{
@@ -267,7 +272,7 @@ function! vit#Checkout(args) " {{{
     call vit#RefreshLog()
 endfunction
 function! vit#CheckoutCurrentFile(rev)
-    let l:file = vit#GetFilenameRelativeToGit(expand("%"))
+    let l:file = vit#GetAbsolutePath(expand("%"))
     call vit#Checkout(a:rev, l:file)
     edit l:file
 endfunction " }}}
@@ -275,7 +280,7 @@ endfunction " }}}
 
 " Opening files {{{
 function! vit#OpenFileAsDiff(file)
-    execute "tabnew ".fnamemodify(a:file, ":p")
+    execute "tabnew ".vit#GetAbsolutePath(a:file)
     call vit#Diff("", a:file)
 endfunction
 function! vit#OpenFilesInRevisionAsDiff(rev)

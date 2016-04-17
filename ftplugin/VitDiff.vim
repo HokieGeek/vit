@@ -8,8 +8,7 @@ if !exists("b:vit_ref_file") || !exists("b:vit_revision")
     finish
 endif
 
-let b:file = vit#GetFilenameRelativeToGit(b:vit_ref_file)
-call vit#LoadContent(vit#ExecuteGit("show ".b:vit_revision.":".b:file))
+call vit#LoadContent(vit#ExecuteGit("show ".b:vit_revision.":".b:vit_ref_file))
 setlocal nomodifiable
 
 autocmd BufDelete,BufWipeout <buffer> windo diffoff

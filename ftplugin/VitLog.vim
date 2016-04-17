@@ -4,15 +4,15 @@ endif
 let b:autoloaded_vit_log = 1
 scriptencoding utf-8
 
-let b:file = vit#GetFilenameRelativeToGit(b:vit_ref_file)
-let b:log = vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:file)
+let b:log = vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file)
 if strlen(b:log) <= 0
-    echom "No log found?"
+    echohl WarningMsg
+    echom "No log was generated"
+    echohl None
     finish
 endif
 
 call vit#LoadContent(b:log)
-" call vit#LoadContent(vit#ExecuteGit("log --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:file))
 setlocal nolist cursorline nomodifiable nonumber
 if exists("&relativenumber")
     setlocal norelativenumber
@@ -26,7 +26,7 @@ function! GetRevFromLog()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-if strlen(b:vit_ref_file) <= 0
+if exists("g:vit_standalone")
     if bufnr("$") > 1
         bdelete #
     endif

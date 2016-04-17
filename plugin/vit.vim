@@ -28,16 +28,23 @@ function! Git(...) " {{{
             let l:cmd_args = join(a:000[1:], ' ')
 
             if l:command ==# "diff"
+                let l:file = expand("%")
                 if len(l:cmd_args) <= 0
-                    call vit#DiffPrompt()
+                    let l:rev = vit#GetUserInput('Commit, tag or branch: ')
                 else
-                    call vit#Diff(a:000[1], a:000[2])
+                    let l:rev = a:000[1]
+                    if a:0 > 2
+                        let l:file = a:000[2]
+                    endif
                 endif
+
+                " TODO: this is not pretty
+                call vit#Diff(l:rev, vit#GetFilenameRelativeToGit(vit#GetAbsolutePath(l:file)))
             elseif l:command ==# "blame"
-                call vit#Blame(expand("%"))
+                call vit#Blame(vit#GetAbsolutePath(expand("%")))
             elseif l:command ==# "log" || l:command ==# "lg"
                 if len(l:cmd_args) <= 0
-                    let l:cmd_args = expand("%")
+                    let l:cmd_args = vit#GetAbsolutePath(expand("%"))
                 endif
                 call vit#Log(l:cmd_args)
             elseif l:command ==# "show"
@@ -47,14 +54,14 @@ function! Git(...) " {{{
 
             elseif l:command ==# "add"
                 if len(l:cmd_args) <= 0
-                    let l:cmd_args = expand("%")
+                    let l:cmd_args = vit#GetAbsolutePath(expand("%"))
                 endif
                 call vit#Add(l:cmd_args)
             elseif l:command ==# "commit"
                 call vit#Commit(l:cmd_args)
             elseif l:command ==# "reset"
                 if len(l:cmd_args) <= 0
-                    let l:cmd_args = expand("%")
+                    let l:cmd_args = vit#GetAbsolutePath(expand("%"))
                 endif
                 " call vit#Reset(l:cmd_args)
                 call vit#ResetFilesInGitIndex("", l:cmd_args)
