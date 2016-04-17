@@ -27,15 +27,18 @@ function! GetRevFromLog()
 endfunction
 
 function! VitLog#Git(...) " {{{
-    let l:args = join(a:000[1:], ' ')
-    echomsg "VitLog#Git(".string(a:000).")"
-    if a:1 ==# "reset"
-        echom "VitLog: reset"
+    " echomsg "VitLog#Git(".string(a:000).")"
+    if a:0 > 0
+        if a:1 ==# "reset"
+            call vit#Reset(join(a:000[1:], ' '). " ".GetRevFromLog())
+        else
+            call vit#Git(join(a:000, ' '))
+        endif
     else
-        call vit#Git(join(a:000, ' '))
+        call vit#Git()
     endif
 endfunction
-" command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitLog#Git(<f-args>)
+command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitLog#Git(<f-args>)
 " }}}
 
 if exists("g:vit_standalone") " {{{

@@ -13,11 +13,11 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-function! GetRevFromShow()
+function! GetRevFromShow() " {{{
     return substitute(getline(1), '^commit \([0-9a-f].*\)$', '\1', '')
-endfunction
+endfunction " }}}
 
-function! GetFileUnderCursor()
+function! GetFileUnderCursor() " {{{
     let l:currline = line(".")
     if getline(".") !~ "^diff"
         execute "silent! normal! ?diff\<cr>"
@@ -26,7 +26,24 @@ function! GetFileUnderCursor()
     execute "normal ".l:currline."gg"
 
     call vit#OpenFileAsDiff(l:file)
+endfunction " }}}
+
+function! VitShow#Git(...) " {{{
+    " echomsg "VitShow#Git(".string(a:000).")"
+    if a:0 > 0
+        if a:1 ==# "reset"
+            call vit#Reset(join(a:000[1:], ' '). " ".GetRevFromBlame())
+        else
+            call vit#Git(join(a:000, ' '))
+        endif
+    else
+        call vit#Git()
+    endif
 endfunction
+command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitShow#Git(<f-args>)
+" }}}
 
 nnoremap <buffer> <silent> o :call GetFileUnderCursor()<cr>
 nnoremap <buffer> <silent> O :call vit#OpenFilesInRevisionAsDiff(GetRevFromShow())<cr>
+
+" vim: set foldmethod=marker formatoptions-=tc:

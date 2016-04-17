@@ -262,6 +262,7 @@ endfunction " }}}
 function! vit#Reset(args) " {{{
     call vit#ExecuteGit("reset ".a:args)
     call vit#RefreshStatus()
+    " call vit#RefreshLog() " FIXME: this is problematic
 endfunction
 function! vit#ResetFilesInGitIndex(opts, files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')

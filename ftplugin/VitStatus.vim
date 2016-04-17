@@ -4,7 +4,7 @@ endif
 let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
-function! GetStatus()
+function! GetStatus() " {{{
     " GET CHANGED (must be in root dir) let l:changedfiles = call vit#ExecuteGit("ls-files --exclude-from='".b:vit_root_dir."/.gitignore" -t --modified --deleted --others")
     " GET STAGED  let l:stagedfiles = call vit#ExecuteGit("diff-index --cached HEAD --")
     let l:status = vit#ExecuteGit("status --short")
@@ -12,19 +12,19 @@ function! GetStatus()
         let l:status = "  Nothing"
     endif
     return l:status
-endfunction
+endfunction " }}}
 
-function! LoadStatus(ref_file)
+function! LoadStatus(ref_file) " {{{
     call vit#GetGitConfig(a:ref_file)
     call vit#LoadContent(GetStatus())
-endfunction
+endfunction " }}}
 
-function! ReloadStatus(ref_file)
+function! ReloadStatus(ref_file) " {{{
     set modifiable
     silent! 1,$d
     call LoadStatus(a:ref_file)
     set nomodifiable
-endfunction
+endfunction " }}}
 
 call LoadStatus(b:vit_ref_file)
 
@@ -55,3 +55,5 @@ nnoremap <buffer> <silent> - :if getline(".") !~ "^##"<bar>call vit#Unstage(spli
 
 nnoremap <buffer> <silent> o :if getline(".") !~ "^##"<bar>call vit#OpenFileAsDiff(split(getline("."))[1])<bar>endif<cr>
 " TODO nnoremap <buffer> <silent> O :call vit#OpenFilesInRevisionAsDiff(GetRevFromShow())<cr>
+
+" vim: set foldmethod=marker formatoptions-=tc:
