@@ -72,7 +72,7 @@ function! Git(...) " {{{
                     call vit#Checkout(l:cmd_args)
                 endif
             elseif l:command ==# "stash"
-                call vit#Stash()
+                call vit#Stash(l:cmd_args)
             else
                 echohl WarningMsg
                 echomsg "Unrecognized git command: ".l:command

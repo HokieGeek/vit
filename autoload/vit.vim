@@ -277,10 +277,10 @@ function! vit#CheckoutCurrentFile(rev)
     edit l:file
 endfunction " }}}
 
-function! vit#Stash() " {{{
-    call vit#ExecuteGit("stash")
+function! vit#Stash(args) " {{{
+    call vit#ExecuteGit("stash ".a:args)
     " TODO: reload any loaded buffers which have now changed
-    " TODO: ask user if this is something they want
+    "       ask user if this is something they want
     " for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
     "     if buffer_name exists in list of stashed files
     "         call edit on that buffer
