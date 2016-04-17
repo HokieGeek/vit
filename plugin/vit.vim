@@ -62,9 +62,10 @@ function! Git(...) " {{{
             elseif l:command ==# "reset"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = vit#GetAbsolutePath(expand("%"))
+                    call vit#ResetFilesInGitIndex("", l:cmd_args)
+                else
+                    call vit#Reset(l:cmd_args)
                 endif
-                " call vit#Reset(l:cmd_args)
-                call vit#ResetFilesInGitIndex("", l:cmd_args)
             elseif l:command ==# "checkout" || l:command ==# "co"
                 if len(l:cmd_args) <= 0
                     call vit#CheckoutCurrentFile("HEAD")
