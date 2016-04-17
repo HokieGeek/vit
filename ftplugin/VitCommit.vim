@@ -13,7 +13,9 @@ call append(line("$"), split(vit#ExecuteGit("status -s | awk '{ print \"# \" $0 
 
 function! VitCommit#GitCommitFinish()
     let l:commit_message_file = expand("%")
-    call system("sed -i -e '/^#/d' -e '/^\\s*$/d' ".l:commit_message_file)
+    g/^#/d
+    g/^\s*$/d
+
     " Check the size of the file. If it's empty or blank, we don't commmit
     if len(readfile(l:commit_message_file)) > 0
         let l:file_args = "--file=".l:commit_message_file." ".b:vit_commit_args
@@ -27,13 +29,10 @@ function! VitCommit#GitCommitFinish()
     call delete(l:commit_message_file)
     unlet l:commit_message_file
 endfunction
-" TODO autocmd BufWinLeave <buffer> call VitCommit#GitCommitFinish()
+autocmd BufWinLeave <buffer> call VitCommit#GitCommitFinish()
 
 resize 10
 normal ggO
 
 " Calling this to make sure we get anything useful from other plugins
-set filetype=gitcommit
-" TODO: figure out how to force the syntax
-" syntax off
-" syntax on
+" set filetype=gitcommit

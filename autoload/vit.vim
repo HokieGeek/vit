@@ -131,7 +131,7 @@ function! vit#GetUserInput(message)
     let l:response = input(a:message)
     call inputrestore()
     return l:response
-endfunction " }}}
+endfunction
 " }}}
 
 " Commands {{{
@@ -246,13 +246,14 @@ function! vit#Commit(args) " {{{
     else " otherwise, open a window to enter the message
         let l:vit_git_dir = b:vit_git_dir
 
-        botright new
+        execute "botright split ".tempname()
         let b:vit_git_dir = l:vit_git_dir
         let b:vit_commit_args = a:args
         set filetype=VitCommit
     endif
 endfunction
 function! vit#PerformCommit(args)
+    " echom "vit#PerformCommit(".a:args.")"
     call vit#ExecuteGit("commit ".a:args)
     echomsg "Successfully committed"
     call vit#RefreshStatus()
