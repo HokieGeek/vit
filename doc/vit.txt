@@ -117,7 +117,7 @@ commit  [git commit args]                                       *vit-commit*
 TODO
 
 -------------------------------------------------------------------------------
-stash                                                          *vit-stash*
+stash  [git stash args]                                         *vit-stash*
 
 TODO
 
