@@ -113,6 +113,7 @@ function! vit#GitCurrentFileStatus()
 endfunction
 " }}}
 
+"" Misc " {{{
 function! vit#ExecuteGit(args)
     if exists("b:vit_git_cmd") && strlen(a:args) > 0
         " echom b:vit_git_cmd." ".a:args
@@ -132,6 +133,7 @@ function! vit#GetUserInput(message)
     call inputrestore()
     return l:response
 endfunction
+"" }}}
 " }}}
 
 " Commands {{{
@@ -319,9 +321,6 @@ function! vit#Stash(args) " {{{
     "     endif
     " endfor
 endfunction " }}}
-" }}}
-
-" Opening files {{{
 " }}}
 
 " vim: set foldmethod=marker formatoptions-=tc:
