@@ -10,7 +10,7 @@ function! vit#init()
     if exists("b:vit_initialized")
         return
     endif
-    let b:vit_initialized = 0
+    let b:vit_initialized = 1
 
     " Determine if we have a git executable
     if !executable("git")
@@ -20,7 +20,9 @@ function! vit#init()
     call vit#GetGitConfig("%")
 
     " Add autocmds
-    command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call vit#Git(<f-args>)
+    if exists("b:vit_git_cmd")
+        command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call vit#Git(<f-args>)
+    endif
 endfunction
 
 function! vit#GetGitConfig(file)
@@ -190,8 +192,10 @@ function! vit#Log(file) " {{{
 endfunction
 function! vit#RefreshLog()
     for win_num in range(1, winnr('$'))
-        if getbufvar(winbufnr(win_num), '&filetype') == "VitLog"
-            call vit#Log(getbufvar(winbufnr(win_num), "vit_ref_file"))
+        let l:buf_num = winbufnr(win_num)
+        if getbufvar(l:buf_num, '&filetype') == "VitLog"
+            call setbufvar(l:buf_num, 'vit_reload', 1)
+            call setbufvar(l:buf_num, '&filetype', 'VitLog')
         endif
     endfor
 endfunction " }}}
@@ -211,7 +215,7 @@ function! vit#Status(refdir) " {{{
     endfor
 
     if strlen(a:refdir) <= 0
-        let l:file = expand("%") " TODO: would be better if it got a directory as an argument
+        let l:file = expand("%")
     else
         let l:file = a:refdir
     endif
@@ -220,14 +224,14 @@ function! vit#Status(refdir) " {{{
 
     setlocal filetype=VitStatus
 
-    wincmd t " TODO: is there a better place for this? Or should it just go away?
+    wincmd t
 endfunction
 function! vit#RefreshStatus()
     for win_num in range(1, winnr('$'))
         let l:buf_num = winbufnr(win_num)
         if getbufvar(l:buf_num, '&filetype') == "VitStatus"
-            call vit#Status("")
-            break
+            call setbufvar(l:buf_num, 'vit_reload', 1)
+            call setbufvar(l:buf_num, '&filetype', 'VitStatus')
         endif
     endfor
 endfunction " }}}

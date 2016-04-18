@@ -1,3 +1,10 @@
+if exists("b:vit_reload")
+    setlocal modifiable
+    silent! 1,$d
+    unlet! b:vit_reload
+    unlet! b:autoloaded_vit_log
+endif
+
 if exists("b:autoloaded_vit_log") || v:version < 700
     finish
 endif
