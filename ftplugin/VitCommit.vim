@@ -12,11 +12,12 @@ endif
 call append(line("$"), split(vit#ExecuteGit("status -s | awk '{ print \"# \" $0 }'"), "\n"))
 
 function! VitCommit#GitCommitFinish()
-    let l:commit_message_file = expand("%")
     g/^#/d
     g/^\s*$/d
+    write
 
     " Check the size of the file. If it's empty or blank, we don't commmit
+    let l:commit_message_file = expand("%")
     if len(readfile(l:commit_message_file)) > 0
         let l:file_args = "--file=".l:commit_message_file." ".b:vit_commit_args
         call vit#PerformCommit(l:file_args)
