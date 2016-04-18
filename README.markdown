@@ -12,14 +12,8 @@ Vit integrates git into vim by providing a number of interactive windows that al
 Only one command is provided: `Git`
 
 ### Interactive windows
-#### Log
-![](http://i.imgur.com/7Tqm4rb.png)
-#### Status
-![](http://i.imgur.com/2hX9eDW.png)
-#### Show
-![](http://i.imgur.com/dc8MZjE.png)
-#### Blame
-![](http://i.imgur.com/Ssx5i5V.png)
+![](http://i.imgur.com/EWwM9AM.gifv)
+
 ## vit
 ![](http://i.imgur.com/ITQCVBk.png)
 
