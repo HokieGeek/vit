@@ -34,6 +34,6 @@ augroup END
 " }}}
 
 nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromBlame())<cr>
-nnoremap <buffer> <silent> o :call vit#OpenFilesInRevisionAsDiff(GetRevFromBlame())<cr>
+nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevFromBlame())<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:

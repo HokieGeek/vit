@@ -43,7 +43,7 @@ endfunction
 command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitShow#Git(<f-args>)
 " }}}
 
-nnoremap <buffer> <silent> o :call GetFileUnderCursor()<cr>
-nnoremap <buffer> <silent> O :call vit#OpenFilesInRevisionAsDiff(GetRevFromShow())<cr>
+nnoremap <buffer> <silent> d :call GetFileUnderCursor()<cr>
+nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(GetRevFromShow())<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:

@@ -129,7 +129,7 @@ VitLog                                                          *VitLog*
 
 Mappings:                                                       *VitLog-mappings*
 
-o            Opens a tab with a VitDiff for each file in the selected revision
+d            Opens a tab with a VitDiff for each file in the selected revision
 <enter>      Opens a VitShow of the selected revision
 
 -------------------------------------------------------------------------------
@@ -137,8 +137,8 @@ VitShow                                                         *VitShow*
 
 Mappings:                                                       *VitShow-mappings*
 
-o            Opens VitDiff of file under cursor
-O            Opens VitDiff of files in selected revision
+d            Opens VitDiff of file under cursor
+D            Opens VitDiff of files in selected revision
 
 -------------------------------------------------------------------------------
 VitStatus                                                       *VitStatus*
@@ -147,8 +147,7 @@ Only opens if there are any relevant changes
 
 Mappings:                                                       *VitStatus-mappings*
 
-o            Opens VitDiff of file under cursor
-O            Opens VitDiff of every modified file
+d            Opens VitDiff of file under cursor
 +            Adds file under cursor to the index
 -            Removes file under cursor from the index
 
@@ -159,7 +158,7 @@ Displays a partial view of a git blame command
 
 Mappings:                                                       *VitBlame-mappings*
 
-o            Opens VitDiff of files in selected revision
+d            Opens VitDiff of files in selected revision
 <enter>      Opens a VitShow of the selected revision
 
 -------------------------------------------------------------------------------

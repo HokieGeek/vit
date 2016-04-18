@@ -133,7 +133,7 @@ else " {{{
     nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromLog())<cr>
 endif " }}}
 
-nnoremap <buffer> <silent> o :call vit#OpenFilesInRevisionAsDiff(GetRevFromLog())<cr>
+nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevFromLog())<cr>
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j
