@@ -14,7 +14,7 @@ scriptencoding utf-8
 function! GetStatus() " {{{
     " GET CHANGED (must be in root dir) let l:changedfiles = call vit#ExecuteGit("ls-files --exclude-from='".b:vit_root_dir."/.gitignore" -t --modified --deleted --others")
     " GET STAGED  let l:stagedfiles = call vit#ExecuteGit("diff-index --cached HEAD --")
-    let l:status = vit#ExecuteGit("status --short")
+    let l:status = vit#ExecuteGit("status --porcelain")
     if len(l:status) <= 0
         let l:status = "  Nothing"
     endif
