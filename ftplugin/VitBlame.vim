@@ -20,16 +20,17 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-function! MoveVitBlameCursor() " {{{
+function! s:MoveWindowCursor(winnr) " {{{
     let l:currline = line(".")
-    wincmd h
+    execute a:winnr." wincmd w"
     execute "normal ".l:currline."gg"
     wincmd p
 endfunction
 
 augroup VitBlame
     autocmd!
-    execute "autocmd CursorMoved <buffer=".bufnr(b:vit_ref_file)."> call MoveVitBlameCursor()"
+    autocmd CursorMoved <buffer> call s:MoveWindowCursor(bufwinnr(b:vit_ref_file))
+    execute "autocmd CursorMoved <buffer=".bufnr(b:vit_ref_file)."> call s:MoveWindowCursor(".winnr().")"
 augroup END
 " }}}
 
