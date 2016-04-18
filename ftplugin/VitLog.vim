@@ -1,7 +1,6 @@
 if exists("b:vit_reload")
     setlocal modifiable
     silent! 1,$d
-    unlet! b:vit_reload
     unlet! b:autoloaded_vit_log
 endif
 
@@ -23,6 +22,11 @@ call vit#LoadContent(b:log)
 setlocal nolist cursorline nomodifiable nonumber
 if exists("&relativenumber")
     setlocal norelativenumber
+endif
+
+if exists("b:vit_reload")
+    unlet! b:vit_reload
+    finish
 endif
 
 if !exists("b:vit_log_lastline")
