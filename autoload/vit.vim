@@ -92,20 +92,19 @@ function! vit#GitFileStatus(file)
         let l:file = fnamemodify(a:file, ":p")
         let l:status = vit#ExecuteGit("status --porcelain ".l:file)
 
-        if match(l:status, '^fatal') > -1
-            let l:status_val = 0 " Not a git repo
-        elseif strlen(l:status) == 0
-            let l:status_val = 1 " Clean
-        elseif match(l:status, '^?') > -1
-            let l:status_val = 2 " Untracked
-        elseif match(l:status, '^.M') > -1
-            let l:status_val = 3 " Modified
-        elseif match(l:status, '^ ') < 0
-            let l:status_val = 4 " Staged
+        if strlen(l:status) == 0
+            return 1 " Clean
+        elseif l:status[0] == '?'
+            return 2 " Untracked
+        elseif l:status[1] ==# 'M'
+            return 3 " Modified
+        elseif l:status[0] != ' '
+            return 4 " Staged
+        elseif l:status =~ '^fatal'
+            return 0 " Not a git repo
         else
-            let l:status_val = -1 " foobar
+            return -1 " foobar
         endif
-        return l:status_val
     else
         return 2 " Untracked
     endif
