@@ -29,7 +29,7 @@ endfunction
 
 augroup VitBlame
     autocmd!
-    autocmd CursorMoved <buffer=1> call MoveVitBlameCursor() " FIXME: buffer=1
+    execute "autocmd CursorMoved <buffer=".bufnr(b:vit_ref_file)."> call MoveVitBlameCursor()"
 augroup END
 " }}}
 
