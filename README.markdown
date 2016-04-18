@@ -5,12 +5,28 @@ What became of the little helper functions I made that would tie Git into Vim. N
 
 Vit integrates git into vim by providing a number of interactive windows that allow the user to view git information about the file they are currently looking at as well as modify that file's git status.
 
-Documentation
--------------
+## Features
+
+### Commands
+
+Only one command is provided: `Git`
+
+### Interactive windows
+#### Log
+![](http://i.imgur.com/7Tqm4rb.png)
+#### Status
+![](http://i.imgur.com/2hX9eDW.png)
+#### Show
+![](http://i.imgur.com/dc8MZjE.png)
+#### Blame
+![](http://i.imgur.com/Ssx5i5V.png)
+## vit
+![](http://i.imgur.com/ITQCVBk.png)
+
+## Would you like to know more?
 You can view the manual by typing `:help vit`
 
-Installation
-------------
+## Installation
 
 I recommend installing [pathogen.vim](https://github.com/tpope/vim-pathogen) and then executing the following steps in a shell:
 

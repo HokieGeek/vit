@@ -25,7 +25,17 @@ USAGE                                                               *vit-usage*
 
 :Git [|vit-commands|] [arguments]                       *vit-git* *vit-command*
 
-TODO
+The following are the available vit-commands:
+        log
+        status
+        blame
+        diff
+        show
+        add
+        reset
+        checkout
+        commit
+        stash
 
 If no arguments are given, the vit-command defaults to status. See |vit-status|
 for more information.
@@ -53,7 +63,6 @@ If no arguments are given, it displays the last committed revision.
 The equivalent git command is: >
     git show <rev>
 >
-
 See |VitShow| for more information about the interactive window.
 
 -------------------------------------------------------------------------------
@@ -65,7 +74,6 @@ directory.
 The equivalent git command is: >
     git status --short
 >
-
 See |VitStatus| for more information about the interactive window.
 
 -------------------------------------------------------------------------------
@@ -89,7 +97,6 @@ the user for the revision to compare against.
 The equivalent git command  is: >
     git diff <rev> -- <file>
 >
-
 A successful execution will open a split panel of the two versions of the file being compared.
 See |VitDiff| for more information about the window.
 
@@ -170,7 +177,8 @@ left window
 ================================================================================
 SHELL SCRIPT                                                    *vit-shellscript*
 
-bin/vit [files]
+bin/vit [files]                                                 *vit-script*
+bin/gvit [files]                                                *gvit-script*
 
 When executed, it will open a vim session with 3 windows. In the top there will be a
 |VitLog| of the first file in the argument list. The bottom will have a |VitShow| of
