@@ -6,6 +6,9 @@ scriptencoding utf-8
 
 if exists("b:git_revision")
     call vit#LoadContent(vit#ExecuteGit("show ".b:git_revision))
+else
+    let s:ref_file_last_rev = vit#ExecuteGit("--no-pager log --no-color -n 1 --pretty=format:%H -- ".b:vit_ref_file)
+    call vit#LoadContent(vit#ExecuteGit("show ".s:ref_file_last_rev))
 endif
 
 setlocal nolist nocursorline nomodifiable nonumber
