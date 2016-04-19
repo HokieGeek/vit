@@ -205,8 +205,12 @@ function! vit#RefreshLog()
 endfunction " }}}
 
 function! vit#Show(rev) " {{{
+    let l:vit_ref_file = expand("%") "FIXME
     botright new
-    let b:git_revision = a:rev
+    if len(a:rev) > 0
+        let b:git_revision = a:rev
+    endif
+    let b:vit_ref_file = l:vit_ref_file
     setlocal filetype=VitShow
 endfunction " }}}
 
