@@ -10,7 +10,7 @@ let b:filename = tempname()
 if strlen(b:vit_commit_args) > 0
     call append(line("$"), "echo '# ARGUMENTS: ".b:vit_commit_args)
 endif
-call append(line("$"), split(vit#ExecuteGit("status -s | awk '{ print \"# \" $0 }'"), "\n"))
+call append(line("$"), split(vit#ExecuteGit("status --porcelain | awk '{ print \"# \" $0 }'"), "\n"))
 
 function! VitCommit#GitCommitFinish()
     g/^#/d
