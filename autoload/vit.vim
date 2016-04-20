@@ -292,7 +292,7 @@ function! vit#Commit(args) " {{{
     else " otherwise, open a window to enter the message
         let l:vit_git_dir = b:vit_git_dir
 
-        execute "botright split ".tempname()
+        botright new
         let b:vit_git_dir = l:vit_git_dir
         let b:vit_commit_args = a:args
         set filetype=VitCommit
