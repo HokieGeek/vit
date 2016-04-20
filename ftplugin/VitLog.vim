@@ -63,7 +63,8 @@ if exists("g:vit_standalone") " {{{
 
     setlocal filetype=VitShow
     setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
-    wincmd t
+    let s:vitshow_winnr = winnr()
+    wincmd p
 
     let g:vit_log_entry_cache = {}
 
@@ -83,7 +84,7 @@ if exists("g:vit_standalone") " {{{
                 endif
 
                 " Switch to the VitShow window and paste the new output
-                wincmd j
+                execute s:vitshow_winnr." wincmd w"
                 setlocal modifiable
 
                 " Remove old entry and add new one
@@ -92,7 +93,7 @@ if exists("g:vit_standalone") " {{{
                 silent! 0d_
 
                 setlocal nomodifiable
-                wincmd t
+                wincmd p
             else
                 if b:vit_log_lastline > line(".")
                     let l:newline = line(".")-1
