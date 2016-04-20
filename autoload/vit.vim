@@ -182,11 +182,18 @@ function! vit#OpenFilesInRevisionAsDiff(rev)
 endfunction " }}}
 
 function! vit#Blame(file) " {{{
+    mkview! 9
+    let l:currline = line(".")
+    setlocal nofoldenabel
+    
     topleft vnew
+    autocmd BufWinLeave <buffer> silent loadview 9
     let b:vit_ref_file = a:file
     set filetype=VitBlame
 
     wincmd p
+    execute "normal ".l:currline."gg"
+    "setlocal scrollbind
 endfunction " }}}
 
 function! vit#Log(file) " {{{
