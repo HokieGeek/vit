@@ -23,7 +23,10 @@ endfunction " }}}
 function! GetFileUnderCursor() " {{{
     let l:currline = line(".")
     if getline(".") !~ "^diff"
+        let l:last_wrapscan = &wrapscan
+        setlocal nowrapscan
         execute "silent! normal! ?diff\<cr>"
+        setlocal wrapscan = l:last_wrapscan
     endif
     let l:file = substitute(getline("."), '.* b/\(.*\)$', '\1', '')
     execute "normal ".l:currline."gg"
