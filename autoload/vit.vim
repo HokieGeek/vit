@@ -120,7 +120,7 @@ endfunction
 
 function! vit#UserGitCommand(args)
     " TODO: do something with the command output?
-    call vit#ExecuteGit(args)
+    call vit#ExecuteGit(a:args)
 endfunction
 
 function! vit#LoadContent(content)
