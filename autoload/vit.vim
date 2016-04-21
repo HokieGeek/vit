@@ -77,11 +77,7 @@ function! vit#GetFilenameRelativeToGit(file)
     return substitute(substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', ''), '/$', '', '')
 endfunction
 function! vit#GetFilenamesRelativeToGit(file_list)
-    let l:files = []
-    for f in a:file_list
-        call add(l:files, vit#GetFilenameRelativeToGit(fnamemodify(f, ":p")))
-    endfor
-    return l:files
+    return map(l:file_list, 'vit#GetFilenameRelativeToGit(v:val)')
 endfunction
 function! vit#GetAbsolutePath(file)
     return fnamemodify(b:vit_root_dir."/".vit#GetFilenameRelativeToGit(a:file), ":p")
