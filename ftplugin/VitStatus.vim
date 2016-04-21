@@ -13,7 +13,7 @@ let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
 function! GetStatus() " {{{
-    let l:status = vit#ExecuteGit("status --porcelain")
+    let l:status = vit#ExecuteGit("status --short") " Using short here because it displays files relative to the cwd
     if len(l:status) <= 0
         let l:status = "  Nothing"
     endif
