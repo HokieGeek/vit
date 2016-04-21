@@ -238,8 +238,6 @@ function! vit#Status(refdir) " {{{
     let b:vit_ref_file = l:file
 
     setlocal filetype=VitStatus
-
-    wincmd t
 endfunction
 function! vit#RefreshStatus()
     for win_num in range(1, winnr('$'))

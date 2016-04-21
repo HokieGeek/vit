@@ -1,4 +1,5 @@
 if exists("b:vit_reload")
+    let b:lastline = line(".")
     setlocal modifiable
     silent! 1,$d
     unlet! b:vit_reload
@@ -12,8 +13,6 @@ let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
 function! GetStatus() " {{{
-    " GET CHANGED (must be in root dir) let l:changedfiles = call vit#ExecuteGit("ls-files --exclude-from='".b:vit_root_dir."/.gitignore" -t --modified --deleted --others")
-    " GET STAGED  let l:stagedfiles = call vit#ExecuteGit("diff-index --cached HEAD --")
     let l:status = vit#ExecuteGit("status --porcelain")
     if len(l:status) <= 0
         let l:status = "  Nothing"
@@ -28,14 +27,12 @@ function! LoadStatus(ref_file) " {{{
     call vit#LoadContent(GetStatus())
 endfunction " }}}
 
-function! ReloadStatus(ref_file) " {{{
-    set modifiable
-    silent! 1,$d
-    call LoadStatus(a:ref_file)
-    set nomodifiable
-endfunction " }}}
-
 call LoadStatus(b:vit_ref_file)
+
+if exists("b:lastline")
+    execute "normal ".b:lastline."gg"
+    unlet! b:lastline
+endif
 
 " Set width of the window based on the widest text
 setlocal winminwidth=20
@@ -55,32 +52,13 @@ endif
 augroup VitStatus
     autocmd!
     autocmd FocusGained,BufWritePost * call vit#RefreshStatus()
-    " execute "autocmd BufWritePost * ".winnr()."wincmd w | call ReloadStatus('".b:vit_ref_file."') | wincmd p"
     autocmd BufDelete,BufWipeout <buffer> autocmd! VitStatus
 augroup END
 
+nnoremap <buffer> <silent> + :if getline(".") !~ "^##"<bar>call vit#Add(split(getline("."))[1])<bar>endif<cr>
+nnoremap <buffer> <silent> - :if getline(".") !~ "^##"<bar>call vit#Unstage(split(getline("."))[1])<bar>endif<cr>
 
-function! VitStatus#Action(action, win)
-    if getline(".") !~ "^##"
-        let l:file = split(getline("."))[1]
-        execute a:win." wincmd w"
-        if a:action =~? "add"
-            call vit#Add(l:file)
-        elseif a:action =~? "unstage"
-            call vit#Unstage(l:file)
-        elseif a:action =~? "openfile"
-            call vit#OpenFileAsDiff(l:file)
-        endif
-        wincmd p
-    endif
-endfunction
-
-nnoremap <buffer> <silent> + :call VitStatus#Action("add", winnr())<cr>
-nnoremap <buffer> <silent> - :call VitStatus#Action("unstage", winnr())<cr>
-" nnoremap <buffer> <silent> - :if getline(".") !~ "^##"<bar>call vit#Unstage(split(getline("."))[1])<bar>wincmd p<bar>endif<cr>
-
-nnoremap <buffer> <silent> d :call VitStatus#Action("openfile", winnr())<cr>
-" nnoremap <buffer> <silent> d :if getline(".") !~ "^##"<bar>call vit#OpenFileAsDiff(split(getline("."))[1])<bar>endif<cr>
+nnoremap <buffer> <silent> d :if getline(".") !~ "^##"<bar>call vit#OpenFileAsDiff(split(getline("."))[1])<bar>endif<cr>
 " TODO nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(GetRevFromShow())<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:

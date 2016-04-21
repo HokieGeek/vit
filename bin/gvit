@@ -12,7 +12,8 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
     }
 }
 
-gvim --cmd "let g:vit_standalone=1" \
-     -c "Git log "$1 \
-     -c "Git status" \
-     $@ &
+exec gvim --cmd "let g:vit_standalone=1" \
+          -c "Git log "$1 \
+          -c "Git status" \
+          -c "wincmd t" \
+          $@
