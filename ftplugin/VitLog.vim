@@ -33,7 +33,7 @@ if !exists("b:vit_log_lastline")
     let b:vit_log_lastline = 0
 endif
 
-function! s:GetRevUnderCursor()
+function! GetRevUnderCursor()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
@@ -41,7 +41,7 @@ function! VitLog#Git(...) " {{{
     " echomsg "VitLog#Git(".string(a:000).")"
     if a:0 > 0
         if a:1 ==# "reset"
-            call vit#Reset(join(a:000[1:], ' '). " ".s:GetRevUnderCursor())
+            call vit#Reset(join(a:000[1:], ' '). " ".GetRevUnderCursor())
         else
             call vit#Git(join(a:000, ' '))
         endif
@@ -70,7 +70,7 @@ if exists("g:vit_standalone") " {{{
 
     function! LoadLogEntry()
         if b:vit_log_lastline != line(".")
-            let l:rev = s:GetRevUnderCursor()
+            let l:rev = GetRevUnderCursor()
             if strlen(l:rev) <= 0
                 break
             endif
@@ -115,7 +115,7 @@ else " {{{
 
     function! SkipNonCommits()
         if b:vit_log_lastline != line(".")
-            let l:rev = s:GetRevUnderCursor()
+            let l:rev = GetRevUnderCursor()
             if l:rev =~ "^[\|\\/*]"
                 if b:vit_log_lastline > line(".")
                     let l:newline = line(".")-1
@@ -135,10 +135,10 @@ else " {{{
 
     autocmd CursorMoved <buffer> call SkipNonCommits()
 
-    nnoremap <buffer> <silent> <enter> :call vit#Show(s:GetRevUnderCursor())<cr>
+    nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevUnderCursor())<cr>
 endif " }}}
 
-nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(s:GetRevUnderCursor())<cr>
+nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j
