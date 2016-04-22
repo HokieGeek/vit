@@ -61,7 +61,7 @@ function! vit#GetGitConfig(file)
 
         let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
 
-        let b:vit["git-cmd"] = b:vit_git_cmd
+        let b:vit["gitcmd"] = b:vit_git_cmd
 
         " Determine the version of git
         " let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
@@ -70,21 +70,21 @@ function! vit#GetGitConfig(file)
         " echomsg " GIT DIR: ".b:vit_git_dir
         let b:vit["relative_path"] = vit#GetFilenameRelativeToGit(l:reffile)
 
-        let b:vit["execute"] = function("ExecuteGit")
+        let b:vit["execute"] = function("s:ExecuteGit")
 
     endif
     execute "cd ".l:currdir
 endfunction
 
-function! ExecuteGit(args) dict
+function! s:ExecuteGit(args) dict
     " if exists("b:vit_git_cmd") && strlen(a:args) > 0
     if strlen(a:args) > 0
         " echom self.gitcmd." ".a:args
-        return system(self.git-cmd." ".a:args)
+        return system(self.gitcmd." ".a:args)
     endif
 endfunction
 
-function! GetBranch() dict
+function! vit#GetBranch() dict
     " if len(b:vit_git_dir) > 0
     let l:file = readfile(self.gitdir."/HEAD")
     return substitute(l:file[0], 'ref: refs/heads/', '', '')
