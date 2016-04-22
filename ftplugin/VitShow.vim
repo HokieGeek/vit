@@ -4,11 +4,15 @@ endif
 let b:autoloaded_vit_show = 1
 scriptencoding utf-8
 
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
+
 if exists("b:git_revision")
-    call vit#LoadContent(vit#ExecuteGit("show ".b:git_revision))
+    silent! put =vit#ExecuteGit("show ".b:git_revision)
+    0d_
 elseif exists("b:vit_ref_file")
     let s:ref_file_last_rev = vit#ExecuteGit("--no-pager log --no-color -n 1 --pretty=format:%H -- ".b:vit_ref_file)
-    call vit#LoadContent(vit#ExecuteGit("show ".s:ref_file_last_rev))
+    silent! put =vit#ExecuteGit("show ".s:ref_file_last_rev)
+    0d_
 endif
 
 setlocal nolist nocursorline nomodifiable nonumber

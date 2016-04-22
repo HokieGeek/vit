@@ -12,6 +12,8 @@ endif
 let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
+
 function! GetStatus() " {{{
     let l:status = vit#ExecuteGit("status --short") " Using short here because it displays files relative to the cwd
     if len(l:status) <= 0
@@ -24,7 +26,9 @@ function! LoadStatus(ref_file) " {{{
     if !exists("b:vit_git_cmd")
         call vit#GetGitConfig(a:ref_file)
     endif
-    call vit#LoadContent(GetStatus())
+
+    silent! put =GetStatus()
+    0d_
 endfunction " }}}
 
 call LoadStatus(b:vit_ref_file)

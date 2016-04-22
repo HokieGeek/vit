@@ -4,8 +4,11 @@ endif
 let b:autoloaded_vit_blame = 1
 scriptencoding utf-8
 
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
+
 call vit#GetGitConfig(b:vit_ref_file)
-call vit#LoadContent(vit#ExecuteGit("blame --date=short ".b:vit_ref_file))
+silent! put =vit#ExecuteGit("blame --date=short ".b:vit_ref_file)
+0d_
 
 function! GetRevFromBlame()
     return substitute(getline("."), '^\([\^0-9a-f]\{7,}\) .*', '\1', '')

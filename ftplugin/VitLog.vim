@@ -10,6 +10,8 @@ endif
 let b:autoloaded_vit_log = 1
 scriptencoding utf-8
 
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
+
 let b:log = vit#ExecuteGit("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file)
 if strlen(b:log) <= 0
     echohl WarningMsg
@@ -18,7 +20,8 @@ if strlen(b:log) <= 0
     finish
 endif
 
-call vit#LoadContent(b:log)
+silent! put =b:log
+0d_
 setlocal nolist cursorline nomodifiable nonumber
 if exists("&relativenumber")
     setlocal norelativenumber

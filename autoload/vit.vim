@@ -123,12 +123,6 @@ function! vit#UserGitCommand(args)
     call vit#ExecuteGit(a:args)
 endfunction
 
-function! vit#LoadContent(content)
-    setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
-    silent! put =a:content
-    0d_
-endfunction
-
 function! vit#GetUserInput(message)
     call inputsave()
     let l:response = input(a:message)
