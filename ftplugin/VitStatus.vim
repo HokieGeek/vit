@@ -12,32 +12,26 @@ endif
 let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
-setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist nonumber cursorline
+if exists("&relativenumber")
+    setlocal norelativenumber
+endif
 
 if !exists("b:vit")
     let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
 endif
 
-function! GetStatus() " {{{
-    " echom "blah: ".b:vit
-    " let l:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
-    let l:status = vit#ExecuteGit("status --short") " Using short here because it displays files relative to the cwd
-    if len(l:status) <= 0
-        let l:status = "  Nothing"
+" function! LoadStatus(ref_file) " {{{
+    let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
+    if len(b:status) <= 0
+        let b:status = "  Nothing"
     endif
-    return l:status
-endfunction " }}}
-
-function! LoadStatus(ref_file) " {{{
-    " if !exists("b:vit_git_cmd")
-    "     call vit#GetGitConfig(a:ref_file)
-    " endif
-
-    silent! put =GetStatus()
+    silent! put =b:status
     0d_
-endfunction " }}}
+" endfunction " }}}
+setlocal nomodifiable
 
-call LoadStatus(b:vit_ref_file)
+" call LoadStatus(b:vit_ref_file)
 
 if exists("b:lastline")
     execute "normal ".b:lastline."gg"
@@ -48,11 +42,6 @@ endif
 setlocal winminwidth=20
 let b:max_cols = max(map(getline(1, "$"), "len(v:val)"))
 execute "vertical resize ".b:max_cols
-
-setlocal nolist nomodifiable nonumber cursorline
-if exists("&relativenumber")
-    setlocal norelativenumber
-endif
 
 if getline(1) =~ "^##"
     autocmd CursorMoved <buffer> execute "if line('.') == 1|normal j|endif"
