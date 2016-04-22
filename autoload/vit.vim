@@ -36,6 +36,8 @@ function! vit#GetGitConfig(file)
         let l:reffile = a:file
     endif
 
+    let b:vit["relative_path"] = vit#GetFilenameRelativeToGit(l:reffile)
+
     let l:currdir = getcwd()
     execute "cd ".fnamemodify(l:reffile, ":p:h")
 
@@ -46,10 +48,14 @@ function! vit#GetGitConfig(file)
             let b:vit_root_dir = getcwd()."/".b:vit_root_dir
         endif
 
+        let b:vit["worktree"] = b:vit_root_dir
+
         let b:vit_git_dir = substitute(system("git rev-parse --git-dir"), "\n*$", '', '')
         if b:vit_git_dir[0] != "/"
             let b:vit_git_dir = getcwd()."/".b:vit_git_dir
         endif
+
+        let b:vit["gitdir"] = b:vit_git_dir
 
         let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
 
