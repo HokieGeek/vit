@@ -14,7 +14,13 @@ scriptencoding utf-8
 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
 
+if !exists("b:vit")
+    let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
+endif
+
 function! GetStatus() " {{{
+    " echom "blah: ".b:vit
+    " let l:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
     let l:status = vit#ExecuteGit("status --short") " Using short here because it displays files relative to the cwd
     if len(l:status) <= 0
         let l:status = "  Nothing"
@@ -23,9 +29,9 @@ function! GetStatus() " {{{
 endfunction " }}}
 
 function! LoadStatus(ref_file) " {{{
-    if !exists("b:vit_git_cmd")
-        call vit#GetGitConfig(a:ref_file)
-    endif
+    " if !exists("b:vit_git_cmd")
+    "     call vit#GetGitConfig(a:ref_file)
+    " endif
 
     silent! put =GetStatus()
     0d_

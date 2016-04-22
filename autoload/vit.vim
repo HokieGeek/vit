@@ -36,16 +36,16 @@ function! vit#GetGitConfig(file)
         let l:reffile = a:file
     endif
 
-    if !exists("b:vit")
-        let b:vit = {}
-    endif
-
     let l:currdir = getcwd()
     execute "cd ".fnamemodify(l:reffile, ":p:h")
 
     " Determine the git directories
     let b:vit_root_dir = substitute(system("git rev-parse --show-toplevel"), "\n*$", '', '')
     if v:shell_error == 0 && len(b:vit_root_dir) > 0
+        if !exists("b:vit")
+            let b:vit = {}
+        endif
+
         if b:vit_root_dir[0] != "/"
             let b:vit_root_dir = getcwd()."/".b:vit_root_dir
         endif
@@ -61,7 +61,7 @@ function! vit#GetGitConfig(file)
 
         let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
 
-        let b:vit["gitcmd"] = b:vit_git_cmd
+        let b:vit["git-cmd"] = b:vit_git_cmd
 
         " Determine the version of git
         " let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
@@ -69,6 +69,8 @@ function! vit#GetGitConfig(file)
         " echomsg "ROOT DIR: ".b:vit_root_dir
         " echomsg " GIT DIR: ".b:vit_git_dir
         let b:vit["relative_path"] = vit#GetFilenameRelativeToGit(l:reffile)
+
+        let b:vit["execute"] = function("ExecuteGit")
 
     endif
     execute "cd ".l:currdir
@@ -78,7 +80,7 @@ function! ExecuteGit(args) dict
     " if exists("b:vit_git_cmd") && strlen(a:args) > 0
     if strlen(a:args) > 0
         " echom self.gitcmd." ".a:args
-        return system(self.gitcmd." ".a:args)
+        return system(self.git-cmd." ".a:args)
     endif
 endfunction
 
@@ -250,7 +252,9 @@ function! vit#Status(refdir) " {{{
     else
         let l:file = a:refdir
     endif
+    let l:bufnr = bufnr("%")
     botright vnew
+    let b:vit_ref_bufnr = l:bufnr
     let b:vit_ref_file = l:file
 
     setlocal filetype=VitStatus
