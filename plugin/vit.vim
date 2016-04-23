@@ -44,7 +44,7 @@ function! vit#Git(...) " {{{
                 call vit#Blame(vit#GetAbsolutePath(expand("%")))
             elseif l:command ==# "log" || l:command ==# "lg"
                 if len(l:cmd_args) <= 0
-                    let l:cmd_args = vit#GetAbsolutePath(expand("%"))
+                    let l:cmd_args = expand("%")
                 endif
                 call vit#Log(l:cmd_args)
             elseif l:command ==# "show"

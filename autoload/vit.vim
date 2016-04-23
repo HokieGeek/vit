@@ -4,23 +4,24 @@ endif
 let g:autoloaded_vit = 1
 scriptencoding utf-8
 
-" Helpers {{{
+" Buffer object {{{
 "" Repo info {{{
 function! vit#init()
     if exists("b:vit_initialized")
         return
     endif
     let b:vit_initialized = 1
+    " echom "vit#init()"
 
     " Determine if we have a git executable
     if !executable("git")
         return
     endif
 
-    call vit#GetGitConfig("%")
+    call vit#GetGitConfig(expand("%"))
 
     " Add autocmds
-    if exists("b:vit_git_cmd")
+    if exists("b:vit")
         command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call vit#Git(<f-args>)
     endif
 endfunction
@@ -30,7 +31,7 @@ function! vit#GetGitConfig(file)
         if exists("b:vit_ref_file")
             let l:reffile = b:vit_ref_file
         else
-            return
+            let l:reffile = getcwd()
         endif
     else
         let l:reffile = a:file
@@ -44,60 +45,59 @@ function! vit#GetGitConfig(file)
     if v:shell_error == 0 && len(b:vit_root_dir) > 0
         if !exists("b:vit")
             let b:vit = {}
+            let b:vit["bufnr"] = bufnr(l:reffile)
         endif
 
         if b:vit_root_dir[0] != "/"
             let b:vit_root_dir = getcwd()."/".b:vit_root_dir
         endif
 
-        let b:vit["worktree"] = b:vit_root_dir
-
         let b:vit_git_dir = substitute(system("git rev-parse --git-dir"), "\n*$", '', '')
         if b:vit_git_dir[0] != "/"
             let b:vit_git_dir = getcwd()."/".b:vit_git_dir
         endif
 
-        let b:vit["gitdir"] = b:vit_git_dir
-
         let b:vit_git_cmd = "git --git-dir=".b:vit_git_dir." --work-tree=".b:vit_root_dir
-
-        let b:vit["gitcmd"] = b:vit_git_cmd
 
         " Determine the version of git
         " let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
 
+        "" Git stuffs
+        let b:vit["worktree"] = b:vit_root_dir
+        let b:vit["gitdir"]   = b:vit_git_dir
+        let b:vit["gitcmd"]   = b:vit_git_cmd
         " echomsg "ROOT DIR: ".b:vit_root_dir
         " echomsg " GIT DIR: ".b:vit_git_dir
-        let b:vit["relative_path"] = vit#GetFilenameRelativeToGit(l:reffile)
+        " echomsg "ROOT DIR: ".b:vit.worktree
+        " echomsg " GIT DIR: ".b:vit.gitdir
 
+        "" File paths
+        let l:paths = {}
+        let l:paths["relative"] = vit#GetFilenameRelativeToGit(l:reffile)
+        let l:paths["absolute"] = fnamemodify(l:reffile, ":p")
+        let b:vit["path"] = l:paths
+
+        "" Vit window numbers placeholder
+        let b:vit["windows"] = { "log": -1, "show": -1, "blame": -1, "status": -1 }
+
+        "" Functions
+        " echom "here"
         let b:vit["execute"] = function("s:ExecuteGit")
+        let b:vit["branch"]  = function("s:GetBranch")
+        let b:vit["status"]  = function("s:GitStatus")
 
+    else
+        echom "crap"
     endif
     execute "cd ".l:currdir
 endfunction
 
-function! s:ExecuteGit(args) dict
-    " if exists("b:vit_git_cmd") && strlen(a:args) > 0
-    if strlen(a:args) > 0
-        " echom self.gitcmd." ".a:args
-        return system(self.gitcmd." ".a:args)
-    endif
-endfunction
-
-function! vit#GetBranch() dict
+function! s:GetBranch() dict " {{{
     " if len(b:vit_git_dir) > 0
     let l:file = readfile(self.gitdir."/HEAD")
     return substitute(l:file[0], 'ref: refs/heads/', '', '')
 endfunction
-
-function! vit#GetBranch()
-    if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
-        let l:file = readfile(b:vit_git_dir."/HEAD")
-        return substitute(l:file[0], 'ref: refs/heads/', '', '')
-    else
-        return ""
-    endif
-endfunction
+" }}}
 " }}}
 
 "" File info {{{
@@ -109,6 +109,71 @@ function! vit#GetFilenamesRelativeToGit(file_list)
 endfunction
 function! vit#GetAbsolutePath(file)
     return fnamemodify(b:vit_root_dir."/".vit#GetFilenameRelativeToGit(a:file), ":p")
+endfunction
+
+function! s:GitStatus() dict " {{{
+    let l:status = self.execute("status --porcelain ".self.path.absolute)
+
+    if strlen(l:status) == 0
+        return 1 " Clean
+    elseif l:status[0] == '?'
+        return 2 " Untracked
+    elseif l:status[1] ==# 'M'
+        return 3 " Modified
+    elseif l:status[0] != ' '
+        return 4 " Staged
+    elseif l:status =~ '^fatal'
+        return 0 " Not a git repo
+    else
+        return -1 " foobar
+    endif
+endfunction
+" function! s:GitCurrentFileStatus() dict
+    " return vit#GitFileStatus(expand("%:p:h"))
+" endfunction " }}}
+" }}}
+
+" Misc " {{{
+function! s:ExecuteGit(args) dict
+    " if exists("b:vit_git_cmd") && strlen(a:args) > 0
+    if strlen(a:args) > 0
+        " echom self.gitcmd." ".a:args
+        return system(self.gitcmd." ".a:args)
+    endif
+endfunction
+" }}}
+
+" }}}
+
+"" Helpers " {{{
+function! vit#UserGitCommand(args)
+    " TODO: do something with the command output?
+    call vit#ExecuteGit(a:args)
+endfunction
+
+function! vit#GetUserInput(message)
+    call inputsave()
+    let l:response = input(a:message)
+    call inputrestore()
+    return l:response
+endfunction
+"" }}}
+
+" TODO: On the way out " {{{
+function! vit#GetBranch()
+    if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
+        let l:file = readfile(b:vit_git_dir."/HEAD")
+        return substitute(l:file[0], 'ref: refs/heads/', '', '')
+    else
+        return ""
+    endif
+endfunction
+
+function! vit#ExecuteGit(args)
+    if exists("b:vit_git_cmd") && strlen(a:args) > 0
+        " echom b:vit_git_cmd." ".a:args
+        return system(b:vit_git_cmd." ".a:args)
+    endif
 endfunction
 
 function! vit#GitFileStatus(file)
@@ -136,28 +201,6 @@ endfunction
 function! vit#GitCurrentFileStatus()
     return vit#GitFileStatus(expand("%:p:h"))
 endfunction
-" }}}
-
-"" Misc " {{{
-function! vit#ExecuteGit(args)
-    if exists("b:vit_git_cmd") && strlen(a:args) > 0
-        " echom b:vit_git_cmd." ".a:args
-        return system(b:vit_git_cmd." ".a:args)
-    endif
-endfunction
-
-function! vit#UserGitCommand(args)
-    " TODO: do something with the command output?
-    call vit#ExecuteGit(a:args)
-endfunction
-
-function! vit#GetUserInput(message)
-    call inputsave()
-    let l:response = input(a:message)
-    call inputrestore()
-    return l:response
-endfunction
-"" }}}
 " }}}
 
 " Commands {{{
@@ -218,7 +261,6 @@ function! vit#Log(file) " {{{
     let l:bufnr = bufnr("%")
     topleft new
     let b:vit_ref_bufnr = l:bufnr
-    let b:vit_ref_file = a:file
     setlocal filetype=VitLog
 endfunction
 function! vit#RefreshLog()
@@ -232,7 +274,7 @@ function! vit#RefreshLog()
 endfunction " }}}
 
 function! vit#Show(rev) " {{{
-    let l:vit_ref_file = expand("%") "FIXME
+    " let l:vit_ref_file = expand("%") "FIXME
 
     let l:bufnr = bufnr("%")
     botright new
@@ -240,7 +282,7 @@ function! vit#Show(rev) " {{{
     if len(a:rev) > 0
         let b:git_revision = a:rev
     endif
-    let b:vit_ref_file = l:vit_ref_file
+    " let b:vit_ref_file = l:vit_ref_file
     setlocal filetype=VitShow
 endfunction " }}}
 

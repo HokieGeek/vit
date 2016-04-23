@@ -16,11 +16,10 @@ if exists("&relativenumber")
 endif
 
 if !exists("b:vit")
-    let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
+    let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
 endif
 
-" let b:log = vit#ExecuteGit("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file)
-let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file)
+let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit.path.absolute)
 if strlen(b:log) <= 0
     echohl WarningMsg
     echom "No log was generated"
@@ -72,6 +71,7 @@ if exists("g:vit_standalone") " {{{
     let b:vit_ref_bufnr = s:tmpbufnr
     execute "resize ".string(&lines * 0.60)
 
+    echom "Applying ft"
     setlocal filetype=VitShow
     setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
     let s:vitshow_winnr = winnr()
@@ -90,7 +90,7 @@ if exists("g:vit_standalone") " {{{
                 if has_key(g:vit_log_entry_cache, l:rev)
                     let l:rev_entry = g:vit_log_entry_cache[l:rev]
                 else
-                    let l:rev_entry = vit#ExecuteGit("show ".l:rev)
+                    let l:rev_entry = b:vit.execute("show ".l:rev)
                     let g:vit_log_entry_cache[l:rev] = l:rev_entry
                 endif
 

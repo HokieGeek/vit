@@ -4,23 +4,26 @@ endif
 let b:autoloaded_vit_show = 1
 scriptencoding utf-8
 
-setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist nocursorline nomodifiable nonumber
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist nocursorline nonumber
 if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
 if !exists("b:vit")
-    let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
+    let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
+    echom "got it"
+endif
+if len(b:vit) <= 0
+    echom "shit"
 endif
 
 if exists("b:git_revision")
-    " silent! put =vit#ExecuteGit("show ".b:git_revision)
+    " TODO: get rid of this?
     silent! put =b:vit.execute("show ".b:git_revision)
     0d_
 elseif exists("b:vit_ref_file")
-    " let s:ref_file_last_rev = vit#ExecuteGit("--no-pager log --no-color -n 1 --pretty=format:%H -- ".b:vit_ref_file)
-    " silent! put =vit#ExecuteGit("show ".s:ref_file_last_rev)
     let s:ref_file_last_rev = b:vit.execute("--no-pager log --no-color -n 1 --pretty=format:%H -- ".b:vit_ref_file)
+    " let s:ref_file_last_rev = b:vit.execute("--no-pager log --no-color -n 1 --pretty=format:%H -- ".b:vit.path.absolute)
     silent! put =b:vit.execute("show ".s:ref_file_last_rev)
     0d_
 endif
