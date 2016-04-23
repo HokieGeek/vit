@@ -215,7 +215,9 @@ function! vit#Blame(file) " {{{
 endfunction " }}}
 
 function! vit#Log(file) " {{{
+    let l:bufnr = bufnr("%")
     topleft new
+    let b:vit_ref_bufnr = l:bufnr
     let b:vit_ref_file = a:file
     setlocal filetype=VitLog
 endfunction
@@ -231,7 +233,10 @@ endfunction " }}}
 
 function! vit#Show(rev) " {{{
     let l:vit_ref_file = expand("%") "FIXME
+
+    let l:bufnr = bufnr("%")
     botright new
+    let b:vit_ref_bufnr = l:bufnr
     if len(a:rev) > 0
         let b:git_revision = a:rev
     endif
@@ -240,6 +245,7 @@ function! vit#Show(rev) " {{{
 endfunction " }}}
 
 function! vit#Status(refdir) " {{{
+    " TODO: Replace this with a single line to check for an entry in b:vit
     for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
         if getbufvar(b, "&filetype") ==? "VitStatus"
             execute "bdelete! ".b
@@ -247,15 +253,15 @@ function! vit#Status(refdir) " {{{
         endif
     endfor
 
-    if strlen(a:refdir) <= 0
-        let l:file = expand("%")
-    else
-        let l:file = a:refdir
-    endif
+    " if strlen(a:refdir) <= 0
+    "     let l:file = expand("%")
+    " else
+    "     let l:file = a:refdir
+    " endif
     let l:bufnr = bufnr("%")
     botright vnew
     let b:vit_ref_bufnr = l:bufnr
-    let b:vit_ref_file = l:file
+    " let b:vit_ref_file = l:file
 
     setlocal filetype=VitStatus
 endfunction

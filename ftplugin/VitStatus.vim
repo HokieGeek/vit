@@ -21,17 +21,13 @@ if !exists("b:vit")
     let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
 endif
 
-" function! LoadStatus(ref_file) " {{{
-    let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
-    if len(b:status) <= 0
-        let b:status = "  Nothing"
-    endif
-    silent! put =b:status
-    0d_
-" endfunction " }}}
+let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
+if len(b:status) <= 0
+    let b:status = "  Nothing"
+endif
+silent! put =b:status
+0d_
 setlocal nomodifiable
-
-" call LoadStatus(b:vit_ref_file)
 
 if exists("b:lastline")
     execute "normal ".b:lastline."gg"

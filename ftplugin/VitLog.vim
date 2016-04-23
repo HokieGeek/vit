@@ -10,9 +10,17 @@ endif
 let b:autoloaded_vit_log = 1
 scriptencoding utf-8
 
-setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist cursorline nonumber
+if exists("&relativenumber")
+    setlocal norelativenumber
+endif
 
-let b:log = vit#ExecuteGit("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file)
+if !exists("b:vit")
+    let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
+endif
+
+" let b:log = vit#ExecuteGit("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file)
+let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit_ref_file)
 if strlen(b:log) <= 0
     echohl WarningMsg
     echom "No log was generated"
@@ -22,10 +30,7 @@ endif
 
 silent! put =b:log
 0d_
-setlocal nolist cursorline nomodifiable nonumber
-if exists("&relativenumber")
-    setlocal norelativenumber
-endif
+setlocal nomodifiable
 
 if exists("b:vit_reload")
     unlet! b:vit_reload
@@ -61,7 +66,10 @@ if exists("g:vit_standalone") " {{{
     endif
 
     " Create the new window to use for the git show output
+    " TODO: this is no good
+    let s:tmpbufnr = b:vit_ref_bufnr
     botright new
+    let b:vit_ref_bufnr = s:tmpbufnr
     execute "resize ".string(&lines * 0.60)
 
     setlocal filetype=VitShow
