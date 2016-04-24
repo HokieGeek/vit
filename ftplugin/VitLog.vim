@@ -15,10 +15,7 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-if !exists("b:vit")
-    let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
-    let b:vit.windows.log = bufnr("%")
-endif
+let b:vit.windows.log = bufnr("%")
 
 let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit.path.absolute)
 if strlen(b:log) <= 0
@@ -67,9 +64,9 @@ if exists("g:vit_standalone") " {{{
 
     " Create the new window to use for the git show output
     " TODO: this is no good
-    let s:tmpbufnr = b:vit_ref_bufnr
+    let s:vit = b:vit
     botright new
-    let b:vit_ref_bufnr = s:tmpbufnr
+    let b:vit = s:vit
     execute "resize ".string(&lines * 0.60)
 
     setlocal filetype=VitShow

@@ -9,7 +9,6 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
 let b:vit.windows.show = bufnr("%")
 
 if exists("b:git_revision")

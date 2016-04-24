@@ -176,7 +176,7 @@ function! vit#Diff(rev, file) " {{{
     else
         let l:bufnr = bufnr(a:file)
         topleft vnew
-        let b:vit_ref_bufnr = l:bufnr
+        let b:vit = getbufvar(l:bufnr, "vit")
         let b:vit_revision = a:rev
         setlocal filetype=VitDiff
     endif
@@ -214,7 +214,7 @@ function! vit#Blame(file) " {{{
 
     let l:bufnr = bufnr(a:file)
     topleft vnew
-    let b:vit_ref_bufnr = l:bufnr
+    let b:vit = getbufvar(l:bufnr, "vit")
 
     autocmd BufWinLeave <buffer> silent loadview 9
     " let b:vit_ref_file = a:file
@@ -228,7 +228,8 @@ endfunction " }}}
 function! vit#Log(file) " {{{
     let l:bufnr = bufnr(a:file)
     topleft new
-    let b:vit_ref_bufnr = l:bufnr
+    let b:vit = getbufvar(l:bufnr, "vit")
+    " let b:vit_ref_bufnr = l:bufnr
     setlocal filetype=VitLog
 endfunction
 function! vit#RefreshLog()
@@ -250,8 +251,8 @@ function! vit#Show(rev) " {{{
 
     let l:bufnr = bufnr("%")
     botright new
+    let b:vit = getbufvar(l:bufnr, "vit")
     let b:git_revision = l:rev
-    let b:vit_ref_bufnr = l:bufnr
     setlocal filetype=VitShow
 endfunction " }}}
 
@@ -275,8 +276,8 @@ function! vit#Status(refdir) " {{{
     " let l:bufnr = bufnr(l:file)
     " echom "l:bufnr = ".l:bufnr
     botright vnew
+    " let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
     " let b:vit_ref_bufnr = l:bufnr
-    " let b:vit_ref_file = l:file
 
     setlocal filetype=VitStatus
 endfunction
