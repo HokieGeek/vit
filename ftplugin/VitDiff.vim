@@ -10,8 +10,6 @@ if !exists("b:vit_revision")
     finish
 endif
 
-let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
-
 let b:vit.windows.diff = bufnr("%")
 
 let b:content = b:vit.execute("show ".b:vit_revision.":".b:vit.name())
@@ -19,6 +17,6 @@ silent! put =b:content
 0d_
 setlocal nomodifiable
 
-autocmd BufDelete,BufWipeout <buffer> windo diffoff
+autocmd BufDelete,BufWipeout <buffer> windo diffoff | filetype detect
 
 windo diffthis
