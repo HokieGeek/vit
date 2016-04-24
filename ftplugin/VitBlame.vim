@@ -35,8 +35,8 @@ endfunction
 
 augroup VitBlame
     autocmd!
-    autocmd CursorMoved <buffer> call s:MoveWindowCursor(bufwinnr(b:vit_ref_file))
-    execute "autocmd CursorMoved <buffer=".bufnr(b:vit_ref_file)."> call s:MoveWindowCursor(".winnr().")"
+    autocmd CursorMoved <buffer> call s:MoveWindowCursor(bufwinnr(b:vit.bufnr))
+    execute "autocmd CursorMoved <buffer=".b:vit.bufnr."> call s:MoveWindowCursor(".winnr().")"
 augroup END
 " }}}
 

@@ -217,7 +217,7 @@ function! vit#Blame(file) " {{{
     let b:vit_ref_bufnr = l:bufnr
 
     autocmd BufWinLeave <buffer> silent loadview 9
-    let b:vit_ref_file = a:file
+    " let b:vit_ref_file = a:file
     set filetype=VitBlame
 
     wincmd p
