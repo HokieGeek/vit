@@ -21,7 +21,7 @@ function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
 endfunction " }}}
 
 function! vit#Git(...) " {{{
-    if exists("b:vit_git_dir")
+    if exists("b:vit")
         if a:0 > 0
             " echomsg "Git(".string(a:000).")"
             let l:command = a:1
@@ -39,9 +39,9 @@ function! vit#Git(...) " {{{
                 endif
 
                 " TODO: this is not pretty
-                call vit#Diff(l:rev, vit#GetFilenameRelativeToGit(vit#GetAbsolutePath(l:file)))
+                call vit#Diff(l:rev, vit#GetFilenameRelativeToGit(fnamemodify(l:file, ":p")))
             elseif l:command ==# "blame"
-                call vit#Blame(vit#GetAbsolutePath(expand("%")))
+                call vit#Blame(expand("%:p"))
             elseif l:command ==# "log" || l:command ==# "lg"
                 if len(l:cmd_args) <= 0
                     let l:cmd_args = expand("%")
@@ -58,14 +58,14 @@ function! vit#Git(...) " {{{
 
             elseif l:command ==# "add"
                 if len(l:cmd_args) <= 0
-                    let l:cmd_args = vit#GetAbsolutePath(expand("%"))
+                    let l:cmd_args = expand("%:p")
                 endif
                 call vit#Add(l:cmd_args)
             elseif l:command ==# "commit"
                 call vit#Commit(l:cmd_args)
             elseif l:command ==# "reset"
                 if len(l:cmd_args) <= 0
-                    let l:cmd_args = vit#GetAbsolutePath(expand("%"))
+                    let l:cmd_args = expand("%:p")
                     call vit#ResetFilesInGitIndex("", l:cmd_args)
                 else
                     call vit#Reset(l:cmd_args)

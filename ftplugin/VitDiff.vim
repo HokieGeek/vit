@@ -6,11 +6,16 @@ scriptencoding utf-8
 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
 
-if !exists("b:vit_ref_file") || !exists("b:vit_revision")
+if !exists("b:vit_revision")
     finish
 endif
 
-silent! put =vit#ExecuteGit("show ".b:vit_revision.":".b:vit_ref_file)
+let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
+
+let b:vit.windows.diff = bufnr("%")
+
+let b:content = b:vit.execute("show ".b:vit_revision.":".b:vit.name())
+silent! put =b:content
 0d_
 setlocal nomodifiable
 

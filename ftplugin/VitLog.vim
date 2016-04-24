@@ -17,6 +17,7 @@ endif
 
 if !exists("b:vit")
     let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
+    let b:vit.windows.log = bufnr("%")
 endif
 
 let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit.path.absolute)

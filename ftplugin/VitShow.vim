@@ -10,6 +10,7 @@ if exists("&relativenumber")
 endif
 
 let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
+let b:vit.windows.show = bufnr("%")
 
 if exists("b:git_revision")
     let b:vit_content = b:vit.execute("show ".b:git_revision)
