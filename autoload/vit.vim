@@ -257,29 +257,30 @@ function! vit#Show(rev) " {{{
 endfunction " }}}
 
 function! vit#Status(refdir) " {{{
-    " TODO: Replace this with a single line to check for an entry in b:vit
-    " for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
-    "     if getbufvar(b, "&filetype") ==? "VitStatus"
-    "         execute "bdelete! ".b
-    "         break
-    "     endif
-    " endfor
+    if exists("b:vit") && b:vit.windows.status > 0
+        " for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
+        "     if getbufvar(b, "&filetype") ==? "VitStatus"
+        "         execute "bdelete! ".b
+        "         break
+        "     endif
+        " endfor
 
-    " echom "vit#Status(".refdir.")"
+        " echom "vit#Status(".refdir.")"
 
-    " if strlen(a:refdir) <= 0
-        " let l:file = expand("%")
-    " else
-        " let l:file = a:refdir
-    " endif
-    " let l:bufnr = bufnr("%")
-    " let l:bufnr = bufnr(l:file)
-    " echom "l:bufnr = ".l:bufnr
-    botright vnew
-    " let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
-    " let b:vit_ref_bufnr = l:bufnr
+        " if strlen(a:refdir) <= 0
+            " let l:file = expand("%")
+        " else
+            " let l:file = a:refdir
+        " endif
+        " let l:bufnr = bufnr("%")
+        " let l:bufnr = bufnr(l:file)
+        " echom "l:bufnr = ".l:bufnr
+        botright vnew
+        " let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
+        " let b:vit_ref_bufnr = l:bufnr
 
-    setlocal filetype=VitStatus
+        setlocal filetype=VitStatus
+    endif
 endfunction
 function! vit#RefreshStatus()
     for win_num in range(1, winnr('$'))
