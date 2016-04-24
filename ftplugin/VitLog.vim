@@ -25,6 +25,12 @@ if strlen(b:log) <= 0
     finish
 endif
 
+if !exists("g:vit_standalone")
+    if b:vit.status() == 3
+        let b:log = "* 0000000 - %Unstaged modifications%\n".b:log
+    endif
+endif
+
 silent! put =b:log
 0d_
 setlocal nomodifiable
@@ -56,6 +62,26 @@ endfunction
 command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitLog#Git(<f-args>)
 " }}}
 
+function! s:SkipNonCommits(func) " {{{
+    if b:vit_log_lastline != line(".")
+        let l:rev = GetRevUnderCursor()
+        if l:rev =~ "^[\|\\/*]"
+            if b:vit_log_lastline > line(".")
+                let l:newline = line(".")-1
+            else
+                let l:newline = line(".")+1
+            endif
+            call cursor(l:newline, 0)
+            call s:SkipNonCommits(a:func)
+        else
+            call a:func(l:rev)
+        endif
+        let b:vit_log_lastline = line(".")
+    endif
+endfunction " }}}
+
+let s:vitshow_winnr = winnr()
+
 if exists("g:vit_standalone") " {{{
     if bufnr("$") > 1
         bdelete #
@@ -70,77 +96,64 @@ if exists("g:vit_standalone") " {{{
 
     setlocal filetype=VitShow
     setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
-    let s:vitshow_winnr = winnr()
     wincmd p
 
     let g:vit_log_entry_cache = {}
 
-    function! LoadLogEntry()
-        if b:vit_log_lastline != line(".")
-            let l:rev = GetRevUnderCursor()
-            if strlen(l:rev) <= 0
-                break
-            endif
+    if !exists("b:vit_log_lastline")
+        let b:vit_log_lastline = 0
+    endif
 
-            if l:rev !~ "^[\|\\/*]"
-                if has_key(g:vit_log_entry_cache, l:rev)
-                    let l:rev_entry = g:vit_log_entry_cache[l:rev]
-                else
-                    let l:rev_entry = b:vit.execute("show ".l:rev)
-                    let g:vit_log_entry_cache[l:rev] = l:rev_entry
-                endif
-
-                " Switch to the VitShow window and paste the new output
-                execute s:vitshow_winnr." wincmd w"
-                setlocal modifiable
-
-                " Remove old entry and add new one
-                silent! 1,$d
-                silent! put =l:rev_entry
-                silent! 0d_
-
-                setlocal nomodifiable
-                wincmd p
-            else
-                if b:vit_log_lastline > line(".")
-                    let l:newline = line(".")-1
-                else
-                    let l:newline = line(".")+1
-                endif
-                call cursor(l:newline, 0)
-                call LoadLogEntry()
-            endif
-            let b:vit_log_lastline = line(".")
+    function! s:LoadLogEntry(rev)
+        if has_key(g:vit_log_entry_cache, a:rev)
+            let l:rev_entry = g:vit_log_entry_cache[a:rev]
+        else
+            let l:rev_entry = b:vit.execute("show ".l:rev)
+            let g:vit_log_entry_cache[a:rev] = l:rev_entry
         endif
+
+        " Switch to the VitShow window and paste the new output
+        execute s:vitshow_winnr." wincmd w"
+        setlocal modifiable
+
+        " Remove old entry and add new one
+        silent! 1,$d
+        silent! put =l:rev_entry
+        silent! 0d_
+
+        setlocal nomodifiable
+        wincmd t
     endfunction
 
-    autocmd CursorMoved <buffer> call LoadLogEntry()
+    autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:LoadLogEntry"))
 " }}}
 else " {{{
 
-    resize 30
+    execute "resize ".string(&lines * 0.30)
 
-    function! SkipNonCommits()
-        if b:vit_log_lastline != line(".")
-            let l:rev = GetRevUnderCursor()
-            if l:rev =~ "^[\|\\/*]"
-                if b:vit_log_lastline > line(".")
-                    let l:newline = line(".")-1
-                else
-                    let l:newline = line(".")+1
-                endif
-                call cursor(l:newline, 0)
-                call SkipNonCommits()
+    if !exists("b:vit_log_lastline")
+        let b:vit_log_lastline = 1
+    endif
 
-                " return 0
-            endif
-            let b:vit_log_lastline = line(".")
+    " let b:vit_status_winnr = winnr()
+    " let b:ref_file_winnr = bufwinnr(b:vit.name())
 
-            " return 1
-        endif
+    function! s:CheckoutFileAtRevision(rev)
+        " let l:vitshow_winnr = b:vitshow_winnr
+        " let l:ref_file = b:vit_ref_file
+        " execute b:ref_file_winnr." wincmd w"
+        " if a:rev == "0000000"
+            " execute "buffer ".bufnr(l:ref_file)
+        " else
+            " let l:fileRev = vit#ExecuteGit("show ".a:rev.":".vit#GetFilenameRelativeToGit(l:ref_file))
+            " enew
+            " silent! put =l:fileRev
+            " silent! 0d_
+        " endif
+        " execute l:vitsho_statusw_winnr." wincmd w"
     endfunction
 
-    autocmd CursorMoved <buffer> call SkipNonCommits()
+    autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:CheckoutFileAtRevision"))
 
     nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevUnderCursor())<cr>
 endif " }}}
