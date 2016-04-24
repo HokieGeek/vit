@@ -43,7 +43,6 @@ function! GetRevUnderCursor()
 endfunction
 
 function! VitLog#Git(...) " {{{
-    " echomsg "VitLog#Git(".string(a:000).")"
     if a:0 > 0
         if a:1 ==# "reset"
             call vit#Reset(join(a:000[1:], ' '). " ".GetRevUnderCursor())

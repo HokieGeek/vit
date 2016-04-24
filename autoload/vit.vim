@@ -69,7 +69,6 @@ function! s:GetGitConfig(file) " {{{
         "" File paths
         let l:paths = {}
         let l:paths["relative"] = vit#GetFilenameRelativeToGit(l:reffile)
-        " let l:paths["relative"] = substitute(substitute(fnamemodify(l:reffile, ":p"), l:vit_root_dir."/", '', ''), '/$', '', '')
         let l:paths["absolute"] = fnamemodify(l:reffile, ":p")
         let b:vit["path"] = l:paths
 
@@ -129,12 +128,9 @@ function! s:BufferName() dict " {{{
 endfunction " }}}
 " }}}
 
-"" Helpers " {{{
+" Helpers " {{{
 function! vit#GetFilenameRelativeToGit(file)
     return substitute(substitute(fnamemodify(a:file, ":p"), b:vit.worktree."/", '', ''), '/$', '', '')
-    " return substitute(substitute(fnamemodify(a:file, ":p"), l:vit_root_dir."/", '', ''), '/$', '', '')
-    " let l:vit = getbufvar(a:file, "vit")
-    " return l:vit.path.relative()
 endfunction
 function! vit#GetFilenamesRelativeToGit(file_list)
     return map(l:file_list, 'vit#GetFilenameRelativeToGit(v:val)')
@@ -151,9 +147,10 @@ function! vit#GetUserInput(message)
     call inputrestore()
     return l:response
 endfunction
-"" }}}
+" }}}
 
 " TODO: On the way out " {{{
+" Statusline
 function! vit#GetBranch()
     return b:vit.branch()
 endfunction
@@ -174,9 +171,8 @@ function! vit#Diff(rev, file) " {{{
         echomsg "Cannot perform a diff against a directory"
         echohl None
     else
-        let l:bufnr = bufnr(a:file)
         topleft vnew
-        let b:vit = getbufvar(l:bufnr, "vit")
+        let b:vit = getbufvar(bufnr(a:file), "vit")
         let b:vit_revision = a:rev
         setlocal filetype=VitDiff
     endif
@@ -208,29 +204,36 @@ function! vit#OpenFilesInRevisionAsDiff(rev)
 endfunction " }}}
 
 function! vit#Blame(file) " {{{
-    mkview! 9
-    let l:currline = line(".")
-    setlocal nofoldenable
+    if exists("b:vit")
+        if b:vit.windows.blame < 0
+            mkview! 9
+            let l:currline = line(".")
+            setlocal nofoldenable
 
-    let l:bufnr = bufnr(a:file)
-    topleft vnew
-    let b:vit = getbufvar(l:bufnr, "vit")
+            topleft vnew
+            let b:vit = getbufvar(bufnr(a:file), "vit")
 
-    autocmd BufWinLeave <buffer> silent loadview 9
-    " let b:vit_ref_file = a:file
-    set filetype=VitBlame
+            autocmd BufWinLeave <buffer> silent loadview 9
+            set filetype=VitBlame
 
-    wincmd p
-    execute "normal ".l:currline."gg"
-    "setlocal scrollbind
+            wincmd p
+            execute "normal ".l:currline."gg"
+            "setlocal scrollbind
+        endif
+    endif
 endfunction " }}}
 
 function! vit#Log(file) " {{{
-    let l:bufnr = bufnr(a:file)
-    topleft new
-    let b:vit = getbufvar(l:bufnr, "vit")
-    " let b:vit_ref_bufnr = l:bufnr
-    setlocal filetype=VitLog
+    if exists("b:vit")
+        if b:vit.windows.log < 0
+            topleft new
+            let b:vit = getbufvar(bufnr(a:file), "vit")
+            setlocal filetype=VitLog
+        else
+            call setbufvar(b:vit.windows.log, 'vit_reload', 1)
+            call setbufvar(b:vit.windows.log, '&filetype', 'VitLog')
+        endif
+    endif
 endfunction
 function! vit#RefreshLog()
     for win_num in range(1, winnr('$'))
@@ -257,29 +260,14 @@ function! vit#Show(rev) " {{{
 endfunction " }}}
 
 function! vit#Status(refdir) " {{{
-    if exists("b:vit") && b:vit.windows.status > 0
-        " for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
-        "     if getbufvar(b, "&filetype") ==? "VitStatus"
-        "         execute "bdelete! ".b
-        "         break
-        "     endif
-        " endfor
-
-        " echom "vit#Status(".refdir.")"
-
-        " if strlen(a:refdir) <= 0
-            " let l:file = expand("%")
-        " else
-            " let l:file = a:refdir
-        " endif
-        " let l:bufnr = bufnr("%")
-        " let l:bufnr = bufnr(l:file)
-        " echom "l:bufnr = ".l:bufnr
-        botright vnew
-        " let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
-        " let b:vit_ref_bufnr = l:bufnr
-
-        setlocal filetype=VitStatus
+    if exists("b:vit")
+        if b:vit.windows.status < 0
+            botright vnew
+            setlocal filetype=VitStatus
+        else
+            call setbufvar(b:vit.windows.status, 'vit_reload', 1)
+            call setbufvar(b:vit.windows.status, '&filetype', 'VitStatus')
+        endif
     endif
 endfunction
 function! vit#RefreshStatus()
