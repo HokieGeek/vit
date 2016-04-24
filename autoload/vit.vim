@@ -230,17 +230,19 @@ function! vit#Log(file) " {{{
             let b:vit = getbufvar(bufnr(a:file), "vit")
             setlocal filetype=VitLog
         else
-            call setbufvar(b:vit.windows.log, 'vit_reload', 1)
-            call setbufvar(b:vit.windows.log, '&filetype', 'VitLog')
+            call vit#RefreshLog(b:vit.windows.log)
         endif
     endif
+endfunction
+function! vit#RefreshLog(buf_num)
+    call setbufvar(a:buf_num, 'vit_reload', 1)
+    call setbufvar(a:buf_num, '&filetype', 'VitLog')
 endfunction
 function! vit#RefreshLogs()
     for win_num in range(1, winnr('$'))
         let l:buf_num = winbufnr(win_num)
         if getbufvar(l:buf_num, '&filetype') == "VitLog"
-            call setbufvar(l:buf_num, 'vit_reload', 1)
-            call setbufvar(l:buf_num, '&filetype', 'VitLog')
+            call vit#RefreshLog(l:buf_num)
         endif
     endfor
 endfunction " }}}
@@ -265,17 +267,19 @@ function! vit#Status(refdir) " {{{
             botright vnew
             setlocal filetype=VitStatus
         else
-            call setbufvar(b:vit.windows.status, 'vit_reload', 1)
-            call setbufvar(b:vit.windows.status, '&filetype', 'VitStatus')
+            call vit#RefreshStatus(b:vit.windows.status)
         endif
     endif
+endfunction
+function! vit#RefreshStatus(buf_num)
+    call setbufvar(a:buf_num, 'vit_reload', 1)
+    call setbufvar(a:buf_num, '&filetype', 'VitStatus')
 endfunction
 function! vit#RefreshStatuses()
     for win_num in range(1, winnr('$'))
         let l:buf_num = winbufnr(win_num)
         if getbufvar(l:buf_num, '&filetype') == "VitStatus"
-            call setbufvar(l:buf_num, 'vit_reload', 1)
-            call setbufvar(l:buf_num, '&filetype', 'VitStatus')
+            call vit#RefreshStatus(l:buf_num)
         endif
     endfor
 endfunction " }}}
