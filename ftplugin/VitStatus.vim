@@ -49,7 +49,7 @@ endif
 
 augroup VitStatus
     autocmd!
-    autocmd FocusGained,BufWritePost * call vit#RefreshStatus()
+    autocmd FocusGained,BufWritePost * call vit#RefreshStatuses()
     autocmd BufDelete,BufWipeout <buffer> autocmd! VitStatus
 augroup END
 

@@ -90,6 +90,6 @@ function! vit#Git(...) " {{{
     endif
 endfunction " }}}
 
-autocmd BufWinEnter * call vit#init() | call vit#RefreshStatus()
+autocmd BufWinEnter * call vit#init() | call vit#RefreshStatuses()
 
 " vim: set foldmethod=marker formatoptions-=tc:

@@ -235,7 +235,7 @@ function! vit#Log(file) " {{{
         endif
     endif
 endfunction
-function! vit#RefreshLog()
+function! vit#RefreshLogs()
     for win_num in range(1, winnr('$'))
         let l:buf_num = winbufnr(win_num)
         if getbufvar(l:buf_num, '&filetype') == "VitLog"
@@ -270,7 +270,7 @@ function! vit#Status(refdir) " {{{
         endif
     endif
 endfunction
-function! vit#RefreshStatus()
+function! vit#RefreshStatuses()
     for win_num in range(1, winnr('$'))
         let l:buf_num = winbufnr(win_num)
         if getbufvar(l:buf_num, '&filetype') == "VitStatus"
@@ -290,7 +290,7 @@ function! vit#Add(files) " {{{
     " TODO
     call b:vit.execute("add ".l:files)
     echo "Added ".a:files." to the stage"
-    call vit#RefreshStatus()
+    call vit#RefreshStatuses()
 endfunction " }}}
 
 function! vit#Commit(args) " {{{
@@ -332,14 +332,14 @@ function! vit#PerformCommit(args)
     " echom "vit#PerformCommit(".a:args.")"
     call b:vit.execute("commit ".a:args)
     echomsg "Successfully committed"
-    call vit#RefreshStatus()
-    call vit#RefreshLog()
+    call vit#RefreshStatuses()
+    call vit#RefreshLogs()
 endfunction " }}}
 
 function! vit#Reset(args) " {{{
     call b:vit.execute("reset ".a:args)
-    call vit#RefreshStatus()
-    " call vit#RefreshLog() " FIXME: this is problematic
+    call vit#RefreshStatuses()
+    " call vit#RefreshLogs() " FIXME: this is problematic
 endfunction
 function! vit#ResetFilesInGitIndex(opts, files)
     let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
@@ -352,8 +352,8 @@ endfunction " }}}
 
 function! vit#Checkout(args) " {{{
     call b:vit.execute("checkout ".a:args)
-    call vit#RefreshStatus()
-    call vit#RefreshLog()
+    call vit#RefreshStatuses()
+    call vit#RefreshLogs()
 endfunction
 function! vit#CheckoutCurrentFile(rev)
     let l:file = expand("%:p")
