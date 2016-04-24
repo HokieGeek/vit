@@ -17,9 +17,7 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-if !exists("b:vit")
-    let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
-endif
+let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
 
 let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
 if len(b:status) <= 0

@@ -11,7 +11,6 @@ function! vit#init()
         return
     endif
     let b:vit_initialized = 1
-    " echom "vit#init()"
 
     " Determine if we have a git executable
     if !executable("git")
@@ -82,9 +81,10 @@ function! vit#GetGitConfig(file)
 
         "" Functions
         " echom "here"
-        let b:vit["execute"] = function("s:ExecuteGit")
-        let b:vit["branch"]  = function("s:GetBranch")
-        let b:vit["status"]  = function("s:GitStatus")
+        let b:vit["execute"]  = function("s:ExecuteGit")
+        let b:vit["branch"]   = function("s:GetBranch")
+        let b:vit["status"]   = function("s:GitStatus")
+        let b:vit["revision"] = function("s:GetFileRevision")
 
     else
         echom "crap"
@@ -109,6 +109,10 @@ function! vit#GetFilenamesRelativeToGit(file_list)
 endfunction
 function! vit#GetAbsolutePath(file)
     return fnamemodify(b:vit_root_dir."/".vit#GetFilenameRelativeToGit(a:file), ":p")
+endfunction
+
+function! s:GetFileRevision() dict
+    return self.execute("--no-pager log --no-color -n 1 --pretty=format:%H -- ".self.paths.absolute)
 endfunction
 
 function! s:GitStatus() dict " {{{
@@ -243,11 +247,16 @@ function! vit#OpenFilesInRevisionAsDiff(rev)
 endfunction " }}}
 
 function! vit#Blame(file) " {{{
+    " echom "vit#Blame()"
     mkview! 9
     let l:currline = line(".")
-    setlocal nofoldenabel
-    
+    setlocal nofoldenable
+
+    let l:bufnr = bufnr(a:file)
     topleft vnew
+    let b:vit_ref_bufnr = l:bufnr
+    " unlet! b:vit " Well this is a hack...
+
     autocmd BufWinLeave <buffer> silent loadview 9
     let b:vit_ref_file = a:file
     set filetype=VitBlame
@@ -258,7 +267,9 @@ function! vit#Blame(file) " {{{
 endfunction " }}}
 
 function! vit#Log(file) " {{{
-    let l:bufnr = bufnr("%")
+    " let l:bufnr = bufnr("%")
+    let l:bufnr = bufnr(a:file)
+    " echom "vit#Log(".a:file."): ".l:bufnr
     topleft new
     let b:vit_ref_bufnr = l:bufnr
     setlocal filetype=VitLog
@@ -274,15 +285,17 @@ function! vit#RefreshLog()
 endfunction " }}}
 
 function! vit#Show(rev) " {{{
-    " let l:vit_ref_file = expand("%") "FIXME
+    " echom "vit#Show(".a:rev.")"
+    if len(a:rev) > 0
+        let l:rev = a:rev
+    else
+        let l:rev = b:vit.revision()
+    endif
 
     let l:bufnr = bufnr("%")
     botright new
+    let b:git_revision = l:rev
     let b:vit_ref_bufnr = l:bufnr
-    if len(a:rev) > 0
-        let b:git_revision = a:rev
-    endif
-    " let b:vit_ref_file = l:vit_ref_file
     setlocal filetype=VitShow
 endfunction " }}}
 

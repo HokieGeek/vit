@@ -71,7 +71,6 @@ if exists("g:vit_standalone") " {{{
     let b:vit_ref_bufnr = s:tmpbufnr
     execute "resize ".string(&lines * 0.60)
 
-    echom "Applying ft"
     setlocal filetype=VitShow
     setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
     let s:vitshow_winnr = winnr()

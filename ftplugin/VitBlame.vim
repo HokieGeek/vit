@@ -6,8 +6,9 @@ scriptencoding utf-8
 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
 
-call vit#GetGitConfig(b:vit_ref_file)
-silent! put =vit#ExecuteGit("blame --date=short ".b:vit_ref_file)
+let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
+let b:result = b:vit.execute("blame --date=short ".b:vit.path.absolute)
+silent! put =b:result
 0d_
 
 function! GetRevFromBlame()

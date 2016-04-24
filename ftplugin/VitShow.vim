@@ -9,24 +9,15 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-if !exists("b:vit")
-    let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
-    echom "got it"
-endif
-if len(b:vit) <= 0
-    echom "shit"
-endif
+let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
 
 if exists("b:git_revision")
-    " TODO: get rid of this?
-    silent! put =b:vit.execute("show ".b:git_revision)
-    0d_
-elseif exists("b:vit_ref_file")
-    let s:ref_file_last_rev = b:vit.execute("--no-pager log --no-color -n 1 --pretty=format:%H -- ".b:vit_ref_file)
-    " let s:ref_file_last_rev = b:vit.execute("--no-pager log --no-color -n 1 --pretty=format:%H -- ".b:vit.path.absolute)
-    silent! put =b:vit.execute("show ".s:ref_file_last_rev)
-    0d_
+    let b:vit_content = b:vit.execute("show ".b:git_revision)
+else
+    let b:vit_content = "No revision given"
 endif
+silent! put=b:vit_content
+0d_
 
 setlocal nomodifiable
 
