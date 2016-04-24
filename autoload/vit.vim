@@ -4,9 +4,7 @@ endif
 let g:autoloaded_vit = 1
 scriptencoding utf-8
 
-" Buffer object {{{
-"" Repo info {{{
-function! vit#init()
+function! vit#init() " {{{
     if exists("b:vit_initialized")
         return
     endif
@@ -23,9 +21,10 @@ function! vit#init()
     if exists("b:vit")
         command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call vit#Git(<f-args>)
     endif
-endfunction
+endfunction " }}}
 
-function! vit#GetGitConfig(file)
+" Buffer object {{{
+function! vit#GetGitConfig(file) " {{{
     if len(a:file) <= 0
         if exists("b:vit_ref_file")
             let l:reffile = b:vit_ref_file
@@ -90,7 +89,7 @@ function! vit#GetGitConfig(file)
         echom "crap"
     endif
     execute "cd ".l:currdir
-endfunction
+endfunction " }}}
 
 function! s:GetBranch() dict " {{{
     " if len(b:vit_git_dir) > 0
@@ -98,22 +97,10 @@ function! s:GetBranch() dict " {{{
     return substitute(l:file[0], 'ref: refs/heads/', '', '')
 endfunction
 " }}}
-" }}}
 
-"" File info {{{
-function! vit#GetFilenameRelativeToGit(file)
-    return substitute(substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', ''), '/$', '', '')
-endfunction
-function! vit#GetFilenamesRelativeToGit(file_list)
-    return map(l:file_list, 'vit#GetFilenameRelativeToGit(v:val)')
-endfunction
-function! vit#GetAbsolutePath(file)
-    return fnamemodify(b:vit_root_dir."/".vit#GetFilenameRelativeToGit(a:file), ":p")
-endfunction
-
-function! s:GetFileRevision() dict
+function! s:GetFileRevision() dict " {{{
     return self.execute("--no-pager log --no-color -n 1 --pretty=format:%H -- ".self.paths.absolute)
-endfunction
+endfunction " }}}
 
 function! s:GitStatus() dict " {{{
     let l:status = self.execute("status --porcelain ".self.path.absolute)
@@ -131,22 +118,15 @@ function! s:GitStatus() dict " {{{
     else
         return -1 " foobar
     endif
-endfunction
-" function! s:GitCurrentFileStatus() dict
-    " return vit#GitFileStatus(expand("%:p:h"))
-" endfunction " }}}
-" }}}
+endfunction " }}}
 
-" Misc " {{{
-function! s:ExecuteGit(args) dict
+function! s:ExecuteGit(args) dict " {{{
     " if exists("b:vit_git_cmd") && strlen(a:args) > 0
     if strlen(a:args) > 0
         " echom self.gitcmd." ".a:args
         return system(self.gitcmd." ".a:args)
     endif
-endfunction
-" }}}
-
+endfunction " }}}
 " }}}
 
 "" Helpers " {{{
@@ -164,46 +144,34 @@ endfunction
 "" }}}
 
 " TODO: On the way out " {{{
+function! vit#GetFilenameRelativeToGit(file)
+    return substitute(substitute(fnamemodify(a:file, ":p"), b:vit_root_dir."/", '', ''), '/$', '', '')
+endfunction
+function! vit#GetFilenamesRelativeToGit(file_list)
+    return map(l:file_list, 'vit#GetFilenameRelativeToGit(v:val)')
+endfunction
+
+
+function! vit#GetAbsolutePath(file)
+    return b:vit.path.absolute
+    " return fnamemodify(b:vit_root_dir."/".vit#GetFilenameRelativeToGit(a:file), ":p")
+endfunction
+function! vit#ExecuteGit(args)
+    return b:vit.execute(a:args)
+endfunction
 function! vit#GetBranch()
-    if exists("b:vit_git_dir") && len(b:vit_git_dir) > 0
-        let l:file = readfile(b:vit_git_dir."/HEAD")
-        return substitute(l:file[0], 'ref: refs/heads/', '', '')
+    if exists("b:vit")
+        return b:vit.branch()
     else
         return ""
     endif
 endfunction
-
-function! vit#ExecuteGit(args)
-    if exists("b:vit_git_cmd") && strlen(a:args) > 0
-        " echom b:vit_git_cmd." ".a:args
-        return system(b:vit_git_cmd." ".a:args)
-    endif
-endfunction
-
 function! vit#GitFileStatus(file)
-    if strlen(a:file) > 0
-        let l:file = fnamemodify(a:file, ":p")
-        let l:status = vit#ExecuteGit("status --porcelain ".l:file)
-
-        if strlen(l:status) == 0
-            return 1 " Clean
-        elseif l:status[0] == '?'
-            return 2 " Untracked
-        elseif l:status[1] ==# 'M'
-            return 3 " Modified
-        elseif l:status[0] != ' '
-            return 4 " Staged
-        elseif l:status =~ '^fatal'
-            return 0 " Not a git repo
-        else
-            return -1 " foobar
-        endif
-    else
-        return 2 " Untracked
-    endif
+    let l:vit = getbufvar(a:file, "vit")
+    return l:vit.status()
 endfunction
 function! vit#GitCurrentFileStatus()
-    return vit#GitFileStatus(expand("%:p:h"))
+    return b:vit.status()
 endfunction
 " }}}
 
@@ -301,21 +269,25 @@ endfunction " }}}
 
 function! vit#Status(refdir) " {{{
     " TODO: Replace this with a single line to check for an entry in b:vit
-    for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
-        if getbufvar(b, "&filetype") ==? "VitStatus"
-            execute "bdelete! ".b
-            break
-        endif
-    endfor
+    " for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
+    "     if getbufvar(b, "&filetype") ==? "VitStatus"
+    "         execute "bdelete! ".b
+    "         break
+    "     endif
+    " endfor
+
+    " echom "vit#Status(".refdir.")"
 
     " if strlen(a:refdir) <= 0
-    "     let l:file = expand("%")
+        " let l:file = expand("%")
     " else
-    "     let l:file = a:refdir
+        " let l:file = a:refdir
     " endif
-    let l:bufnr = bufnr("%")
+    " let l:bufnr = bufnr("%")
+    " let l:bufnr = bufnr(l:file)
+    " echom "l:bufnr = ".l:bufnr
     botright vnew
-    let b:vit_ref_bufnr = l:bufnr
+    " let b:vit_ref_bufnr = l:bufnr
     " let b:vit_ref_file = l:file
 
     setlocal filetype=VitStatus

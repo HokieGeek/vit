@@ -17,11 +17,15 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
+" let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
 
-let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
-if len(b:status) <= 0
-    let b:status = "  Nothing"
+if exists("b:vit")
+    let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
+    if len(b:status) <= 0
+        let b:status = "  No changes"
+    endif
+else
+    let b:status = "  Not a repo"
 endif
 silent! put =b:status
 0d_
