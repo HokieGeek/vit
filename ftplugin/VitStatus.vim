@@ -17,8 +17,6 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-" let b:vit = getbufvar(b:vit_ref_bufnr, "b:vit")
-
 if exists("b:vit")
     let b:vit.windows.status = bufnr("%")
     let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
