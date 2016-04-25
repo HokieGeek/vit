@@ -134,33 +134,21 @@ else " {{{
         let b:vit_log_lastline = 1
     endif
 
-    " let b:reffile_bufnr = b:vit.bufnr
     let b:reffile_winnr = bufwinnr(b:vit.bufnr)
-    let b:log_winnr = winnr()
-
     function! s:CheckoutFileAtRevision(rev)
-        let l:reffile_bufnr = b:vit.bufnr
-        " let l:log_winnr = bufwinnr(b:vit.windows.log)
-        let l:log_winnr = b:log_winnr
-        " echom localtime()." ".bufwinnr(b:vit.bufnr)
-        " execute bufwinnr(b:vit.bufnr)." wincmd w"
+        let l:vit = b:vit
         execute b:reffile_winnr." wincmd w"
         if a:rev == "0000000"
-            " echom "Do nothing: buffer ".bufnr(b:vit.bufnr)
-            execute "buffer ".l:reffile_bufnr
-            " execute "buffer ".b:vit.bufnr
+            execute "buffer ".l:vit.bufnr
         else
-            " echom "Display rev: ".a:rev
-            let l:fileRev = b:vit.execute("show ".a:rev.":".b:vit.path.relative)
+            let l:fileRev = l:vit.execute("show ".a:rev.":".l:vit.path.relative)
             enew
             setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
-            " silent! 1,$d
             silent! put =l:fileRev
             silent! 0d_
+            filetype detect
         endif
-        " wincmd p
-        " execute b:log_winnr." wincmd w"
-        execute l:log_winnr." wincmd w"
+        wincmd p
     endfunction
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:CheckoutFileAtRevision"))
