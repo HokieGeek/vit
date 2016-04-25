@@ -35,11 +35,10 @@ function! s:GetGitConfig(file) " {{{
         let l:reffile = a:file
     endif
 
-    let l:currdir = getcwd()
-    execute "cd ".fnamemodify(l:reffile, ":p:h")
+    let l:reffile_dir = fnamemodify(l:reffile, ":p:h")
 
     " Determine the git directories
-    let l:vit_root_dir = substitute(system("git rev-parse --show-toplevel"), "\n*$", '', '')
+    let l:vit_root_dir = substitute(system("cd ".l:reffile_dir."; git rev-parse --show-toplevel"), "\n*$", '', '')
     if v:shell_error == 0 && len(l:vit_root_dir) > 0
         if !exists("b:vit")
             let b:vit = {}
@@ -47,15 +46,13 @@ function! s:GetGitConfig(file) " {{{
         endif
 
         if l:vit_root_dir[0] != "/"
-            let l:vit_root_dir = getcwd()."/".l:vit_root_dir
+            let l:vit_root_dir = l:reffile_dir."/".l:vit_root_dir
         endif
 
-        let l:vit_git_dir = substitute(system("git rev-parse --git-dir"), "\n*$", '', '')
+        let l:vit_git_dir = substitute(system("cd ".l:reffile_dir."; git rev-parse --git-dir"), "\n*$", '', '')
         if l:vit_git_dir[0] != "/"
-            let l:vit_git_dir = getcwd()."/".l:vit_git_dir
+            let l:vit_git_dir = l:reffile_dir."/".l:vit_git_dir
         endif
-
-        " let b:vit_git_cmd = "git --git-dir=".l:vit_git_dir." --work-tree=".l:vit_root_dir
 
         " Determine the version of git
         " let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
@@ -63,6 +60,7 @@ function! s:GetGitConfig(file) " {{{
         "" Git stuffs
         let b:vit["worktree"] = l:vit_root_dir
         let b:vit["gitdir"]   = l:vit_git_dir
+        " echomsg " reffile: ".l:reffile
         " echomsg "ROOT DIR: ".b:vit.worktree
         " echomsg " GIT DIR: ".b:vit.gitdir
 
@@ -82,7 +80,6 @@ function! s:GetGitConfig(file) " {{{
         let b:vit["status"]   = function("s:GitStatus")
         let b:vit["revision"] = function("s:GetFileRevision")
     endif
-    execute "cd ".l:currdir
 endfunction " }}}
 
 function! s:GetBranch() dict " {{{
@@ -97,7 +94,7 @@ function! s:GetFileRevision() dict " {{{
 endfunction " }}}
 
 function! s:GitStatus() dict " {{{
-    let l:status = self.execute("status --porcelain ".self.path.absolute)
+    let l:status = self.execute("status --porcelain ".self.path.relative)
 
     if strlen(l:status) == 0
         return 1 " Clean
@@ -116,6 +113,7 @@ endfunction " }}}
 
 function! s:ExecuteGit(args) dict " {{{
     if strlen(a:args) > 0
+        " echom "git --git-dir=".self.gitdir." --work-tree=".self.worktree." ".a:args
         return system("git --git-dir=".self.gitdir." --work-tree=".self.worktree." ".a:args)
     endif
 endfunction " }}}
@@ -127,6 +125,7 @@ endfunction " }}}
 
 " Helpers " {{{
 function! vit#GetFilenameRelativeToGit(file)
+    " echom "[".a:file.", ".getcwd()."] ".fnamemodify(a:file, ":p")." :: ".b:vit.worktree
     return substitute(substitute(fnamemodify(a:file, ":p"), b:vit.worktree."/", '', ''), '/$', '', '')
 endfunction
 function! vit#GetFilenamesRelativeToGit(file_list)
