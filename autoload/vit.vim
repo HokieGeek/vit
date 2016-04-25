@@ -81,9 +81,6 @@ function! s:GetGitConfig(file) " {{{
         let b:vit["branch"]   = function("s:GetBranch")
         let b:vit["status"]   = function("s:GitStatus")
         let b:vit["revision"] = function("s:GetFileRevision")
-
-    else
-        echom "crap"
     endif
     execute "cd ".l:currdir
 endfunction " }}}
@@ -150,16 +147,28 @@ endfunction
 " }}}
 
 " TODO: On the way out " {{{
-" Statusline
+" TODO: Statusline
 function! vit#GetBranch()
-    return b:vit.branch()
+    if exists("b:vit")
+        return b:vit.branch()
+    else
+        return ""
+    endif
 endfunction
 function! vit#GitFileStatus(file)
     let l:vit = getbufvar(a:file, "vit")
-    return l:vit.status()
+    if len(l:vit) > 0
+        return l:vit.status()
+    else
+        return 2
+    endif
 endfunction
 function! vit#GitCurrentFileStatus()
-    return b:vit.status()
+    if exists("b:vit")
+        return b:vit.status()
+    else
+        return 2
+    endif
 endfunction
 " }}}
 
