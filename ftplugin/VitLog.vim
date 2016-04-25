@@ -134,14 +134,21 @@ else " {{{
         let b:vit_log_lastline = 1
     endif
 
+    " let b:reffile_bufnr = b:vit.bufnr
+    let b:reffile_winnr = bufwinnr(b:vit.bufnr)
+    let b:log_winnr = winnr()
+
     function! s:CheckoutFileAtRevision(rev)
-        let l:log_winnr = bufwinnr(b:vit.windows.log)
-        echom localtime()." ".&filetype
+        let l:reffile_bufnr = b:vit.bufnr
+        " let l:log_winnr = bufwinnr(b:vit.windows.log)
+        let l:log_winnr = b:log_winnr
         " echom localtime()." ".bufwinnr(b:vit.bufnr)
-        execute bufwinnr(b:vit.bufnr)." wincmd w"
+        " execute bufwinnr(b:vit.bufnr)." wincmd w"
+        execute b:reffile_winnr." wincmd w"
         if a:rev == "0000000"
             " echom "Do nothing: buffer ".bufnr(b:vit.bufnr)
-            " execute "buffer ".bufnr(b:vit.bufnr)
+            execute "buffer ".l:reffile_bufnr
+            " execute "buffer ".b:vit.bufnr
         else
             " echom "Display rev: ".a:rev
             let l:fileRev = b:vit.execute("show ".a:rev.":".b:vit.path.relative)
@@ -152,6 +159,7 @@ else " {{{
             silent! 0d_
         endif
         " wincmd p
+        " execute b:log_winnr." wincmd w"
         execute l:log_winnr." wincmd w"
     endfunction
 
