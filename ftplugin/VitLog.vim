@@ -80,8 +80,6 @@ function! s:SkipNonCommits(func) " {{{
     endif
 endfunction " }}}
 
-let s:vitshow_winnr = winnr()
-
 if exists("g:vit_standalone") " {{{
     if bufnr("$") > 1
         bdelete #
@@ -91,6 +89,7 @@ if exists("g:vit_standalone") " {{{
     " TODO: this is no good
     let s:vit = b:vit
     botright new
+
     let b:vit = s:vit
     execute "resize ".string(&lines * 0.60)
 
@@ -108,12 +107,12 @@ if exists("g:vit_standalone") " {{{
         if has_key(g:vit_log_entry_cache, a:rev)
             let l:rev_entry = g:vit_log_entry_cache[a:rev]
         else
-            let l:rev_entry = b:vit.execute("show ".l:rev)
+            let l:rev_entry = b:vit.execute("show ".a:rev)
             let g:vit_log_entry_cache[a:rev] = l:rev_entry
         endif
 
         " Switch to the VitShow window and paste the new output
-        execute s:vitshow_winnr." wincmd w"
+        execute bufwinnr(b:vit.windows.show)." wincmd w"
         setlocal modifiable
 
         " Remove old entry and add new one
@@ -122,7 +121,7 @@ if exists("g:vit_standalone") " {{{
         silent! 0d_
 
         setlocal nomodifiable
-        wincmd t
+        wincmd p
     endfunction
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:LoadLogEntry"))
@@ -135,22 +134,25 @@ else " {{{
         let b:vit_log_lastline = 1
     endif
 
-    " let b:vit_status_winnr = winnr()
-    " let b:ref_file_winnr = bufwinnr(b:vit.name())
-
     function! s:CheckoutFileAtRevision(rev)
-        " let l:vitshow_winnr = b:vitshow_winnr
-        " let l:ref_file = b:vit_ref_file
-        " execute b:ref_file_winnr." wincmd w"
-        " if a:rev == "0000000"
-            " execute "buffer ".bufnr(l:ref_file)
-        " else
-            " let l:fileRev = vit#ExecuteGit("show ".a:rev.":".vit#GetFilenameRelativeToGit(l:ref_file))
-            " enew
-            " silent! put =l:fileRev
-            " silent! 0d_
-        " endif
-        " execute l:vitsho_statusw_winnr." wincmd w"
+        let l:log_winnr = bufwinnr(b:vit.windows.log)
+        echom localtime()." ".&filetype
+        " echom localtime()." ".bufwinnr(b:vit.bufnr)
+        execute bufwinnr(b:vit.bufnr)." wincmd w"
+        if a:rev == "0000000"
+            " echom "Do nothing: buffer ".bufnr(b:vit.bufnr)
+            " execute "buffer ".bufnr(b:vit.bufnr)
+        else
+            " echom "Display rev: ".a:rev
+            let l:fileRev = b:vit.execute("show ".a:rev.":".b:vit.path.relative)
+            enew
+            setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+            " silent! 1,$d
+            silent! put =l:fileRev
+            silent! 0d_
+        endif
+        " wincmd p
+        execute l:log_winnr." wincmd w"
     endfunction
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:CheckoutFileAtRevision"))
