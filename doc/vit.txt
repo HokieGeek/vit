@@ -17,8 +17,7 @@ CONTENTS                                                   *vit*  *vit-contents*
 
     1. Usage ..................... |vit-usage|
     2. Commands .................. |vit-commands|
-    3. Interactive Windows ....... |vit-windows|
-    4. Shell script .............. |vit-shellscript|
+    3. Shell script .............. |vit-shellscript|
 
 ================================================================================
 USAGE                                                               *vit-usage*
@@ -56,7 +55,8 @@ If not arguments are given, it defaults to the currently open buffer.
 
 VitLog                                                          *VitLog*
 
-Mappings:                                                       *VitLog-mappings*
+Available mappings~
+                                                                *VitLog-mappings*
 
 d            Opens a tab with a |VitDiff| for each file in the selected revision
 <enter>      Opens a |VitShow| of the revision associated with the selected log entry
@@ -76,7 +76,8 @@ The equivalent git command is: >
 
 VitShow                                                         *VitShow*
 
-Mappings:                                                       *VitShow-mappings*
+Available mappings~
+                                                             *VitShow-mappings*
 
 d            Opens VitDiff of file under cursor
 D            Opens VitDiff of files in selected revision
@@ -91,11 +92,12 @@ The equivalent git command is: >
     git status --short
 >
 
-VitStatus                                                       *VitStatus*
+VitStatus                                                             *VitStatus*
 
 Only opens if there are any relevant changes
 
-Mappings:                                                       *VitStatus-mappings*
+Available mappings~
+                                                            *VitStatus-mappings*
 
 d            Opens VitDiff of file under cursor
 +            Adds file under cursor to the index
@@ -107,11 +109,12 @@ blame                                                           *vit-blame*
 Opens an interactive window which displays the revision, filename, author and timestamp
 of each line of the currently open buffer.
 
-VitBlame                                                        *vitBlame*
+VitBlame                                                             *VitBlame*
 
 Displays a partial view of a git blame command
 
-Mappings:                                                       *VitBlame-mappings*
+Available mappings~
+                                                            *VitBlame-mappings*
 
 d            Opens VitDiff of files in selected revision
 <enter>      Opens a VitShow of the selected revision
