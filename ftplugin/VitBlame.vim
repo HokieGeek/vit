@@ -17,7 +17,7 @@ function! GetRevFromBlame()
     return substitute(getline("."), '^\([\^0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-normal f)bbEl
+normal f)bbE
 execute "vertical resize ".col(".")
 normal 0
 
