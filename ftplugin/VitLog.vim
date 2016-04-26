@@ -86,22 +86,20 @@ if exists("g:vit_standalone") " {{{
     endif
 
     " Create the new window to use for the git show output
-    " TODO: this is no good
     let s:vit = b:vit
     botright new
 
     let b:vit = s:vit
     execute "resize ".string(&lines * 0.60)
 
-    setlocal filetype=VitShow
-    setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+    setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
     wincmd p
-
-    let g:vit_log_entry_cache = {}
 
     if !exists("b:vit_log_lastline")
         let b:vit_log_lastline = 0
     endif
+
+    let g:vit_log_entry_cache = {}
 
     function! s:LoadLogEntry(rev)
         if has_key(g:vit_log_entry_cache, a:rev)

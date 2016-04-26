@@ -26,11 +26,7 @@ endfunction " }}}
 " Buffer object {{{
 function! s:GetGitConfig(file) " {{{
     if len(a:file) <= 0
-        if exists("b:vit_ref_file")
-            let l:reffile = b:vit_ref_file
-        else
-            let l:reffile = getcwd()
-        endif
+        let l:reffile = getcwd()
     else
         let l:reffile = a:file
     endif
@@ -83,7 +79,6 @@ function! s:GetGitConfig(file) " {{{
 endfunction " }}}
 
 function! s:GetBranch() dict " {{{
-    " if len(b:vit_git_dir) > 0
     let l:file = readfile(self.gitdir."/HEAD")
     return substitute(l:file[0], 'ref: refs/heads/', '', '')
 endfunction
@@ -125,7 +120,6 @@ endfunction " }}}
 
 " Helpers " {{{
 function! vit#GetFilenameRelativeToGit(file)
-    " echom "[".a:file.", ".getcwd()."] ".fnamemodify(a:file, ":p")." :: ".b:vit.worktree
     return substitute(substitute(fnamemodify(a:file, ":p"), b:vit.worktree."/", '', ''), '/$', '', '')
 endfunction
 function! vit#GetFilenamesRelativeToGit(file_list)
@@ -226,7 +220,6 @@ function! vit#Blame(file) " {{{
 
             wincmd p
             execute "normal ".l:currline."gg"
-            "setlocal scrollbind
         endif
     endif
 endfunction " }}}
@@ -247,12 +240,8 @@ function! vit#RefreshLog(buf_num)
     call setbufvar(a:buf_num, '&filetype', 'VitLog')
 endfunction
 function! vit#RefreshLogs()
-    for win_num in range(1, winnr('$'))
-        let l:buf_num = winbufnr(win_num)
-        if getbufvar(l:buf_num, '&filetype') == "VitLog"
-            call vit#RefreshLog(l:buf_num)
-        endif
-    endfor
+    let l:windows = filter(range(1, winnr('$')), 'getbufvar(winbufnr(v:val), "&filetype") == "VitLog"')
+    call map(l:windows, 'vit#RefreshLog(winbufnr(v:val))')
 endfunction " }}}
 
 function! vit#Show(rev) " {{{
@@ -286,12 +275,8 @@ function! vit#RefreshStatus(buf_num)
     call setbufvar(a:buf_num, '&filetype', 'VitStatus')
 endfunction
 function! vit#RefreshStatuses()
-    for win_num in range(1, winnr('$'))
-        let l:buf_num = winbufnr(win_num)
-        if getbufvar(l:buf_num, '&filetype') == "VitStatus"
-            call vit#RefreshStatus(l:buf_num)
-        endif
-    endfor
+    let l:windows = filter(range(1, winnr('$')), 'getbufvar(winbufnr(v:val), "&filetype") == "VitStatus"')
+    call map(l:windows, 'vit#RefreshStatus(winbufnr(v:val))')
 endfunction " }}}
 
 """ External manipulators
@@ -301,7 +286,6 @@ function! vit#Add(files) " {{{
     else
         let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
     endif
-    " TODO
     call b:vit.execute("add ".l:files)
     echo "Added ".a:files." to the stage"
     call vit#RefreshStatuses()

@@ -6,7 +6,6 @@ scriptencoding utf-8
 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
 
-" let b:vit = getbufvar(b:vit_ref_bufnr, "vit")
 let b:vit.windows.blame = bufnr("%")
 
 let b:result = b:vit.execute("blame --date=short ".b:vit.path.absolute)

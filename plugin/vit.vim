@@ -75,11 +75,10 @@ function! vit#Git(...) " {{{
             elseif l:command ==# "stash"
                 call vit#Stash(l:cmd_args)
             else
-                " call vit#UserGitCommand(l:cmd_args)
-                call b:vit.execute(l:cmd_args)
+                call vit#UserGitCommand(l:cmd_args)
             endif
         else
-            call vit#Status("")
+            call vit#Status()
         endif
     else
         echomsg "Not in a git repository"
