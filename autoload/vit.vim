@@ -269,10 +269,12 @@ function! vit#Show(rev) " {{{
     setlocal filetype=VitShow
 endfunction " }}}
 
-function! vit#Status(refdir) " {{{
+function! vit#Status() " {{{
     if exists("b:vit")
         if b:vit.windows.status < 0
+            let l:bufnr = bufnr("%")
             botright vnew
+            let b:vit = getbufvar(l:bufnr, "vit")
             setlocal filetype=VitStatus
         else
             call vit#RefreshStatus(b:vit.windows.status)

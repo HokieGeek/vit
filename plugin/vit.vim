@@ -50,11 +50,7 @@ function! vit#Git(...) " {{{
             elseif l:command ==# "show"
                 call vit#Show(l:cmd_args)
             elseif l:command ==# "status" || l:command ==# "st"
-                if strlen(expand("%")) == 0
-                    call vit#Status(getcwd())
-                else
-                    call vit#Status(expand("%:p:h"))
-                endif
+                call vit#Status()
 
             elseif l:command ==# "add"
                 if len(l:cmd_args) <= 0
