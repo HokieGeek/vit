@@ -38,8 +38,8 @@ The following are the available vit-commands:
 
 If no arguments are given, the vit-command defaults to |vit-status|.
 
+Interactive Windows~
                                                                   *vit-windows*
-Interactive Windows~                                               
 
 TODO
 
@@ -47,15 +47,13 @@ TODO
 COMANDS                                                          *vit-commands*
 
 -------------------------------------------------------------------------------
-log [file]                                                        *vit-log*
+log [file]                                                      *vit-log* *VitLog*
 
-Opens an interactive window with the `git log` of the given file.
+Opens an interactive window with the git log of the given file.
 
-If not arguments are given, it defaults to the currently open buffer.
+If no arguments are given, it defaults to the currently open buffer.
 
-VitLog                                                          *VitLog*
-
-Available mappings~
+VitLog mappings~
                                                                 *VitLog-mappings*
 
 d            Opens a tab with a |VitDiff| for each file in the selected revision
@@ -63,9 +61,9 @@ d            Opens a tab with a |VitDiff| for each file in the selected revision
 
 
 -------------------------------------------------------------------------------
-show [revision]                                                  *vit-show*
+show [revision]                                               *vit-show* *VitShow*
 
-Opens an interactive window displaying information about what was changed in the 
+Opens an interactive window displaying information about what was changed in the
 given revision.
 
 If no arguments are given, it displays the last committed revision.
@@ -73,17 +71,14 @@ If no arguments are given, it displays the last committed revision.
 The equivalent git command is: >
     git show <rev>
 >
-
-VitShow                                                         *VitShow*
-
-Available mappings~
+VitShow mappings~
                                                              *VitShow-mappings*
 
 d            Opens VitDiff of file under cursor
 D            Opens VitDiff of files in selected revision
 
 -------------------------------------------------------------------------------
-status                                                          *vit-status*
+status                                                    *vit-status* *VitStatus*
 
 Displays an interactive window displaying the status of the files in the working
 directory.
@@ -91,12 +86,9 @@ directory.
 The equivalent git command is: >
     git status --short
 >
-
-VitStatus                                                             *VitStatus*
-
 Only opens if there are any relevant changes
 
-Available mappings~
+VitStatus mappings~
                                                             *VitStatus-mappings*
 
 d            Opens VitDiff of file under cursor
@@ -104,23 +96,21 @@ d            Opens VitDiff of file under cursor
 -            Removes file under cursor from the index
 
 -------------------------------------------------------------------------------
-blame                                                           *vit-blame*
+blame                                                       *vit-blame* *VitBlame*
 
 Opens an interactive window which displays the revision, filename, author and timestamp
 of each line of the currently open buffer.
 
-VitBlame                                                             *VitBlame*
-
 Displays a partial view of a git blame command
 
-Available mappings~
+VitBlame mappings~
                                                             *VitBlame-mappings*
 
 d            Opens VitDiff of files in selected revision
 <enter>      Opens a VitShow of the selected revision
 
 -------------------------------------------------------------------------------
-diff [rev [file]]                                                *vit-diff*
+diff [rev [file]]                                             *vit-diff* *VitDiff*
 
 If arguments are given, revision is required and is defined as the revision with
 which to compare the given file at HEAD. "file" is the repository file which the 
@@ -134,15 +124,13 @@ The equivalent git command  is: >
 >
 A successful execution will open a split panel of the two versions of the file being compared.
 
-VitDiff                                                         *VitDiff*
-
 This view is of a vimdiff of the selected file with the indicated revision on the
 left window
 
 -------------------------------------------------------------------------------
 add [files]                                                       *vit-add*
 
-Performs a {git add} to each file given.
+Performs a `git add` to each file given.
 
 If no arguments are given, it defaults to the currently open buffer.
 
@@ -154,18 +142,26 @@ TODO
 -------------------------------------------------------------------------------
 checkout [git checkout args]                                 *vit-checkout*
 
+Essentially a pass-through command that performs a checkout with the given
+arguments against the git repository of the currently open buffer.
+
 If no arguments are given, it defaults to checkout out currently open buffer
 to....?
 
 -------------------------------------------------------------------------------
 commit  [git commit args]                                       *vit-commit*
 
-TODO
+Performs a commit on the files staged in the git repository of the currently
+open buffer. If the current buffer is unstaged, it asks the user if they would
+like it to be staged. If the user does not enter a message as a command option
+(with -m argument) then it opens a window where the user can enter their
+desired message.
 
 -------------------------------------------------------------------------------
 stash  [git stash args]                                         *vit-stash*
 
-TODO
+Essentially a pass-through command that performs a stash on the git repository
+associated with the currently open buffer.
 
 ================================================================================
 SHELL SCRIPT                                                    *vit-shellscript*
