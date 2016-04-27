@@ -120,6 +120,7 @@ endfunction " }}}
 
 " Helpers " {{{
 function! vit#GetFilenameRelativeToGit(file)
+    " TODO: first check map of bufnrs keyed by absolute file names
     return substitute(substitute(fnamemodify(a:file, ":p"), b:vit.worktree."/", '', ''), '/$', '', '')
 endfunction
 function! vit#GetFilenamesRelativeToGit(file_list)
@@ -179,24 +180,20 @@ function! vit#Diff(rev, file) " {{{
         setlocal filetype=VitDiff
     endif
 endfunction
-function! vit#OpenFileAsDiff(file)
+function! vit#OpenFileAsDiff(rev, file)
     let l:vit = getbufvar(a:file, "vit")
-    execute "tabnew ".fnamemodify(a:file, ":p")
-    call vit#Diff("", a:file)
+    execute "tabnew ".fnamemodify(a:file, ":p:.")
+    call vit#Diff(a:rev, a:file)
 endfunction
 function! vit#OpenFilesInRevisionAsDiff(rev)
-    let l:files = split(system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ print $2 }'"))
-
     let l:num_files_opened = 0
     let l:first_tab = tabpagenr() + 1
-    for file in l:files
-        if !isdirectory(file)
-            let l:num_files_opened += 1
-            call vit#OpenFileAsDiff(file)
-        endif
-    endfor
 
-    if l:num_files_opened > 0
+    let l:files = split(system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ print $2 }'"))
+    let l:files = filter(l:files, '!isdirectory(v:val)')
+
+    if len(l:files) > 0
+        call map(l:files, 'vit#OpenFileAsDiff("'.a:rev.'", v:val)')
         execute "tabnext ".l:first_tab
     else
         echohl WarningMsg
