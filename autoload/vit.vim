@@ -124,7 +124,7 @@ function! vit#GetFilenameRelativeToGit(file)
     return substitute(substitute(fnamemodify(a:file, ":p"), b:vit.worktree."/", '', ''), '/$', '', '')
 endfunction
 function! vit#GetFilenamesRelativeToGit(file_list)
-    return map(l:file_list, 'vit#GetFilenameRelativeToGit(v:val)')
+    return map(a:file_list, 'vit#GetFilenameRelativeToGit(v:val)')
 endfunction
 
 function! vit#UserGitCommand(args)
@@ -358,6 +358,8 @@ endfunction " }}}
 
 function! vit#Stash(args) " {{{
     call b:vit.execute("stash ".a:args)
+    call vit#RefreshStatuses()
+    call vit#RefreshLogs()
     " TODO: reload any loaded buffers which have now changed
     "       ask user if this is something they want
     " for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
