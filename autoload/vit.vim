@@ -162,27 +162,29 @@ function! s:StatuslineHighlights()
 endfunction
 
 function! vit#Statusline()
-    if !exists("b:vit_defined_statusline_highlights")
-        call s:StatuslineHighlights()
-    endif
-    let l:branch = b:vit.branch()
-    " echomsg "HERE: ".l:branch
     let l:status=""
-    if len(l:branch) > 0
-        let l:status = b:vit.status()
-        " echomsg "Updating: ".localtime()." [".l:status."]"
-
-        if l:status == 3 " Modified
-            let l:hl = "%#SL_HL_VitModified#"
-        elseif l:status == 4 " Staged and not modified
-            let l:hl = "%#SL_HL_VitStaged#"
-        elseif l:status == 2 " Untracked
-            let l:hl = "%#SL_HL_VitUntracked#"
-        else
-            let l:hl = "%#SL_HL_VitBranch#"
+    if exists("b:vit")
+        if !exists("b:vit_defined_statusline_highlights")
+            call s:StatuslineHighlights()
         endif
+        let l:branch = b:vit.branch()
+        " echomsg "HERE: ".l:branch
+        if len(l:branch) > 0
+            let l:status = b:vit.status()
+            " echomsg "Updating: ".localtime()." [".l:status."]"
 
-        let l:status = l:hl."\ ".l:branch."\ "
+            if l:status == 3 " Modified
+                let l:hl = "%#SL_HL_VitModified#"
+            elseif l:status == 4 " Staged and not modified
+                let l:hl = "%#SL_HL_VitStaged#"
+            elseif l:status == 2 " Untracked
+                let l:hl = "%#SL_HL_VitUntracked#"
+            else
+                let l:hl = "%#SL_HL_VitBranch#"
+            endif
+
+            let l:status = l:hl."\ ".l:branch."\ "
+        endif
     endif
     return l:status
 endfunction
