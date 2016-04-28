@@ -34,6 +34,3 @@ autocmd BufWinLeave <buffer> call VitCommit#GitCommitFinish()
 
 resize 10
 normal ggO
-
-" Calling this to make sure we get anything useful from other plugins
-" set filetype=gitcommit
