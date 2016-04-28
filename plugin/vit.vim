@@ -25,57 +25,57 @@ function! vit#Git(...) " {{{
         if a:0 > 0
             " echomsg "Git(".string(a:000).")"
             let l:command = a:1
-            let l:cmd_args = join(a:000[1:], ' ')
 
-            if l:command ==# "diff"
+            if a:1 ==# "diff"
                 let l:file = expand("%")
-                if len(l:cmd_args) <= 0
+                if a:0 < 2
                     let l:rev = vit#GetUserInput('Commit, tag or branch: ')
                 else
-                    let l:rev = a:000[1]
+                    let l:rev = a:2
                     if a:0 > 2
-                        let l:file = a:000[2]
+                        let l:file = a:3
                     endif
                 endif
 
                 " TODO: this is not pretty
                 call vit#Diff(l:rev, vit#GetFilenameRelativeToGit(fnamemodify(l:file, ":p")))
-            elseif l:command ==# "blame"
+            elseif a:1 ==# "blame"
                 call vit#Blame(expand("%:p"))
-            elseif l:command ==# "log" || l:command ==# "lg"
-                if len(l:cmd_args) <= 0
-                    let l:cmd_args = expand("%")
+            elseif a:1 ==# "log" || a:1 ==# "lg"
+                if a:0 < 2
+                    call vit#Log(expand("%"))
+                else
+                    call vit#Log(a:2)
                 endif
-                call vit#Log(l:cmd_args)
-            elseif l:command ==# "show"
-                call vit#Show(l:cmd_args)
-            elseif l:command ==# "status" || l:command ==# "st"
+            elseif a:1 ==# "show"
+                call vit#Show(a:2)
+            elseif a:1 ==# "status" || a:1 ==# "st"
                 call vit#Status()
 
-            elseif l:command ==# "add"
-                if len(l:cmd_args) <= 0
-                    let l:cmd_args = expand("%:p")
-                endif
-                call vit#Add(l:cmd_args)
-            elseif l:command ==# "commit"
-                call vit#Commit(l:cmd_args)
-            elseif l:command ==# "reset"
-                if len(l:cmd_args) <= 0
-                    let l:cmd_args = expand("%:p")
-                    call vit#ResetFilesInGitIndex("", l:cmd_args)
+            elseif a:1 ==# "add"
+                if a:0 < 2
+                    call vit#Add(expand("%:p"))
                 else
-                    call vit#Reset(l:cmd_args)
+                    call vit#Add(join(a:000[1:], ' '))
                 endif
-            elseif l:command ==# "checkout" || l:command ==# "co"
-                if len(l:cmd_args) <= 0
+            elseif a:1 ==# "commit"
+                call vit#Commit(join(a:000[1:], ' '))
+            elseif a:1 ==# "reset"
+                if a:0 < 2
+                    call vit#ResetFilesInGitIndex("", expand("%:p"))
+                else
+                    call vit#Reset(join(a:000[1:], ' '))
+                endif
+            elseif a:1 ==# "checkout" || a:1 ==# "co"
+                if a:0 < 2
                     call vit#CheckoutCurrentFile("HEAD")
                 else
-                    call vit#Checkout(l:cmd_args)
+                    call vit#Checkout(join(a:000[1:], ' '))
                 endif
-            elseif l:command ==# "stash"
-                call vit#Stash(l:cmd_args)
+            elseif a:1 ==# "stash"
+                call vit#Stash(join(a:000[1:], ' '))
             else
-                call vit#UserGitCommand(l:cmd_args)
+                call vit#UserGitCommand(join(a:000[1:], ' '))
             endif
         else
             call vit#Status()
