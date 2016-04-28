@@ -140,29 +140,51 @@ function! vit#GetUserInput(message)
 endfunction
 " }}}
 
-" TODO: On the way out " {{{
-" TODO: Statusline
-function! vit#GetBranch()
-    if exists("b:vit")
-        return b:vit.branch()
-    else
-        return ""
-    endif
+" Statusline " {{{
+function! s:AssignHL(name,bg,fg,weight)
+    let l:gui = "guibg=".a:bg[0]." guifg=".a:fg[0]
+    let l:term = "ctermbg=".a:bg[1]." ctermfg=".a:fg[1]." cterm=".a:weight
+    execute "highlight SL_HL_".a:name." ".l:gui." ".l:term
 endfunction
-function! vit#GitFileStatus(file)
-    let l:vit = getbufvar(a:file, "vit")
-    if len(l:vit) > 0
-        return l:vit.status()
-    else
-        return 2
-    endif
+function! s:StatuslineHighlights()
+    let l:git_bg     = ["#f4d224", "178"]
+    let l:red_bright = ["#ce0000", "196"]
+    let l:green      = ["#0c8f0c", "22"]
+    let l:white      = ["#ffffff", "7"]
+    let l:black      = ["#000000", "232"]
+
+    call s:AssignHL("VitBranch",                l:git_bg,     l:black,      "none")
+    call s:AssignHL("VitModified",              l:git_bg,     l:red_bright, "bold")
+    call s:AssignHL("VitStaged",                l:git_bg,     l:green,      "bold")
+    call s:AssignHL("VitUntracked",             l:git_bg,     l:white,      "bold")
+
+    let b:vit_defined_statusline_highlights=0
 endfunction
-function! vit#GitCurrentFileStatus()
-    if exists("b:vit")
-        return b:vit.status()
-    else
-        return 2
+
+function! vit#Statusline()
+    if !exists("b:vit_defined_statusline_highlights")
+        call s:StatuslineHighlights()
     endif
+    let l:branch = b:vit.branch()
+    " echomsg "HERE: ".l:branch
+    let l:status=""
+    if len(l:branch) > 0
+        let l:status = b:vit.status()
+        " echomsg "Updating: ".localtime()." [".l:status."]"
+
+        if l:status == 3 " Modified
+            let l:hl = "%#SL_HL_VitModified#"
+        elseif l:status == 4 " Staged and not modified
+            let l:hl = "%#SL_HL_VitStaged#"
+        elseif l:status == 2 " Untracked
+            let l:hl = "%#SL_HL_VitUntracked#"
+        else
+            let l:hl = "%#SL_HL_VitBranch#"
+        endif
+
+        let l:status = l:hl."\ ".l:branch."\ "
+    endif
+    return l:status
 endfunction
 " }}}
 
@@ -289,7 +311,7 @@ function! vit#Add(files) " {{{
 endfunction " }}}
 
 function! vit#Commit(args) " {{{
-    let l:currFileStatus = vit#GitCurrentFileStatus()
+    let l:currFileStatus = b:vit.status()
     if l:currFileStatus == 2 || l:currFileStatus == 3
         if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
             call vit#Add(expand("%"))
