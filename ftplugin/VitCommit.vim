@@ -29,7 +29,7 @@ function! VitCommit#GitCommitFinish()
     silent execute "bdelete! ".b:filename
     call delete(b:filename)
 endfunction
-cnoremap <silent> <buffer> w execute "silent file ".b:fielname<bar>w<bar>silent 0file
+cnoremap <silent> <buffer> w execute "silent file ".b:filename<bar>w<bar>silent 0file
 autocmd BufWinLeave <buffer> call VitCommit#GitCommitFinish()
 
 resize 10
