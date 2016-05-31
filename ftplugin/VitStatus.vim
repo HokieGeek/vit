@@ -19,7 +19,8 @@ endif
 
 if exists("b:vit")
     let b:vit.windows.status = bufnr("%")
-    let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
+    " let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
+    let b:status = b:vit.execute("status --porcelain")
     if len(b:status) <= 0
         let b:status = "  No changes"
     endif
@@ -55,6 +56,11 @@ nnoremap <buffer> <silent> + :if getline(".") !~ "^##"<bar>call vit#Add(split(ge
 nnoremap <buffer> <silent> - :if getline(".") !~ "^##"<bar>call vit#Unstage(split(getline("."))[1])<bar>endif<cr>
 
 nnoremap <buffer> <silent> d :if getline(".") !~ "^##"<bar>call vit#OpenFileAsDiff(split(getline("."))[1])<bar>endif<cr>
+nnoremap <buffer> <silent> <enter> :if getline(".") !~ "^##"
+                             \<bar>let path=b:vit.worktree."/".split(getline("."))[1]
+                             \<bar>execute b:vit_parent_win."wincmd w"
+                             \<bar>execute "edit ".path
+                             \<bar>endif<cr>
 " TODO nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(GetRevFromShow())<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:

@@ -89,7 +89,7 @@ function! s:GetFileRevision() dict " {{{
 endfunction " }}}
 
 function! s:GitStatus() dict " {{{
-    let l:status = self.execute("status --porcelain ".self.path.relative)
+    let l:status = self.execute("status --porcelain -- ".self.path.absolute)
 
     if strlen(l:status) == 0
         return 1 " Clean
@@ -282,8 +282,10 @@ endfunction " }}}
 function! vit#Status() " {{{
     if exists("b:vit")
         if b:vit.windows.status < 0
+            let l:winnr = winnr()
             let l:bufnr = bufnr("%")
             botright vnew
+            let b:vit_parent_win = l:winnr
             let b:vit = getbufvar(l:bufnr, "vit")
             setlocal filetype=VitStatus
         else
@@ -308,8 +310,12 @@ function! vit#Add(files) " {{{
         let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
     endif
     call b:vit.execute("add ".l:files)
-    echo "Added ".a:files." to the stage"
-    call vit#RefreshStatuses()
+    if v:shell_error == 0
+        echo "Added ".a:files." to the stage"
+        call vit#RefreshStatuses()
+    else
+        echo "Unable to add ".a:files." to the stage"
+    endif
 endfunction " }}}
 
 function! vit#Commit(args) " {{{
