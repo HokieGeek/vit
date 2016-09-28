@@ -64,7 +64,7 @@ command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call 
 
 function! s:SkipNonCommits(func) " {{{
     if b:vit_log_lastline != line(".")
-        let l:rev = GetRevUnderCursor()
+        let l:rev = s:GetRevUnderCursor()
         if l:rev =~ "^[\|\\/*]"
             if b:vit_log_lastline > line(".")
                 let l:newline = line(".")-1
@@ -105,12 +105,13 @@ if exists("g:vit_standalone") " {{{
         if has_key(g:vit_log_entry_cache, a:rev)
             let l:rev_entry = g:vit_log_entry_cache[a:rev]
         else
-            let l:rev_entry = b:vit.execute("show ".a:rev)
+            let l:rev_entry = vit#ExecuteGit("show ".a:rev)
             let g:vit_log_entry_cache[a:rev] = l:rev_entry
         endif
 
         " Switch to the VitShow window and paste the new output
         execute bufwinnr(b:vit.windows.show)." wincmd w"
+        wincmd j
         setlocal modifiable
 
         " Remove old entry and add new one
@@ -120,6 +121,7 @@ if exists("g:vit_standalone") " {{{
 
         setlocal nomodifiable
         wincmd p
+        wincmd t
     endfunction
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:LoadLogEntry"))
@@ -145,6 +147,13 @@ else " {{{
             silent! put =l:fileRev
             silent! 0d_
             filetype detect
+    resize 30
+
+    function! s:CheckoutFileAtRevision(rev)
+        if a:rev == "0000000"
+            echom "Unstaged!"
+        else
+            echom "git checkout --patch ".a:rev." -- ".b:vit_ref_file
         endif
         wincmd p
     endfunction
