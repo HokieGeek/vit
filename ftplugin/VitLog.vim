@@ -99,8 +99,6 @@ if exists("g:vit_standalone") " {{{
         let b:vit_log_lastline = 0
     endif
 
-    let g:vit_log_entry_cache = {}
-
     function! s:LoadLogEntry(rev)
         if has_key(g:vit_log_entry_cache, a:rev)
             let l:rev_entry = g:vit_log_entry_cache[a:rev]
@@ -110,7 +108,6 @@ if exists("g:vit_standalone") " {{{
         endif
 
         " Switch to the VitShow window and paste the new output
-        execute bufwinnr(b:vit.windows.show)." wincmd w"
         wincmd j
         setlocal modifiable
 
@@ -120,7 +117,6 @@ if exists("g:vit_standalone") " {{{
         silent! 0d_
 
         setlocal nomodifiable
-        wincmd p
         wincmd t
     endfunction
 
@@ -129,25 +125,6 @@ if exists("g:vit_standalone") " {{{
 else " {{{
 
     execute "resize ".string(&lines * 0.30)
-
-    if !exists("b:vit_log_lastline")
-        let b:vit_log_lastline = 1
-    endif
-
-    let b:reffile_winnr = bufwinnr(b:vit.bufnr)
-    function! s:CheckoutFileAtRevision(rev)
-        let l:vit = b:vit
-        execute b:reffile_winnr." wincmd w"
-        if a:rev == "0000000"
-            execute "buffer ".l:vit.bufnr
-        else
-            let l:fileRev = l:vit.execute("show ".a:rev.":".l:vit.path.relative)
-            enew
-            setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
-            silent! put =l:fileRev
-            silent! 0d_
-            filetype detect
-    resize 30
 
     function! s:CheckoutFileAtRevision(rev)
         if a:rev == "0000000"
