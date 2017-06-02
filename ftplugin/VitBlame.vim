@@ -25,7 +25,7 @@ noautocmd execute b:vit_blame_starting_linenum
 unlet b:vit_blame_starting_linenum
 
 function! GetRevFromBlame()
-    return substitute(getline("."), '^\([\^0-9a-f]\{7,}\) .*', '\1', '')
+    return substitute(getline("."), '^\^\?\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
 setlocal cursorline nomodifiable nonumber nofoldenable
@@ -44,7 +44,7 @@ augroup VitBlame
     autocmd!
     autocmd CursorMoved <buffer> call s:MoveWindowCursor(bufwinnr(b:vit.bufnr))
     execute "autocmd CursorMoved <buffer=".b:vit.bufnr."> call s:MoveWindowCursor(".winnr().")"
-    autocmd BufWinLeave <buffer> silent loadview 9 | let b:vit.windows.blame=-1
+    execute "autocmd BufWinLeave <buffer> ".bufwinnr(b:vit.bufnr)." wincmd w | silent loadview 9 | let b:vit.windows.blame=-1"
 augroup END
 " }}}
 
