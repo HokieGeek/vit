@@ -239,7 +239,7 @@ function! vit#Blame(file) " {{{
         set filetype=VitBlame
 
         wincmd p
-        windo set scrollbind
+        windo setlocal scrollbind
     endif
 endfunction " }}}
 
