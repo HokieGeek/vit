@@ -31,12 +31,14 @@ function! GetFileUnderCursor() " {{{
         let l:last_wrapscan = &wrapscan
         setlocal nowrapscan
         execute "silent! normal! ?diff\<cr>"
-        setlocal wrapscan = l:last_wrapscan
+        if l:last_wrapscan == 1
+            setlocal wrapscan
+        endif
     endif
     let l:file = substitute(getline("."), '.* b/\(.*\)$', '\1', '')
-    execute "normal ".l:currline."gg"
+    execute l:currline
 
-    call vit#OpenFileAsDiff(l:file)
+    call vit#OpenFileAsDiff(GetRevFromShow(), l:file)
 endfunction " }}}
 
 function! VitShow#Git(...) " {{{
