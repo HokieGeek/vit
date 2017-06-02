@@ -235,21 +235,15 @@ function! vit#OpenFilesInRevisionAsDiff(rev)
 endfunction " }}}
 
 function! vit#Blame(file) " {{{
-    if exists("b:vit")
-        if b:vit.windows.blame < 0
-            mkview! 9
-            let l:currline = line(".")
-            setlocal nofoldenable
+    if exists("b:vit") && b:vit.windows.blame < 0
+        let l:currline = line(".")
 
-            topleft vnew
-            let b:vit = getbufvar(bufnr(a:file), "vit")
+        topleft vnew
+        let b:vit = getbufvar(bufnr(a:file), "vit")
+        set filetype=VitBlame
 
-            autocmd BufWinLeave <buffer> silent loadview 9
-            set filetype=VitBlame
-
-            wincmd p
-            execute "normal ".l:currline."gg"
-        endif
+        wincmd p
+        execute l:currline
     endif
 endfunction " }}}
 
