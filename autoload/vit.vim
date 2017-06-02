@@ -234,14 +234,11 @@ endfunction " }}}
 
 function! vit#Blame(file) " {{{
     if exists("b:vit") && b:vit.windows.blame < 0
-        let l:currline = line(".")
-
         topleft vnew
         let b:vit = getbufvar(bufnr(a:file), "vit")
         set filetype=VitBlame
 
         wincmd p
-        execute l:currline
     endif
 endfunction " }}}
 
