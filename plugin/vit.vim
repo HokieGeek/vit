@@ -38,7 +38,7 @@ function! vit#Git(...) " {{{
                 endif
 
                 " TODO: this is not pretty
-                call vit#Diff(l:rev, vit#GetFilenameRelativeToGit(fnamemodify(l:file, ":p")))
+                call vit#Diff(vit#GetFilenameRelativeToGit(fnamemodify(l:file, ":p")), l:rev)
             elseif a:1 ==# "blame"
                 call vit#Blame(expand("%:p"))
             elseif a:1 ==# "log" || a:1 ==# "lg"
