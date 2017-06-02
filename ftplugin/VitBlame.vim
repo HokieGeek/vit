@@ -18,8 +18,11 @@ normal 0
 
 execute bufwinnr(b:vit.bufnr)." wincmd w"
 mkview! 9
+call setbufvar(b:vit.windows.blame, "vit_blame_starting_linenum", line("."))
 setlocal nofoldenable
 wincmd p
+noautocmd execute b:vit_blame_starting_linenum
+unlet b:vit_blame_starting_linenum
 
 function! GetRevFromBlame()
     return substitute(getline("."), '^\([\^0-9a-f]\{7,}\) .*', '\1', '')
