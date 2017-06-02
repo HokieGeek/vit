@@ -192,7 +192,7 @@ endfunction
 
 " Commands {{{
 """" Loaded in windows
-function! vit#Diff(rev, file) " {{{
+function! vit#Diff(file, rev) " {{{
     if isdirectory(a:file)
         echohl WarningMsg
         echomsg "Cannot perform a diff against a directory"
@@ -204,20 +204,28 @@ function! vit#Diff(rev, file) " {{{
         setlocal filetype=VitDiff
     endif
 endfunction
-function! vit#OpenFileAsDiff(rev, file)
+function! vit#OpenFileAsDiff(file, ...)
     let l:vit = getbufvar(a:file, "vit")
+    
+    " End revision
     execute "tabnew ".fnamemodify(a:file, ":p:.")
-    call vit#Diff(a:rev, a:file)
+    if a:0 > 1
+        let b:vit_revision = a:2
+        setlocal filetype=VitDiff
+    endif
+    
+    " Start revision
+    // TODO: if a:0 == 0
+    call vit#Diff(a:file, a:1)
 endfunction
 function! vit#OpenFilesInRevisionAsDiff(rev)
-    let l:num_files_opened = 0
     let l:first_tab = tabpagenr() + 1
 
     let l:files = split(system("git diff-tree --no-commit-id --name-status --root -r ".a:rev." | awk '$1 !~ /^D/{ print $2 }'"))
     let l:files = filter(l:files, '!isdirectory(v:val)')
 
     if len(l:files) > 0
-        call map(l:files, 'vit#OpenFileAsDiff("'.a:rev.'", v:val)')
+        call map(l:files, 'vit#OpenFileAsDiff(v:val, "'.a:rev.'~1", "'.a:rev.'")')
         execute "tabnext ".l:first_tab
     else
         echohl WarningMsg
