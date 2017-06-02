@@ -205,8 +205,6 @@ function! vit#Diff(file, rev) " {{{
     endif
 endfunction
 function! vit#OpenFileAsDiff(file, ...)
-    let l:vit = getbufvar(a:file, "vit")
-    
     " End revision
     execute "tabnew ".fnamemodify(a:file, ":p:.")
     if a:0 > 1
