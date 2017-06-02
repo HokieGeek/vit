@@ -124,7 +124,8 @@ if exists("g:vit_standalone") " {{{
 " }}}
 else " {{{
 
-    execute "resize ".string(&lines * 0.30)
+    resize 30
+    " execute "resize ".string(&lines * 0.30)
 
     function! s:CheckoutFileAtRevision(rev)
         if a:rev == "0000000"
