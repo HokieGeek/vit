@@ -38,7 +38,9 @@ function! GetFileUnderCursor() " {{{
     let l:file = substitute(getline("."), '.* b/\(.*\)$', '\1', '')
     execute l:currline
 
-    call vit#OpenFileAsDiff(GetRevFromShow(), l:file)
+    let l:revision=GetRevFromShow()
+
+    call vit#OpenFileAsDiff(l:file, l:revision."~1", l:revision)
 endfunction " }}}
 
 function! VitShow#Git(...) " {{{
