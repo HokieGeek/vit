@@ -12,13 +12,18 @@ let b:result = b:vit.execute("blame --date=short ".b:vit.path.absolute)
 silent! put =b:result
 0d_
 
-function! GetRevFromBlame()
-    return substitute(getline("."), '^\([\^0-9a-f]\{7,}\) .*', '\1', '')
-endfunction
-
 normal f)bbE
 execute "vertical resize ".col(".")
 normal 0
+
+execute bufwinnr(b:vit.bufnr)." wincmd w"
+mkview! 9
+setlocal nofoldenable
+wincmd p
+
+function! GetRevFromBlame()
+    return substitute(getline("."), '^\([\^0-9a-f]\{7,}\) .*', '\1', '')
+endfunction
 
 setlocal cursorline nomodifiable nonumber nofoldenable
 if exists("&relativenumber")
@@ -36,6 +41,7 @@ augroup VitBlame
     autocmd!
     autocmd CursorMoved <buffer> call s:MoveWindowCursor(bufwinnr(b:vit.bufnr))
     execute "autocmd CursorMoved <buffer=".b:vit.bufnr."> call s:MoveWindowCursor(".winnr().")"
+    autocmd BufWinLeave <buffer> silent loadview 9 | let b:vit.windows.blame=-1
 augroup END
 " }}}
 
