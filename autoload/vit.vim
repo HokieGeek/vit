@@ -200,16 +200,21 @@ function! vit#Diff(file, rev) " {{{
     endif
 endfunction
 function! vit#OpenFileAsDiff(file, ...)
-    " End revision
-    execute "tabnew ".fnamemodify(a:file, ":p:.")
-    if a:0 > 1
-        let b:vit_revision = a:2
-        setlocal filetype=VitDiff
+    if a:0 > 0
+        " End revision
+        execute "tabnew ".fnamemodify(a:file, ":p:.")
+        if a:0 > 1
+            let b:vit_revision = a:2
+            setlocal filetype=VitDiff
+        endif
+
+        " Start revision
+        call vit#Diff(a:file, a:1)
+    else
+        echohl WarningMsg
+        echomsg "No revision specified. Cannot diff file"
+        echohl None
     endif
-    
-    " Start revision
-    // TODO: if a:0 == 0
-    call vit#Diff(a:file, a:1)
 endfunction
 function! vit#OpenFilesInRevisionAsDiff(rev)
     let l:first_tab = tabpagenr() + 1
