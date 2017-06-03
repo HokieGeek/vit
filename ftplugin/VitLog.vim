@@ -16,6 +16,7 @@ if exists("&relativenumber")
 endif
 
 let b:vit.windows.log = bufnr("%")
+let b:reffile_winnr = bufwinnr(b:vit.bufnr)
 
 let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit.path.absolute)
 if strlen(b:log) <= 0
@@ -64,7 +65,7 @@ command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call 
 
 function! s:SkipNonCommits(func) " {{{
     if b:vit_log_lastline != line(".")
-        let l:rev = s:GetRevUnderCursor()
+        let l:rev = GetRevUnderCursor()
         if l:rev =~ "^[\|\\/*]"
             if b:vit_log_lastline > line(".")
                 let l:newline = line(".")-1
@@ -100,15 +101,15 @@ if exists("g:vit_standalone") " {{{
     endif
 
     function! s:LoadLogEntry(rev)
-        if has_key(g:vit_log_entry_cache, a:rev)
+        if exists("g:vit_log_entry_cache") && has_key(g:vit_log_entry_cache, a:rev)
             let l:rev_entry = g:vit_log_entry_cache[a:rev]
         else
-            let l:rev_entry = vit#ExecuteGit("show ".a:rev)
-            let g:vit_log_entry_cache[a:rev] = l:rev_entry
+            let l:rev_entry = b:vit.execute("show ".a:rev)
+            " TODO let g:vit_log_entry_cache[a:rev] = l:rev_entry
         endif
 
         " Switch to the VitShow window and paste the new output
-        wincmd j
+        execute bufwinnr(b:vit.windows.show)." wincmd w"
         setlocal modifiable
 
         " Remove old entry and add new one
@@ -117,21 +118,27 @@ if exists("g:vit_standalone") " {{{
         silent! 0d_
 
         setlocal nomodifiable
-        wincmd t
+        wincmd p
     endfunction
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:LoadLogEntry"))
 " }}}
 else " {{{
-
-    resize 30
-    " execute "resize ".string(&lines * 0.30)
+    execute "resize ".string(&lines * 0.20)
 
     function! s:CheckoutFileAtRevision(rev)
+        let l:vit = b:vit
+        execute b:reffile_winnr." wincmd w"
         if a:rev == "0000000"
-            echom "Unstaged!"
+            execute "buffer ".l:vit.bufnr
         else
-            echom "git checkout --patch ".a:rev." -- ".b:vit_ref_file
+            let l:fileRev = l:vit.execute("show ".a:rev.":".l:vit.path.relative)
+            enew
+            let b:vit = l:vit
+            setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+            silent! put =l:fileRev
+            silent! 0d_
+            filetype detect
         endif
         wincmd p
     endfunction
