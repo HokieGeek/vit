@@ -1,13 +1,10 @@
 #!/bin/bash
 
-tmp=`mktemp`
-vim \
+here=$(me=$(readlink --canonicalize $0); cd ${me%/*}; pwd)
+tmp=$(mktemp)
+${here}/vit \
     --cmd "profile start ${tmp}" \
     --cmd "profile func *" \
     --cmd "profile file *" \
-    --cmd "let g:vit_standalone=1" \
-    -c "Git log "$1 \
-    -c "Git status" \
-    -c "wincmd t" \
     $@ \
 && vim ${tmp} +/SORTED
