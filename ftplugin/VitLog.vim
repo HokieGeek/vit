@@ -17,6 +17,7 @@ endif
 
 let b:vit.windows.log = bufnr("%")
 let b:reffile_winnr = bufwinnr(b:vit.bufnr)
+let b:vit_log_entry_cache = {}
 
 let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit.path.absolute)
 if strlen(b:log) <= 0
@@ -101,11 +102,11 @@ if exists("g:vit_standalone") " {{{
     endif
 
     function! s:LoadLogEntry(rev)
-        if exists("g:vit_log_entry_cache") && has_key(g:vit_log_entry_cache, a:rev)
-            let l:rev_entry = g:vit_log_entry_cache[a:rev]
+        if has_key(b:vit_log_entry_cache, a:rev)
+            let l:rev_entry = b:vit_log_entry_cache[a:rev]
         else
             let l:rev_entry = b:vit.execute("show ".a:rev)
-            " TODO let g:vit_log_entry_cache[a:rev] = l:rev_entry
+            let b:vit_log_entry_cache[a:rev] = l:rev_entry
         endif
 
         " Switch to the VitShow window and paste the new output
