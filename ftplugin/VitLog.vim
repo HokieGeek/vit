@@ -145,6 +145,8 @@ else " {{{
     endfunction
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:CheckoutFileAtRevision"))
+    execute "autocmd BufWinLeave <buffer> "b:reffile_winnr." wincmd w | buffer ".b:vit.bufnr
+    autocmd BufWinLeave <buffer> let b:vit.windows.log = -1
 
     nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevUnderCursor())<cr>
 endif " }}}
