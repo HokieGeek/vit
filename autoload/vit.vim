@@ -25,12 +25,7 @@ endfunction " }}}
 
 " Buffer object {{{
 function! s:GetGitConfig(file) " {{{
-    if len(a:file) <= 0
-        let l:reffile = getcwd()
-    else
-        let l:reffile = a:file
-    endif
-
+    let l:reffile = a:file
     let l:reffile_dir = fnamemodify(l:reffile, ":p:h")
 
     " Determine the git directories
