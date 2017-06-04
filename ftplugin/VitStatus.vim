@@ -12,12 +12,22 @@ endif
 let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
-setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist nonumber cursorline
-if exists("&relativenumber")
-    setlocal norelativenumber
-endif
-
 if exists("b:vit")
+    if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.gitdir)
+        let [tabnum, winnum] = g:vit_status_windows[b:vit.gitdir]
+        let vit_status_currbuf = bufnr("%")
+        execute "tabnext ".tabnum
+        execute winnum." wincmd w"
+        execute "bdelete ".vit_status_currbuf
+        unlet vit_status_currbuf
+        finish
+    else
+        if !exists("g:vit_status_windows")
+            let g:vit_status_windows = {}
+        endif
+        let g:vit_status_windows[b:vit.gitdir] = [tabpagenr(), winnr()]
+    endif
+
     let b:vit.windows.status = bufnr("%")
     " let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
     let b:status = b:vit.execute("status --porcelain")
@@ -27,6 +37,12 @@ if exists("b:vit")
 else
     let b:status = "  Not a repo"
 endif
+
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist nonumber cursorline
+if exists("&relativenumber")
+    setlocal norelativenumber
+endif
+
 silent! put =b:status
 0d_
 setlocal nomodifiable
@@ -50,6 +66,10 @@ augroup VitStatus
     autocmd!
     autocmd FocusGained,BufWritePost * call vit#RefreshStatuses()
     autocmd BufDelete,BufWipeout <buffer> autocmd! VitStatus
+    autocmd BufWinLeave <buffer> let b:vit.windows.status = -1
+                                \ | if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.gitdir)
+                                \ | unlet g:vit_status_windows[b:vit.gitdir]
+                                \ | endif
 augroup END
 
 function! GetFileAtCursor()
