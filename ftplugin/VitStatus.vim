@@ -52,12 +52,21 @@ augroup VitStatus
     autocmd BufDelete,BufWipeout <buffer> autocmd! VitStatus
 augroup END
 
-nnoremap <buffer> <silent> + :if getline(".") !~ "^##"<bar>call vit#Add(split(getline("."))[1])<bar>endif<cr>
-nnoremap <buffer> <silent> - :if getline(".") !~ "^##"<bar>call vit#Unstage(split(getline("."))[1])<bar>endif<cr>
+function! GetFileAtCursor()
+    if getline(".") !~ "^##"
+        return split(getline("."))[1]
+    endif
+    " TODO return ""
+endfunction
 
-nnoremap <buffer> <silent> d :if getline(".") !~ "^##"<bar>call vit#OpenFileAsDiff(split(getline("."))[1], "HEAD")<bar>endif<cr>
+nnoremap <buffer> <silent> + :call vit#Add(GetFileAtCursor())<cr>
+vnoremap <buffer> <silent> + :call vit#Add(GetFileAtCursor())<cr><cr>
+nnoremap <buffer> <silent> - :call vit#Unstage(GetFileAtCursor())<cr>
+vnoremap <buffer> <silent> - :call vit#Unstage(GetFileAtCursor())<cr><cr>
+
+nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileAtCursor(), "HEAD")<cr>
 nnoremap <buffer> <silent> <enter> :if getline(".") !~ "^##"
-                             \<bar>let path=b:vit.worktree."/".split(getline("."))[1]
+                             \<bar>let path=b:vit.worktree."/".GetFileAtCursor()
                              \<bar>execute b:vit_parent_win."wincmd w"
                              \<bar>execute "edit ".path
                              \<bar>endif<cr>
