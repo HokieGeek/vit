@@ -64,12 +64,13 @@ vnoremap <buffer> <silent> + :call vit#Add(GetFileAtCursor())<cr><cr>
 nnoremap <buffer> <silent> - :call vit#Unstage(GetFileAtCursor())<cr>
 vnoremap <buffer> <silent> - :call vit#Unstage(GetFileAtCursor())<cr><cr>
 
-nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileAtCursor(), "HEAD")<cr>
 nnoremap <buffer> <silent> <enter> :if getline(".") !~ "^##"
                              \<bar>let path=b:vit.worktree."/".GetFileAtCursor()
                              \<bar>execute b:vit_parent_win."wincmd w"
                              \<bar>execute "edit ".path
                              \<bar>endif<cr>
+
+nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileAtCursor(), "HEAD")<cr>
 nnoremap <buffer> <silent> D :let first_tab = tabpagenr() + 1
             \<bar>call map(filter(getline(1, "$"), "v:val !~ \"^##\""), "vit#OpenFileAsDiff(split(v:val)[1], \"HEAD\")")
             \<bar>execute "tabnext ".first_tab<bar>unlet first_tab<cr>
