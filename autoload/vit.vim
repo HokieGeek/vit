@@ -396,6 +396,20 @@ function! vit#Stash(args) " {{{
     "     endif
     " endfor
 endfunction " }}}
-" }}}
+
+function! vit#Move(newpath) " {{{
+    if exists("b:vit")
+        let l:bufn = bufnr("%")
+        let l:newpath = substitute(getcwd()."/".a:newpath, b:vit.worktree."/", '', '')
+        call b:vit.execute("mv ".b:vit.path.relative." ".l:newpath)
+        if v:shell_error == 0
+          execute "edit ".l:newpath
+          execute "bdelete ".l:bufn
+          call vit#RefreshStatuses()
+        else
+            echo "Unable to move file"
+        endif
+    endif
+endfunction " }}}
 
 " vim: set foldmethod=marker formatoptions-=tc:
