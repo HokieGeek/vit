@@ -412,4 +412,16 @@ function! vit#Move(newpath) " {{{
     endif
 endfunction " }}}
 
+function! vit#Remove() " {{{
+    if exists("b:vit")
+        call b:vit.execute("rm ".b:vit.path.relative)
+        if v:shell_error == 0
+            bdelete
+            call vit#RefreshStatuses()
+        else
+            echo "Unable to remove file(s)"
+        endif
+    endif
+endfunction " }}}
+
 " vim: set foldmethod=marker formatoptions-=tc:

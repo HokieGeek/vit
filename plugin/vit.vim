@@ -76,6 +76,8 @@ function! vit#Git(...) " {{{
                 call vit#Stash(join(a:000[1:], ' '))
             elseif a:1 ==# "mv"
                 call vit#Move(a:000[1])
+            elseif a:1 ==# "rm"
+                call vit#Remove()
             else
                 call vit#UserGitCommand(join(a:000[1:], ' '))
             endif
