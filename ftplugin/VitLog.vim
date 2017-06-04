@@ -118,6 +118,8 @@ if exists("g:vit_standalone") " {{{
         silent! put =l:rev_entry
         silent! 0d_
 
+        let b:git_revision = a:rev
+
         setlocal nomodifiable
         wincmd p
     endfunction

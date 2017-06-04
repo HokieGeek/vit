@@ -21,10 +21,6 @@ silent! put=b:vit_content
 
 setlocal nomodifiable
 
-function! GetRevFromShow() " {{{
-    return substitute(getline(1), '^commit \([0-9a-f].*\)$', '\1', '')
-endfunction " }}}
-
 function! GetFileUnderCursor() " {{{
     let l:currline = line(".")
     if getline(".") !~ "^diff"
@@ -38,9 +34,7 @@ function! GetFileUnderCursor() " {{{
     let l:file = substitute(getline("."), '.* b/\(.*\)$', '\1', '')
     execute l:currline
 
-    let l:revision=GetRevFromShow()
-
-    call vit#OpenFileAsDiff(l:file, l:revision."~1", l:revision)
+    call vit#OpenFileAsDiff(l:file, b:git_revision."~1", b:git_revision)
 endfunction " }}}
 
 function! VitShow#Git(...) " {{{
@@ -59,6 +53,6 @@ command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call 
 " }}}
 
 nnoremap <buffer> <silent> d :call GetFileUnderCursor()<cr>
-nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(GetRevFromShow())<cr>
+nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(b:git_revision)<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:
