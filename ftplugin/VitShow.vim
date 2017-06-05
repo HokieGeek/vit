@@ -21,6 +21,15 @@ silent! put=b:vit_content
 
 setlocal nomodifiable
 
+function! GetFileFromDiffLine(line) " {{{
+    if a:line =~ "--cc"
+        let l:file = substitute(a:line, '^diff\s*--cc\s*', '', '')
+    else
+        let l:file = substitute(a:line, '.* b/\(.*\)$', '\1', '')
+    endif
+    return l:file
+endfunction " }}}
+
 function! GetFileUnderCursor() " {{{
     let l:currline = line(".")
     if getline(".") !~ "^diff"
@@ -31,10 +40,9 @@ function! GetFileUnderCursor() " {{{
             setlocal wrapscan
         endif
     endif
-    let l:file = substitute(getline("."), '.* b/\(.*\)$', '\1', '')
+    let l:file = GetFileFromDiffLine(getline("."))
     execute l:currline
-
-    call vit#OpenFileAsDiff(l:file, b:git_revision."~1", b:git_revision)
+    return l:file
 endfunction " }}}
 
 function! VitShow#Git(...) " {{{
@@ -52,7 +60,13 @@ endfunction
 command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitShow#Git(<f-args>)
 " }}}
 
-nnoremap <buffer> <silent> d :call GetFileUnderCursor()<cr>
+nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileUnderCursor(), b:git_revision."~1", b:git_revision)<cr>
 nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(b:git_revision)<cr>
+
+nnoremap <buffer> <silent> o :execute "tabedit ".fnamemodify(GetFuleUnderCursor(), ":p:.")<cr>
+nnoremap <buffer> <silent> O :let first_tab = tabpagenr() + 1
+            \<bar>for f in map(filter(getline(1, "$"), 'v:val =~ "^diff"'), 'fnamemodify(GetFileFromDiffLine(v:val), ":p:.")')
+            \<bar>execute "tabedit ".<bar>endfor
+            \<bar>execute "tabnext ".first_tab<bar>unlet first_tab<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:
