@@ -15,12 +15,14 @@ scriptencoding utf-8
 if exists("b:vit")
     if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.gitdir)
         let [tabnum, winnum] = g:vit_status_windows[b:vit.gitdir]
-        let vit_status_currbuf = bufnr("%")
-        execute "tabnext ".tabnum
-        execute winnum." wincmd w"
-        execute "bdelete ".vit_status_currbuf
-        unlet vit_status_currbuf
-        finish
+        if tabpagenr() != tabnum || winnr() != winnum
+            let vit_status_currbuf = bufnr("%")
+            execute "tabnext ".tabnum
+            execute winnum." wincmd w"
+            execute "bdelete ".vit_status_currbuf
+            unlet vit_status_currbuf
+            finish
+        endif
     else
         if !exists("g:vit_status_windows")
             let g:vit_status_windows = {}
