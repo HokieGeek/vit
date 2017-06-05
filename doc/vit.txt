@@ -36,6 +36,8 @@ The following are the available vit-commands:
         checkout  |vit-checkout|
         commit    |vit-commit|
         stash     |vit-stash|
+        mv        |vit-mv|
+        rm        |vit-rm|
 
 If no arguments are given, the vit-command defaults to |vit-status|.
 
@@ -127,20 +129,14 @@ the left in a VitDiff window. On the right is the version of the file currently
 in the working tree.
 
 --------------------------------------------------------------------------------
-add [files]                                                              *vit-add*
+add                                                                      *vit-add*
 
-Performs a `git add` on each file given.
-
-If no arguments are given, it defaults to the currently open buffer.
+Performs a `git add` on the current buffer.
 
 --------------------------------------------------------------------------------
-reset  [git reset args]                                                *vit-reset*
+reset                                                                  *vit-reset*
 
-Normal behavior is to act as a pass-through with all arguments given to the
-git reset command.
-
-If not arguments are given, it attempts to reset all files in the index in the
-git repository of the currently open buffer.
+Resets the current file
 
 Behavior in some Vit windows~
 When the command is executed while a |VitLog| window is active, its behavior
@@ -173,6 +169,17 @@ stash  [git stash args]                                                *vit-stas
 
 A pass-through command that performs a stash on the git repository
 associated with the currently open buffer.
+
+--------------------------------------------------------------------------------
+mv NEW_NAME                                                               *vit-mv*
+
+Performs a git mv on the current buffer to the NEW_NAME and refreshes the
+buffer.
+
+--------------------------------------------------------------------------------
+rm                                                                        *vit-rm*
+
+Removes the current buffer from vim and the git repository.
 
 ================================================================================
 SHELL SCRIPT                                                     *vit-shellscript*

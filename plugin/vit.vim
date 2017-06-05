@@ -3,7 +3,7 @@ if exists("g:loaded_vit") || v:version < 700
 endif
 let g:loaded_vit = 1
 
-let g:vit_commands = ["log", "status", "blame", "diff", "show", "add", "reset", "checkout", "commit", "stash"]
+let g:vit_commands = ["log", "status", "blame", "diff", "show", "add", "reset", "checkout", "commit", "stash", "mv", "rm"]
 
 function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
     if a:cmd_line =~# "^Git add "
@@ -23,55 +23,29 @@ endfunction " }}}
 function! vit#Git(...) " {{{
     if exists("b:vit")
         if a:0 > 0
-            " echomsg "Git(".string(a:000).")"
-            let l:command = a:1
-
             if a:1 ==# "diff"
-                let l:file = expand("%")
                 if a:0 < 2
                     let l:rev = vit#GetUserInput('Commit, tag or branch: ')
                 else
                     let l:rev = a:2
-                    if a:0 > 2
-                        let l:file = a:3
-                    endif
                 endif
-
-                " TODO: this is not pretty
-                call vit#Diff(vit#GetFilenameRelativeToGit(fnamemodify(l:file, ":p")), l:rev)
+                call vit#Diff(b:vit.path.relative, l:rev)
             elseif a:1 ==# "blame"
-                call vit#Blame(expand("%:p"))
+                call vit#Blame(b:vit.path.relative)
             elseif a:1 ==# "log" || a:1 ==# "lg"
-                if a:0 < 2
-                    call vit#Log(expand("%"))
-                else
-                    call vit#Log(a:2)
-                endif
+                call vit#Log(b:vit.path.relative)
             elseif a:1 ==# "show"
                 call vit#Show(a:2)
             elseif a:1 ==# "status" || a:1 ==# "st"
                 call vit#Status()
-
             elseif a:1 ==# "add"
-                if a:0 < 2
-                    call vit#Add(expand("%:p"))
-                else
-                    call vit#Add(join(a:000[1:], ' '))
-                endif
+                call vit#Add(b:vit.path.relative)
             elseif a:1 ==# "commit"
                 call vit#Commit(join(a:000[1:], ' '))
             elseif a:1 ==# "reset"
-                if a:0 < 2
-                    call vit#ResetFilesInGitIndex("", expand("%:p"))
-                else
-                    call vit#Reset(join(a:000[1:], ' '))
-                endif
+                call vit#Reset(" -- ".b:vit.path.relative)
             elseif a:1 ==# "checkout" || a:1 ==# "co"
-                if a:0 < 2
-                    call vit#CheckoutCurrentFile("HEAD")
-                else
-                    call vit#Checkout(join(a:000[1:], ' '))
-                endif
+                call vit#CheckoutCurrentFile("HEAD")
             elseif a:1 ==# "stash"
                 call vit#Stash(join(a:000[1:], ' '))
             elseif a:1 ==# "mv"

@@ -302,11 +302,7 @@ endfunction " }}}
 
 """ External manipulators
 function! vit#Add(files) " {{{
-    if a:files == "."
-        let l:files = a:files
-    else
-        let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
-    endif
+    let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
     call b:vit.execute("add ".l:files)
     if v:shell_error == 0
         echo "Added ".a:files." to the stage"
