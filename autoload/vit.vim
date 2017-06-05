@@ -339,10 +339,7 @@ function! vit#Commit(args) " {{{
     if match(l:args, " *-m ") > -1 || match(l:args, " *--message=") > -1
         call vit#PerformCommit(l:args)
     else " otherwise, open a window to enter the message
-        let l:vit_git_dir = b:vit_git_dir
-
         botright new
-        let b:vit_git_dir = l:vit_git_dir
         let b:vit_commit_args = a:args
         set filetype=VitCommit
     endif
@@ -352,7 +349,7 @@ function! vit#PerformCommit(args)
     call b:vit.execute("commit ".a:args)
     echomsg "Successfully committed"
     call vit#RefreshStatuses()
-    call vit#RefreshLogs()
+    " call vit#RefreshLogs()
 endfunction " }}}
 
 function! vit#Reset(args) " {{{
@@ -372,7 +369,7 @@ endfunction " }}}
 function! vit#Checkout(args) " {{{
     call b:vit.execute("checkout ".a:args)
     call vit#RefreshStatuses()
-    call vit#RefreshLogs()
+    " call vit#RefreshLogs()
 endfunction
 function! vit#CheckoutCurrentFile(rev)
     let l:file = expand("%:p")
@@ -417,6 +414,14 @@ function! vit#Remove() " {{{
         else
             echo "Unable to remove file(s)"
         endif
+    endif
+endfunction " }}}
+
+function! vit#RevertFile(rev, file) " {{{
+    if confirm("Are you sure you want to git revert this file?", "y\nN", 0) == 1 && exists("b:vit")
+        call vit#Checkout(a:rev." -- ".a:file)
+        let l:msg = b:vit.execute("cat-file commit ".a:rev)
+        call vit#PerformCommit("-m 'Reverted ".a:file." to ".a:rev." \"".split(l:msg, '\n')[5]."\"'")
     endif
 endfunction " }}}
 

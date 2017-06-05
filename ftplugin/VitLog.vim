@@ -154,6 +154,7 @@ else " {{{
 endif " }}}
 
 nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
+nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j
