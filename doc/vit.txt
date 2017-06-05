@@ -38,6 +38,7 @@ The following are the available vit-commands:
         stash     |vit-stash|
         mv        |vit-mv|
         rm        |vit-rm|
+        revert    |vit-revert|
 
 If no arguments are given, the vit-command defaults to |vit-status|.
 
@@ -182,6 +183,12 @@ buffer.
 rm                                                                        *vit-rm*
 
 Removes the current buffer from vim and the git repository.
+
+--------------------------------------------------------------------------------
+revert REVISION                                                       *vit-revert*
+
+Reverts only the current buffer to the specified revision. If no revision is 
+given it prompts the user for the revision to compare against.
 
 ================================================================================
 SHELL SCRIPT                                                     *vit-shellscript*
