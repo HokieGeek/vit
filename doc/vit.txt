@@ -79,6 +79,8 @@ Mappings~
                                                                 *VitShow-mappings*
 d            Opens |VitDiff| of file under cursor
 D            Opens |VitDiff| of files in selected revision
+o            Opens the file under the cursor as a new tab
+O            Opens every files in the revision as individual tabs
 
 --------------------------------------------------------------------------------
 status                                                      *vit-status* *VitStatus*
