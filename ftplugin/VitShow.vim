@@ -63,10 +63,10 @@ command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call 
 nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileUnderCursor(), b:git_revision."~1", b:git_revision)<cr>
 nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(b:git_revision)<cr>
 
-nnoremap <buffer> <silent> o :execute "tabedit ".fnamemodify(GetFuleUnderCursor(), ":p:.")<cr>
+nnoremap <buffer> <silent> o :execute "tabedit ".fnamemodify(GetFileUnderCursor(), ":p:.")<cr>
 nnoremap <buffer> <silent> O :let first_tab = tabpagenr() + 1
             \<bar>for f in map(filter(getline(1, "$"), 'v:val =~ "^diff"'), 'fnamemodify(GetFileFromDiffLine(v:val), ":p:.")')
-            \<bar>execute "tabedit ".<bar>endfor
+            \<bar>execute "tabedit ".f<bar>endfor
             \<bar>execute "tabnext ".first_tab<bar>unlet first_tab<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:
