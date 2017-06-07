@@ -45,6 +45,13 @@ function! GetFileUnderCursor() " {{{
     return l:file
 endfunction " }}}
 
+function! OpenFilesFromShow() " {{{
+    let l:showfiles = map(filter(getline(1, "$"), 'v:val =~ "^diff"'), 'fnamemodify(GetFileFromDiffLine(v:val), ":p:.").":1: "')
+    tabnew
+    lexpr l:showfiles
+    lwindow
+endfunction " }}}
+
 function! VitShow#Git(...) " {{{
     " echomsg "VitShow#Git(".string(a:000).")"
     if a:0 > 0
@@ -64,9 +71,6 @@ nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileUnderCursor(), b:gi
 nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(b:git_revision)<cr>
 
 nnoremap <buffer> <silent> o :execute "tabedit ".fnamemodify(GetFileUnderCursor(), ":p:.")<cr>
-nnoremap <buffer> <silent> O :let first_tab = tabpagenr() + 1
-            \<bar>for f in map(filter(getline(1, "$"), 'v:val =~ "^diff"'), 'fnamemodify(GetFileFromDiffLine(v:val), ":p:.")')
-            \<bar>execute "tabedit ".f<bar>endfor
-            \<bar>execute "tabnext ".first_tab<bar>unlet first_tab<cr>
+nnoremap <buffer> <silent> O :call OpenFilesFromShow()<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:
