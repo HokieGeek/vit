@@ -427,4 +427,9 @@ function! vit#RevertFile(rev, file) " {{{
     endif
 endfunction " }}}
 
+" function! vit#StashViewer()
+"     git stash list
+"     git stash show -p stash@\{0\}
+" endfunction
+
 " vim: set foldmethod=marker formatoptions-=tc:
