@@ -247,7 +247,9 @@ function! vit#Log(file) " {{{
     if exists("b:vit")
         if b:vit.windows.log < 0
             topleft new
-            let b:vit = getbufvar(bufnr(a:file), "vit")
+            if !isdirectory(a:file)
+                let b:vit = getbufvar(bufnr(a:file), "vit")
+            endif
             setlocal filetype=VitLog
         else
             call vit#RefreshLog(b:vit.windows.log)
