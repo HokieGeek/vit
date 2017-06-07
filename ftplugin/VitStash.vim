@@ -29,8 +29,7 @@ function! GetStashIdUnderCursor()
 endfunction
 
 function! s:LoadStashInfo(id)
-    " TODO: need more info, I think?
-    let l:diff = b:vit.execute("stash show -p ".a:id)
+    let l:diff = b:vit.execute("stash show --stat --patch ".a:id)
     execute s:stash_diff_viewer." wincmd w"
     silent! 1,$d
     silent! put=l:diff
