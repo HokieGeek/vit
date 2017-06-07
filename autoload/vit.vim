@@ -304,7 +304,7 @@ endfunction " }}}
 
 """ External manipulators
 function! vit#Add(files) " {{{
-    let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
+    let l:files = join(split(a:files), ' ')
     call b:vit.execute("add ".l:files)
     if v:shell_error == 0
         echo "Added ".a:files." to the stage"
@@ -360,7 +360,7 @@ function! vit#Reset(args) " {{{
     " call vit#RefreshLogs() " FIXME: this is problematic
 endfunction
 function! vit#ResetFilesInGitIndex(opts, files)
-    let l:files = join(vit#GetFilenamesRelativeToGit(split(a:files)), ' ')
+    let l:files = join(split(a:files), ' ')
     call vit#Reset(a:opts." -- ".l:files)
 endfunction
 function! vit#Unstage(files)

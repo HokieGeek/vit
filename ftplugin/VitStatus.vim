@@ -31,8 +31,7 @@ if exists("b:vit")
     endif
 
     let b:vit.windows.status = bufnr("%")
-    " let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
-    let b:status = b:vit.execute("status --porcelain")
+    let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
     if len(b:status) <= 0
         let b:status = "  No changes"
     endif
@@ -87,7 +86,7 @@ nnoremap <buffer> <silent> - :call vit#Unstage(GetFileAtCursor())<cr>
 vnoremap <buffer> <silent> - :call vit#Unstage(GetFileAtCursor())<cr><cr>
 
 nnoremap <buffer> <silent> <enter> :if getline(".") !~ "^##"
-                             \<bar>let path=b:vit.worktree."/".GetFileAtCursor()
+                             \<bar>let path=GetFileAtCursor()
                              \<bar>execute b:vit_parent_win."wincmd w"
                              \<bar>execute "edit ".path
                              \<bar>endif<cr>
