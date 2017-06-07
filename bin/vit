@@ -2,6 +2,11 @@
 
 while (( $# > 0 )); do
     case $1 in
+    stash)
+        vimargs+=('--cmd' 'let g:vit_standalone=1')
+        vimargs+=('--cmd' 'cd '$PWD)
+        vimargs+=('-c' 'Git stash view')
+        ;;
     blame|log) vimargs+=('-c' 'Git '$1) ;;
     -h|--help) echo "USAGE: ${0##*/} [-h|--help] [blame|log] [file]"; exit ;;
     k) ;; ## standalone :)

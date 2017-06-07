@@ -379,6 +379,7 @@ function! vit#CheckoutCurrentFile(rev)
     edit l:file
 endfunction " }}}
 
+
 function! vit#Stash(args) " {{{
     call b:vit.execute("stash ".a:args)
     call vit#RefreshStatuses()
@@ -390,6 +391,14 @@ function! vit#Stash(args) " {{{
     "         call edit on that buffer
     "     endif
     " endfor
+endfunction
+function! vit#StashViewer()
+    " echom "Stash Viewer"
+    if !exists("g:vit_standalone")
+        tabnew
+    endif
+    " let b:vit = getbufvar(.....)
+    set filetype=VitStash
 endfunction " }}}
 
 function! vit#Move(newpath) " {{{
@@ -426,10 +435,5 @@ function! vit#RevertFile(rev, file) " {{{
         call vit#PerformCommit("-m 'Reverted ".a:file." to ".a:rev." \"".split(l:msg, '\n')[5]."\"'")
     endif
 endfunction " }}}
-
-" function! vit#StashViewer()
-"     git stash list
-"     git stash show -p stash@\{0\}
-" endfunction
 
 " vim: set foldmethod=marker formatoptions-=tc:
