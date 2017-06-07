@@ -393,7 +393,6 @@ function! vit#Stash(args) " {{{
     " endfor
 endfunction
 function! vit#StashViewer()
-    " echom "Stash Viewer"
     if !exists("g:vit_standalone")
         tabnew
     endif

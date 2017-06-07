@@ -47,7 +47,6 @@ function! vit#Git(...) " {{{
             elseif a:1 ==# "checkout" || a:1 ==# "co"
                 call vit#CheckoutCurrentFile("HEAD")
             elseif a:1 ==# "stash"
-                echom "stash: ".a:0
                 if a:0 == 2 && a:2 == "view"
                     call vit#StashViewer()
                 else

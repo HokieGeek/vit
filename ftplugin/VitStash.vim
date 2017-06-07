@@ -4,12 +4,46 @@ endif
 let b:autoloaded_vit_stash = 1
 scriptencoding utf-8
 
-let content="STASH VIEWER HERE"
-silent! put=content
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist cursorline nonumber
+if exists("&relativenumber")
+    setlocal norelativenumber
+endif
+
+let b:vit.windows.stash = bufnr("%")
+
+let b:content=b:vit.execute("stash list")
+" let b:content=vit#Stash("list")
+if strlen(b:content) <= 0
+    echohl WarningMsg
+    echom "No stash entries were generated"
+    echohl None
+    finish
+endif
+
+silent! put=b:content
 0d_
 
-" vit#Stash("list")
-" git stash show -p stash@\{0\}
-"
+function! GetStashIdUnderCursor()
+    " return substitute(getline("."), "\(stash@\{[0-9]*\}\)", "1", "")
+    return substitute(getline("."), ":.*$", "", "")
+endfunction
+
+function! s:LoadStashInfo(id)
+    " TODO: need more info, I think?
+    let l:diff = b:vit.execute("stash show -p ".a:id)
+    execute s:stash_diff_viewer." wincmd w"
+    silent! 1,$d
+    silent! put=l:diff
+    silent! 0d_
+    wincmd p
+endfunction
+
+autocmd CursorMoved <buffer> call s:LoadStashInfo(GetStashIdUnderCursor())
+
 botright new
-wincmd t
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+set filetype=VitStashInfo
+let s:stash_diff_viewer=winnr()
+wincmd p
+
+execute "resize ".string(&lines * 0.20)
