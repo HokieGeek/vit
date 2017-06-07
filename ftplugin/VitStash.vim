@@ -24,7 +24,6 @@ silent! put=b:content
 0d_
 
 function! GetStashIdUnderCursor()
-    " return substitute(getline("."), "\(stash@\{[0-9]*\}\)", "1", "")
     return substitute(getline("."), ":.*$", "", "")
 endfunction
 
@@ -45,4 +44,8 @@ set filetype=VitStashInfo
 let s:stash_diff_viewer=winnr()
 wincmd p
 
-execute "resize ".string(&lines * 0.20)
+if len(getline(1, "$")) > 8
+    execute "resize ".string(&lines * 0.20)
+else
+    execute "resize ".string(len(getline(1, "$")) + 1)
+endif

@@ -1,3 +1,7 @@
+if exists("b:patch_diff_syntax")
+    finish
+endif
+
 syntax region PatchDiffLines  start="@@" end="@@"
 syntax match PatchCommit  "^commit [0-9a-z]*$"
 syntax match PatchSub     "^-.*$"
@@ -12,3 +16,5 @@ highlight PatchCommit     guifg=#FFFF00 guibg=bg ctermbg=none ctermfg=yellow  ct
 highlight PatchSub        guifg=#FF0000 guibg=bg ctermbg=none ctermfg=red     cterm=none
 highlight PatchAdd        guifg=#00FF00 guibg=bg ctermbg=none ctermfg=green   cterm=none
 highlight PatchInfo       guifg=#FFFFFF guibg=bg ctermbg=none ctermfg=white   cterm=bold
+
+let b:patch_diff_syntax="loaded"
