@@ -12,13 +12,16 @@ Vit integrates git into vim by providing a number of interactive windows that al
 Only one command is provided: `Git`
 
 ### Interactive windows
-![](http://i.imgur.com/EWwM9AM.gif)
+![](http://i.imgur.com/ne6BgPk.gif)
 
-## vit
+### vit
 ![](http://i.imgur.com/ITQCVBk.png)
 
+### Stash viewer
+![](http://i.imgur.com/vbPd1Vt.png)
+
 ## Would you like to know more?
-You can view the manual by typing `:help vit`
+You can view the manual by typing `:help vit` or going to [doc/vit.txt](doc/vit.txt).
 
 ## Installation
 
