@@ -17,6 +17,6 @@ silent! put =b:content
 0d_
 setlocal nomodifiable
 
-autocmd BufDelete,BufWipeout <buffer> windo diffoff | filetype detect
+autocmd BufDelete,BufWipeout <buffer> setlocal buftype= | windo diffoff | filetype detect
 
 windo diffthis
