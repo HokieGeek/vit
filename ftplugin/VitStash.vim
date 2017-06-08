@@ -39,6 +39,7 @@ endfunction
 autocmd CursorMoved <buffer> call s:LoadStashInfo(GetStashIdUnderCursor())
 
 nnoremap <buffer> <silent> a :call vit#Stash("apply ".GetStashIdUnderCursor())<cr>
+nnoremap <buffer> <silent> P :call vit#Stash("pop")<cr>
 
 botright new
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
