@@ -19,7 +19,12 @@ let b:vit.windows.log = bufnr("%")
 let b:reffile_winnr = bufwinnr(b:vit.bufnr)
 let b:vit_log_entry_cache = {}
 
-let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' -- ".b:vit.path.absolute)
+if len(b:vit.reffile) > 0
+    let b:file = " -- ".b:vit.path.absolute
+else
+    let b:file = ""
+endif
+let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>'".b:file)
 if strlen(b:log) <= 0
     echohl WarningMsg
     echom "No log was generated"

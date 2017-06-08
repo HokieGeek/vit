@@ -48,6 +48,7 @@ function! s:GetGitConfig(file) " {{{
         "" Git stuffs
         let b:vit["worktree"] = l:vit_root_dir
         let b:vit["gitdir"]   = l:vit_git_dir
+        let b:vit["reffile"]  = l:reffile
 
         "" File paths
         let l:paths = {}
