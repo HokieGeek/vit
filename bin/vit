@@ -8,7 +8,7 @@ while (( $# > 0 )); do
         vimargs+=('-c' 'Git stash view')
         ;;
     blame|log) vimargs+=('-c' 'Git '$1) ;;
-    -h|--help) echo "USAGE: ${0##*/} [-h|--help] [blame|log] [file]"; exit ;;
+    -h|--help) echo "USAGE: ${0##*/} [-h|--help] [blame|log|stash] [file]"; exit ;;
     k) ;; ## standalone :)
     *) args+=("$1") ;;
     esac
@@ -21,6 +21,9 @@ if (( ${#vimargs[*]} == 0 )); then
     vimargs+=('-c' 'Git status')
     vimargs+=('-c' 'wincmd t')
     (( ${#args[*]} == 0 )) && vimargs+=('--cmd' 'cd '$PWD)
+elif [[ ${vimargs[*]} =~ "blame" ]] && (( ${#args[*]} == 0 )); then
+    echo "ERROR: You must choose a file when using the blame command"
+    exit 2
 fi
 
 (( ${#args[*]} > 0 )) && {
