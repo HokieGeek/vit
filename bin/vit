@@ -34,7 +34,7 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
     exit 1
 }
 
-[[ -z ${origdir+x} ]] && cd ${origdir}
+[[ -z "${origdir+x}" ]] || cd ${origdir}
 
 me=${0##*/}
 exec ${me/vit/}vim "${args[@]}" "${vimargs[@]}"

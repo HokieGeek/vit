@@ -45,15 +45,9 @@ function! s:GetGitConfig(file) " {{{
             let l:vit_git_dir = l:reffile_dir."/".l:vit_git_dir
         endif
 
-        " Determine the version of git
-        " let b:vit_git_version = split(substitute(substitute(system("git --version"), "\n*$", '', ''), "^git version ", '', ''), "\\.")
-
         "" Git stuffs
         let b:vit["worktree"] = l:vit_root_dir
         let b:vit["gitdir"]   = l:vit_git_dir
-        " echomsg " reffile: ".l:reffile
-        " echomsg "ROOT DIR: ".b:vit.worktree
-        " echomsg " GIT DIR: ".b:vit.gitdir
 
         "" File paths
         let l:paths = {}
@@ -247,8 +241,9 @@ function! vit#Log(file) " {{{
     if exists("b:vit")
         if b:vit.windows.log < 0
             topleft new
-            if !isdirectory(a:file)
-                let b:vit = getbufvar(bufnr(a:file), "vit")
+            let l:bufn = bufnr(a:file)
+            if l:bufn >= 0
+                let b:vit = getbufvar(l:bufn, "vit")
             endif
             setlocal filetype=VitLog
         else
