@@ -381,9 +381,10 @@ endfunction " }}}
 
 
 function! vit#Stash(args) " {{{
-    call b:vit.execute("stash ".a:args)
+    let l:out = b:vit.execute("stash ".a:args)
     call vit#RefreshStatuses()
     call vit#RefreshLogs()
+    return l:out
 endfunction
 function! vit#StashViewer()
     if !exists("g:vit_standalone")
