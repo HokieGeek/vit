@@ -1,0 +1,4 @@
+#!/bin/bash
+
+me=${0##*/}
+$(me=$(readlink --canonicalize $0); cd ${me%/*}; pwd)/${me/gitk/gvit}
