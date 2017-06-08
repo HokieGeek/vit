@@ -33,6 +33,7 @@ function! vit#Git(...) " {{{
             elseif a:1 ==# "blame"
                 call vit#Blame(b:vit.path.relative)
             elseif a:1 ==# "log" || a:1 ==# "lg"
+                if a:0 == 2 && a:2 == "view"
                 call vit#Log(b:vit.path.relative)
             elseif a:1 ==# "show"
                 call vit#Show(a:2)

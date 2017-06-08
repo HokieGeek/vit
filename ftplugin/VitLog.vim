@@ -18,13 +18,12 @@ endif
 let b:vit.windows.log = bufnr("%")
 let b:reffile_winnr = bufwinnr(b:vit.bufnr)
 let b:vit_log_entry_cache = {}
+let b:args = []
 
 if len(b:vit.reffile) > 0
-    let b:file = " -- ".b:vit.path.absolute
-else
-    let b:file = ""
+    let b:args = add(b:args, " -- ".b:vit.path.absolute)
 endif
-let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>'".b:file)
+let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>'".join(b:args, ' '))
 if strlen(b:log) <= 0
     echohl WarningMsg
     echom "No log was generated"
@@ -32,7 +31,7 @@ if strlen(b:log) <= 0
     finish
 endif
 
-if !exists("g:vit_standalone")
+if !exists("w:vit_standalone")
     if b:vit.status() == 3
         let b:log = "* 0000000 - %Unstaged modifications%\n".b:log
     endif
@@ -87,7 +86,7 @@ function! s:SkipNonCommits(func) " {{{
     endif
 endfunction " }}}
 
-if exists("g:vit_standalone") " {{{
+if exists("w:vit_standalone") " {{{
     if bufnr("$") > 1
         bdelete #
     endif

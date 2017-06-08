@@ -20,6 +20,7 @@ function! vit#init() " {{{
     " Add autocmds
     if exists("b:vit")
         command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call vit#Git(<f-args>)
+        command! -buffer Vitk :call vit#Vitk(<f-args>)
     endif
 endfunction " }}}
 
@@ -387,7 +388,7 @@ function! vit#Stash(args) " {{{
     return l:out
 endfunction
 function! vit#StashViewer()
-    if !exists("g:vit_standalone")
+    if !exists("w:vit_standalone")
         tabnew
     endif
     set filetype=VitStash

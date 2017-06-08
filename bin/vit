@@ -3,7 +3,7 @@
 while (( $# > 0 )); do
     case $1 in
     stash)
-        vimargs+=('--cmd' 'let g:vit_standalone=1')
+        vimargs+=('--cmd' 'let w:vit_standalone=1')
         vimargs+=('--cmd' 'cd '$PWD)
         vimargs+=('-c' 'Git stash view')
         ;;
@@ -16,7 +16,7 @@ while (( $# > 0 )); do
 done
 
 if (( ${#vimargs[*]} == 0 )); then
-    vimargs+=('--cmd' 'let g:vit_standalone=1')
+    vimargs+=('--cmd' 'let w:vit_standalone=1')
     vimargs+=('-c' 'Git log')
     vimargs+=('-c' 'Git status')
     vimargs+=('-c' 'wincmd t')
