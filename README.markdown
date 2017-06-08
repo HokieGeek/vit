@@ -14,10 +14,12 @@ Only one command is provided: `Git`
 ### Interactive windows
 ![](http://i.imgur.com/ne6BgPk.gif)
 
-### vit
+### vitk
+The vitk functionality starts vim with a gitk-like feature set allowing the user to traverse through each commit and view their contents.
 ![](http://i.imgur.com/ITQCVBk.png)
 
 ### Stash viewer
+Similar to the vitk functionality, this provides a quick way to view the contents of the stash.
 ![](http://i.imgur.com/vbPd1Vt.png)
 
 ## Would you like to know more?
@@ -28,5 +30,4 @@ You can view the manual by typing `:help vit` or going to [doc/vit.txt](doc/vit.
 I recommend installing [pathogen.vim](https://github.com/tpope/vim-pathogen) and then executing the following steps in a shell:
 
     cd ~/.vim/bundle
-    git clone git://github.com/HokieGeek/vit.git
-
+    git clone https://HokieGeek@gitlab.com/HokieGeek/vit.git
