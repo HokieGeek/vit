@@ -89,10 +89,14 @@ if exists("g:vit_standalone") " {{{
 
     " Create the new window to use for the git show output
     let s:vit = b:vit
-    botright new
+    if &lines > 20
+        botright new
+        execute "resize ".string(&lines * 0.60)
+    else
+        botright vnew
+    endif
 
     let b:vit = s:vit
-    execute "resize ".string(&lines * 0.60)
 
     setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
     wincmd p

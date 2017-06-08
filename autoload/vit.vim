@@ -268,7 +268,11 @@ function! vit#Show(rev) " {{{
     endif
 
     let l:bufnr = bufnr("%")
-    botright new
+    if &lines > 20
+        botright new
+    else
+        botright vnew
+    endif
     let b:vit = getbufvar(l:bufnr, "vit")
     let b:git_revision = l:rev
     setlocal filetype=VitShow
@@ -379,19 +383,11 @@ function! vit#Stash(args) " {{{
     call b:vit.execute("stash ".a:args)
     call vit#RefreshStatuses()
     call vit#RefreshLogs()
-    " TODO: reload any loaded buffers which have now changed
-    "       ask user if this is something they want
-    " for b in filter(range(0, bufnr('$')), 'bufloaded(v:val)')
-    "     if buffer_name exists in list of stashed files
-    "         call edit on that buffer
-    "     endif
-    " endfor
 endfunction
 function! vit#StashViewer()
     if !exists("g:vit_standalone")
         tabnew
     endif
-    " let b:vit = getbufvar(.....)
     set filetype=VitStash
 endfunction " }}}
 
