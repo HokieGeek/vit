@@ -243,8 +243,8 @@ function! vit#Log(file, ...) " {{{
     if exists("b:vit")
         if b:vit.windows.log < 0
             topleft new
-            let b:args = []
-            " let b:args = copy(a:000)
+            " let b:args = []
+            let b:args = deepcopy(a:000)
             let l:bufn = bufnr(a:file)
             if l:bufn >= 0
                 let b:vit = getbufvar(l:bufn, "vit")

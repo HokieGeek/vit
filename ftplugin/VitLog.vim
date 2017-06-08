@@ -19,7 +19,6 @@ let b:vit.windows.log = bufnr("%")
 let b:reffile_winnr = bufwinnr(b:vit.bufnr)
 let b:vit_log_entry_cache = {}
 
-echom len(b:args)
 if len(b:vit.reffile) > 0
     let b:args = add(b:args, " -- ".b:vit.path.absolute)
 endif
