@@ -168,10 +168,21 @@ like it to be staged. If the user does not enter a message as a command option
 desired message.
 
 --------------------------------------------------------------------------------
-stash  [git stash args]                                                *vit-stash*
+stash [view | git stash args]                                          *vit-stash*
 
-A pass-through command that performs a stash on the git repository
-associated with the currently open buffer.
+If the 'view' argument is not given, it functions as A pass-through command
+that performs a stash on the git repository associated with the currently
+open buffer.
+
+view~
+                                                                *vit-stash-viewer*
+
+The stash viewer will open a new tab with two windows. The top window is a
+listing of each stash by id.  The equivalent git command is: >
+     git stash list
+The bottom window shows diffstat and patch for each file involved in the
+currently selected stash item. Moving the cursor down each stash item loads
+the diffstat and patch data into the bottom window.
 
 --------------------------------------------------------------------------------
 mv NEW_NAME                                                               *vit-mv*
@@ -193,19 +204,24 @@ given it prompts the user for the revision to compare against.
 ================================================================================
 SHELL SCRIPT                                                     *vit-shellscript*
 
-bin/vit [files]                                                       *vit-script*
-bin/gvit [files]                                                     *gvit-script*
+bin/vit [-h|--help] [blame | log | stash] [file]                      *vit-script*
+bin/gvit [-h|--help] [blame | log | stash] [file]                    *gvit-script*
 
-When executed, it will open a vim session with 3 windows. The top window is a
-|VitLog| of the first file in the argument list. The bottom will have a |VitShow|
-of the first revision in the log. On the right a |VitStatus| window will be open
-if applicable.
+                                                             *vit-script-commands*
+                                                            *gvit-script-commands*
+blame
+    Opens the given file with a |VitBlame| window open as well
+log
+    Opens the given file with a |VitLog| window open as well
+stash
+    Opens the |vit-stash-viewer|. Ignores the given file.
 
-If no arguments are given, the |VitLog| window defaults to showing the full log
-of the repository.
-
-This command is relatively similar to the gitk application which you might be
-familiar with.
+When executed without commands, it will open a vim session with 3 windows.
+The top window is a |VitLog| of the first file in the argument list. If no file
+is given, the |VitLog| window defaults to showing the full log of the repository.
+The bottom will have a |VitShow| of the first revision in the log. On the right
+a |VitStatus| window will be open if applicable.  This view is relatively similar
+to the gitk application which you might be familiar with.
 
 
 vim:tw=78 ts=8: ft=help:norl:
