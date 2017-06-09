@@ -71,6 +71,7 @@ augroup VitStatus
                                 \ | if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.gitdir)
                                 \ | unlet g:vit_status_windows[b:vit.gitdir]
                                 \ | endif
+    autocmd VimResized <buffer> execute "vertical resize ".b:max_cols
 augroup END
 
 function! GetFileAtCursor()
