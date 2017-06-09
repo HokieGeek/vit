@@ -12,7 +12,7 @@ endif
 let b:vit.windows.show = bufnr("%")
 
 if exists("b:git_revision")
-    let b:vit_content = b:vit.execute("show ".b:git_revision." ".b:vit.path.relative)
+    let b:vit_content = b:vit.execute("show ".b:git_revision." ".fnamemodify(b:vit.path.absolute, ":."))
 else
     let b:vit_content = "No revision given"
 endif
