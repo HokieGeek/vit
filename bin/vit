@@ -26,6 +26,11 @@ elif [[ ${vimargs[*]} =~ "blame" ]] && (( ${#args[*]} == 0 )); then
     exit 2
 fi
 
+if [[ ${args[0]} == "--all" ]]; then
+    vimargs=("${vimargs[@]/log/log --all}")
+    args=()
+fi
+
 (( ${#args[*]} > 0 )) && {
     origdir=$PWD
     filedir=${1%/*}
@@ -40,4 +45,5 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
 [[ -z "${origdir+x}" ]] || cd ${origdir}
 
 me=${0##*/}
+set -x
 exec ${me/vit/}vim "${args[@]}" "${vimargs[@]}"

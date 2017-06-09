@@ -22,7 +22,11 @@ let b:vit_log_entry_cache = {}
 if len(b:vit.reffile) > 0
     let b:args = add(b:args, " -- ".b:vit.path.absolute)
 endif
-let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>'".join(b:args, ' '))
+" let b:blah = join(b:args)
+let b:args = insert(b:args, "--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' ")
+let b:log = b:vit.execute(join(b:args))
+" let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' ".b:blah)
+" let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>' ")
 if strlen(b:log) <= 0
     echohl WarningMsg
     echom "No log was generated"

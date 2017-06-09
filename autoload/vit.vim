@@ -99,7 +99,7 @@ endfunction " }}}
 
 function! s:ExecuteGit(args) dict " {{{
     if strlen(a:args) > 0
-        " echom "git --git-dir=".self.gitdir." --work-tree=".self.worktree." ".a:args
+        echom "git --git-dir=".self.gitdir." --work-tree=".self.worktree." ".a:args
         return system("git --git-dir=".self.gitdir." --work-tree=".self.worktree." ".a:args)
     endif
 endfunction " }}}
@@ -243,7 +243,6 @@ function! vit#Log(file, ...) " {{{
     if exists("b:vit")
         if b:vit.windows.log < 0
             topleft new
-            " let b:args = []
             let b:args = deepcopy(a:000)
             let l:bufn = bufnr(a:file)
             if l:bufn >= 0
