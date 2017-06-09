@@ -162,6 +162,23 @@ else " {{{
     nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevUnderCursor())<cr>
 endif " }}}
 
+function! VitLogInfo()
+    let l:toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
+    
+    let l:file = l:toplevel
+    if tabpagenr("$") > 1
+        let l:file .= ":".b:vit.branch()
+        let l:line = l:toplevel.":".b:vit.branch()
+    else
+        let l:line = b:vit.branch()
+    endif
+    
+    execute "file ".l:file
+    execute "setlocal statusline=".l:line
+endfunction
+
+autocmd WinEnter,BufEnter,BufWritePost <buffer> call VitLogInfo()
+
 nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
 nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
 
