@@ -70,7 +70,9 @@ function! vit#Git(...) " {{{
                 call vit#Status()
                 wincmd t
             else
-                call vit#UserGitCommand(join(a:000[1:], ' '))
+                echohl WarningMsg
+                echomsg "Unrecognized command. See :help vit"
+                echohl None
             endif
         else
             call vit#Status()

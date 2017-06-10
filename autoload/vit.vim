@@ -52,7 +52,7 @@ function! s:GetGitConfig(file) " {{{
 
         "" File paths
         let l:paths = {}
-        let l:paths["relative"] = vit#GetFilenameRelativeToGit(l:reffile)
+        let l:paths["relative"] = substitute(substitute(fnamemodify(l:reffile, ":p"), b:vit.worktree."/", '', ''), '/$', '', '')
         let l:paths["absolute"] = fnamemodify(l:reffile, ":p")
         let b:vit["path"] = l:paths
 
@@ -109,19 +109,6 @@ endfunction " }}}
 " }}}
 
 " Helpers " {{{
-function! vit#GetFilenameRelativeToGit(file)
-    " TODO: first check map of bufnrs keyed by absolute file names
-    return substitute(substitute(fnamemodify(a:file, ":p"), b:vit.worktree."/", '', ''), '/$', '', '')
-endfunction
-function! vit#GetFilenamesRelativeToGit(file_list)
-    return map(a:file_list, 'vit#GetFilenameRelativeToGit(v:val)')
-endfunction
-
-function! vit#UserGitCommand(args)
-    " TODO: do something with the command output?
-    call b:vit.execute(a:args)
-endfunction
-
 function! vit#GetUserInput(message)
     call inputsave()
     let l:response = input(a:message)
@@ -232,7 +219,6 @@ function! vit#Blame(file) " {{{
         topleft vnew
         let b:vit = getbufvar(bufnr(a:file), "vit")
         set filetype=VitBlame
-
         wincmd p
         windo setlocal scrollbind
     endif
