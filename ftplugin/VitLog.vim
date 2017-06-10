@@ -175,7 +175,7 @@ function! VitLogInfo()
     execute "setlocal statusline=".l:line
 endfunction
 
-autocmd WinEnter,BufEnter,BufWritePost <buffer> call VitLogInfo()
+autocmd WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitLogInfo()
 
 nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
 nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>

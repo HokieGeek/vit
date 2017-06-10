@@ -19,4 +19,7 @@ setlocal nomodifiable
 
 autocmd BufDelete,BufWipeout <buffer> setlocal buftype= | windo diffoff | filetype detect
 
+execute "silent! file ".fnamemodify(b:vit.path.absolute, ":t").":".b:vit_revision
+autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:vit_revision
+
 windo diffthis

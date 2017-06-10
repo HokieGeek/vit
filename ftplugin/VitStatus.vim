@@ -78,8 +78,11 @@ function! GetFileAtCursor()
     if getline(".") !~ "^##"
         return split(getline("."))[1]
     endif
-    " TODO return ""
 endfunction
+
+execute "silent! file ".fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
+
+autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:vit.branch()
 
 nnoremap <buffer> <silent> + :call vit#Add(GetFileAtCursor())<cr>
 vnoremap <buffer> <silent> + :call vit#Add(GetFileAtCursor())<cr><cr>
