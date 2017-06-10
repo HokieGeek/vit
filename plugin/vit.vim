@@ -3,7 +3,7 @@ if exists("g:loaded_vit") || v:version < 700
 endif
 let g:loaded_vit = 1
 
-let g:vit_commands = ["log", "status", "blame", "diff", "show", "add", "reset", "checkout", "commit", "stash", "mv", "rm", "revert"]
+let g:vit_commands = ["log", "status", "blame", "diff", "show", "add", "reset", "checkout", "commit", "stash", "mv", "rm", "revert", "k"]
 
 function! vit#GitCompletion(arg_lead, cmd_line, cursor_pos) " {{{
     if a:cmd_line =~# "^Git add "
@@ -63,6 +63,12 @@ function! vit#Git(...) " {{{
                     let l:rev = a:2
                 endif
                 call vit#RevertFile(l:rev, b:vit.path.relative)
+            elseif a:1 ==# "k"
+                tabnew
+                let g:vit_standalone=1
+                call vit#Log(b:vit.path.relative)
+                call vit#Status()
+                wincmd t
             else
                 call vit#UserGitCommand(join(a:000[1:], ' '))
             endif

@@ -387,9 +387,7 @@ function! vit#Stash(args) " {{{
     return l:out
 endfunction
 function! vit#StashViewer()
-    if !exists("g:vit_standalone")
-        tabnew
-    endif
+    tabnew
     set filetype=VitStash
 endfunction " }}}
 

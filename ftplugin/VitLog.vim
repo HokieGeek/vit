@@ -32,10 +32,8 @@ if strlen(b:log) <= 0
     finish
 endif
 
-if !exists("g:vit_standalone")
-    if b:vit.status() == 3
-        let b:log = "* 0000000 - %Unstaged modifications%\n".b:log
-    endif
+if len(b:vit.reffile) > 0 && b:vit.status() == 3
+    let b:log = "* 0000000 - %Unstaged modifications%\n".b:log
 endif
 
 silent! put =b:log

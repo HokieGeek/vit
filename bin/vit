@@ -2,25 +2,20 @@
 
 while (( $# > 0 )); do
     case $1 in
-    stash)
-        vimargs+=('--cmd' 'let g:vit_standalone=1')
-        vimargs+=('--cmd' 'cd '$PWD)
-        vimargs+=('-c' 'Git stash view')
-        ;;
-    blame|log) vimargs+=('-c' 'Git '$1) ;;
+    stash) vimargs+=('-c' 'Git stash view') ;;
+    blame|log|k) vimargs+=('-c' 'Git '$1) ;;
     -h|--help) echo "USAGE: ${0##*/} [-h|--help] [blame|log|stash] [file]"; exit ;;
-    k) ;; ## standalone :)
     *) args+=("$1") ;;
     esac
     shift
 done
 
-if (( ${#vimargs[*]} == 0 )); then
-    vimargs+=('--cmd' 'let g:vit_standalone=1')
-    vimargs+=('-c' 'Git log')
-    vimargs+=('-c' 'Git status')
-    vimargs+=('-c' 'wincmd t')
-    (( ${#args[*]} == 0 )) && vimargs+=('--cmd' 'cd '$PWD)
+(( ${#vimargs[*]} == 0 )) && vimargs+=('-c' 'Git k')
+
+re="Git (stash|k)"
+if [[ ${vimargs[*]} =~ $re ]]; then
+    vimargs+=('-c' 'tabclose 1')
+    vimargs+=('--cmd' 'cd '$PWD)
 elif [[ ${vimargs[*]} =~ "blame" ]] && (( ${#args[*]} == 0 )); then
     echo "ERROR: You must choose a file when using the blame command"
     exit 2
