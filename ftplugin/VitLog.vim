@@ -136,7 +136,11 @@ if exists("g:vit_standalone") " {{{
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:LoadLogEntry"))
 " }}}
 else " {{{
-    execute "resize ".string(&lines * 0.20)
+    if len(getline(1, "$")) > 15
+        execute "resize ".string(&lines * 0.20)
+    else
+        execute "resize ".string(len(getline(1, "$")) + 1)
+    endif
 
     function! s:CheckoutFileAtRevision(rev)
         let l:vit = b:vit
