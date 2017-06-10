@@ -65,7 +65,7 @@ function! vit#Git(...) " {{{
                 call vit#RevertFile(l:rev, b:vit.path.relative)
             elseif a:1 ==# "k"
                 tabnew
-                let g:vit_standalone=1
+                let g:vit_log_standalone=1
                 call vit#Log(b:vit.path.relative)
                 call vit#Status()
                 wincmd t
