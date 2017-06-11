@@ -85,7 +85,7 @@ function! s:SkipNonCommits(func) " {{{
     endif
 endfunction " }}}
 
-if exists("g:vit_log_standalone") " {{{
+if exists("t:vit_log_standalone") " {{{
     if bufnr("$") > 1
         bdelete #
     endif
