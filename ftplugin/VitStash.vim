@@ -39,7 +39,6 @@ autocmd CursorMoved <buffer> call s:LoadStashInfo(GetStashIdUnderCursor())
 
 botright new
 autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=\ 
-setlocal statusline=\ 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
 set filetype=VitStashInfo
 let s:stash_diff_viewer=winnr()
