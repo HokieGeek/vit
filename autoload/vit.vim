@@ -22,8 +22,11 @@ endfunction " }}}
 function! s:GetRepoInfo(file) " {{{
     let l:reffile_dir = fnamemodify(a:file, ":p:h")
 
-    let l:dirs = split(system("cd ".l:reffile_dir."; git rev-parse --show-toplevel --git-dir"), "\n")
-    if v:shell_error == 0 && len(l:dirs) > 0 && !exists("g:vit_repos") || !has_key(g:vit_repos, l:dirs[0])
+    let l:dirs = split(system("cd ".l:reffile_dir."; git rev-parse --show-toplevel --git-dir 2>/dev/null"), "\n")
+    if v:shell_error != 0 || len(l:dirs) < 2
+        return ""
+    endif
+    if !exists("g:vit_repos") || !has_key(g:vit_repos, l:dirs[0])
         if !exists("g:vit_repos")
             let g:vit_repos = {}
         endif
