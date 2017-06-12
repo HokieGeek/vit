@@ -1,16 +1,15 @@
-if exists("b:vit_reload")
-    let b:lastline = line(".")
-    setlocal modifiable
-    silent! 1,$d
-    unlet! b:vit_reload
-    unlet! b:autoloaded_vit_status
-endif
-
-if exists("b:autoloaded_vit_status") || v:version < 700
+if v:version < 700
     finish
 endif
-let b:autoloaded_vit_status = 1
+" let b:autoloaded_vit_status = 1
 scriptencoding utf-8
+
+let b:vit_lastline = line(".")
+
+setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist nonumber cursorline
+if exists("&relativenumber")
+    setlocal norelativenumber
+endif
 
 if exists("b:vit")
     if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.repo.gitdir)
@@ -39,19 +38,12 @@ else
     let b:status = "  Not a repo"
 endif
 
-setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist nonumber cursorline
-if exists("&relativenumber")
-    setlocal norelativenumber
-endif
-
+silent! 1,$d
 silent! put =b:status
 0d_
 setlocal nomodifiable
-
-if exists("b:lastline")
-    execute "normal ".b:lastline."gg"
-    unlet! b:lastline
-endif
+execute b:vit_lastline
+unlet! b:vit_lastline
 
 " Set width of the window based on the widest text
 setlocal winminwidth=20

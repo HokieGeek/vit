@@ -279,17 +279,13 @@ function! vit#Status() " {{{
             let b:vit = getbufvar(l:bufnr, "vit")
             setlocal filetype=VitStatus
         else
-            call vit#RefreshStatus(b:vit.windows.status)
+            call setbufvar(b:vit.windows.status, '&filetype', 'VitStatus')
         endif
     endif
 endfunction
-function! vit#RefreshStatus(buf_num)
-    call setbufvar(a:buf_num, 'vit_reload', 1)
-    call setbufvar(a:buf_num, '&filetype', 'VitStatus')
-endfunction
 function! vit#RefreshStatuses()
     let l:windows = filter(range(1, winnr('$')), 'getbufvar(winbufnr(v:val), "&filetype") == "VitStatus"')
-    call map(l:windows, 'vit#RefreshStatus(winbufnr(v:val))')
+    call map(l:windows, "setbufvar(winbufnr(v:val), '&filetype', 'VitStatus')")
 endfunction " }}}
 
 """ External manipulators
