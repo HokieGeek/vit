@@ -4,7 +4,9 @@ endif
 
 syntax match VitLogJustGraph "" contains=VitLogGraph
 
-syntax region VitLogTime    start="([0-9]"  end="ago)"
+syntax region VitLogTime    start="([0-9]\+ "  end="ago)"
+syntax match VitLogTime    "\v\([0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}\s[-+][0-9]{4}\)"
+
 syntax region VitLogAuthor  start="<"       end=">"
 syntax region VitLogBranch  start="- ("     end=")"     contains=VitLogDash
 

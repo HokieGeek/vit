@@ -24,21 +24,28 @@ if len(b:vit.reffile) > 0
 else
     let b:file = ""
 endif
-let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (\%cr) <\%an>'".b:file)
-if strlen(b:log) <= 0
-    echohl WarningMsg
-    echom "No log was generated"
-    echohl None
-    finish
-endif
 
-if len(b:vit.reffile) > 0 && b:vit.status() == 3
-    let b:log = "* 0000000 - %Unstaged modifications%\n".b:log
-endif
+let b:timeformat="\%cr" " Relative time
 
-silent! put =b:log
-0d_
-setlocal nomodifiable
+function! VitLoadLog()
+    setlocal modifiable
+    let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>'".b:file)
+    if strlen(b:log) <= 0
+        echohl WarningMsg
+        echom "No log was generated"
+        echohl None
+        finish
+    endif
+
+    if len(b:vit.reffile) > 0 && b:vit.status() == 3
+        let b:log = "* 0000000 - %Unstaged modifications%\n".b:log
+    endif
+
+    silent! put =b:log
+    0d_
+    setlocal nomodifiable
+endfunction
+call VitLoadLog()
 
 if exists("b:vit_reload")
     unlet! b:vit_reload
@@ -119,13 +126,12 @@ if exists("t:vit_log_standalone") " {{{
         " Switch to the VitShow window and paste the new output
         execute bufwinnr(b:vit.windows.show)." wincmd w"
         setlocal modifiable
+        let b:git_revision = a:rev
 
         " Remove old entry and add new one
         silent! 1,$d
         silent! put =l:rev_entry
         silent! 0d_
-
-        let b:git_revision = a:rev
 
         setlocal nomodifiable
         wincmd p
@@ -180,7 +186,10 @@ endfunction
 autocmd WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitLogInfo()
 
 nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
-nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
+" nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
+" ISO 8601-like
+nnoremap <buffer> <silent> T :let b:timeformat = b:timeformat =~ "cr" ? "\%ci" : "\%cr"<bar>call VitLoadLog()<cr>
+
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j
