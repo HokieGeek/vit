@@ -48,6 +48,8 @@ augroup VitBlame
 augroup END
 " }}}
 
+autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=\ 
+
 nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevFromBlame())<cr>
 nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevFromBlame())<cr>
 
