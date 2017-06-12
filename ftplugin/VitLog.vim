@@ -112,7 +112,7 @@ if exists("t:vit_log_standalone") " {{{
         if has_key(b:vit_log_entry_cache, a:rev)
             let l:rev_entry = b:vit_log_entry_cache[a:rev]
         else
-            let l:rev_entry = b:vit.execute("show ".a:rev)
+            let l:rev_entry = b:vit.execute("show --submodule=log ".a:rev)
             let b:vit_log_entry_cache[a:rev] = l:rev_entry
         endif
 
