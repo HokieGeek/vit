@@ -177,7 +177,7 @@ function! vit#Diff(file, rev) " {{{
     else
         topleft vnew
         let b:vit = getbufvar(bufnr(a:file), "vit")
-        let b:vit_revision = a:rev
+        let b:git_revision = a:rev
         setlocal filetype=VitDiff
     endif
 endfunction

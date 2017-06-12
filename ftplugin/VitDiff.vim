@@ -6,20 +6,20 @@ scriptencoding utf-8
 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
 
-if !exists("b:vit_revision")
+if !exists("b:git_revision")
     finish
 endif
 
 let b:vit.windows.diff = bufnr("%")
 
-let b:content = b:vit.execute("show ".b:vit_revision.":".b:vit.path.relative)
+let b:content = b:vit.execute("show ".b:git_revision.":".b:vit.path.relative)
 silent! put =b:content
 0d_
 setlocal nomodifiable
 
 autocmd BufDelete,BufWipeout <buffer> setlocal buftype= | windo diffoff | filetype detect
 
-execute "silent! file ".fnamemodify(b:vit.path.absolute, ":t").":".b:vit_revision
-autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:vit_revision
+execute "silent! file ".fnamemodify(b:vit.path.absolute, ":t").":".b:git_revision
+autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:git_revision
 
 windo diffthis
