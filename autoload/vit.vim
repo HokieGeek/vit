@@ -16,45 +16,35 @@ function! vit#init() " {{{
     endif
 
     call s:ConfigureBuffer(expand("%"))
-
-    " Add autocmds
-    if exists("b:vit")
-        command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call vit#Git(<f-args>)
-    endif
 endfunction " }}}
 
 " Repo object {{{
 function! s:GetRepoInfo(file) " {{{
     let l:reffile_dir = fnamemodify(a:file, ":p:h")
-    let l:root_dir = substitute(system("cd ".l:reffile_dir."; git rev-parse --show-toplevel"), "\n*$", '', '')
-    if v:shell_error == 0 && len(l:root_dir) > 0 && !exists("g:vit_repos") || !has_key(g:vit_repos, l:root_dir)
+
+    let l:dirs = split(system("cd ".l:reffile_dir."; git rev-parse --show-toplevel --git-dir"), "\n")
+    if v:shell_error == 0 && len(l:dirs) > 0 && !exists("g:vit_repos") || !has_key(g:vit_repos, l:dirs[0])
         if !exists("g:vit_repos")
             let g:vit_repos = {}
         endif
 
-        let l:git_dir = substitute(system("cd ".l:reffile_dir."; git rev-parse --git-dir"), "\n*$", '', '')
-        if l:git_dir[0] != "/"
-            let l:git_dir = l:reffile_dir."/".l:git_dir
-        endif
-
-        if l:root_dir[0] != "/"
-            let l:root_dir = l:reffile_dir."/".l:root_dir
-        endif
+        call map(l:dirs, 'v:val[0] != "/" ? "'.l:reffile_dir.'/".v:val : v:val') " TODO: is this still necessary?
 
         let l:repo = {}
-        let l:repo["gitdir"]   = l:git_dir
-        let l:repo["worktree"] = l:root_dir
+        let l:repo["worktree"] = l:dirs[0]
+        let l:repo["gitdir"]   = l:dirs[1]
         let l:repo["branch"]   = function("s:GetBranch")
 
-        let g:vit_repos[l:root_dir] = l:repo
+        let g:vit_repos[l:dirs[0]] = l:repo
     endif
-    return l:root_dir
+    return l:dirs[0]
 endfunction " }}}
 
 function! s:GetBranch() dict " {{{
     let l:file = readfile(self.gitdir."/HEAD")
     return substitute(l:file[0], 'ref: refs/heads/', '', '')
 endfunction
+" }}}
 " }}}
 
 " Buffer object {{{
@@ -83,6 +73,9 @@ function! s:ConfigureBuffer(file) " {{{
         let b:vit.path["absolute"] = fnamemodify(b:vit.reffile, ":p")
 
         let b:vit["bufnr"] = bufnr(b:vit.reffile)
+
+        "" Commands
+        command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call vit#Git(<f-args>)
     endif
 endfunction
 " }}}
