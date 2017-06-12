@@ -69,22 +69,19 @@ endfunction
 command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitShow#Git(<f-args>)
 " }}}
 
-let b:revision_files = {}
-function! SetVitShowStatusLine()
-"     let l:file=GetFileUnderCursor()
-"     if len(l:file) > 0
-"         if exists("b:git_revision")
-"             echom split(b:vit.execute("show --oneline --stat --no-notes --no-color ".b:git_revision." ".GetFileUnderCursor()), "|")[2]
-"         endif
-
-"         return l:file."%=File\ "."n"."/".max(filter(getline(1, "$"), 'v:val =~ "^diff"'))
-"     endif
-    " execute "setlocal statusline=%=File\\ n/".len(b:revision_files)
-    execute "setlocal statusline=%=%l/%L"
+function! GetVitShowStatusLine()
+    let l:summary=""
+    if exists("b:git_revision")
+        let l:summary=split(b:vit.execute("show --oneline --shortstat --no-color ".b:git_revision), "\n")[-1]
+    endif
+    return l:summary."%=%l/%L"
 endfunction
-autocmd WinEnter,WinLeave,BufEnter <buffer> call SetVitShowStatusLine()
-" call map(filter(getline(1, "$"), 'v:val =~ "^diff"'), 'let l:file=GetFileFromDiffLine(v:val); let b:revision_files[l:file]="TODO"')
-call SetVitShowStatusLine()
+autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=%!GetVitShowStatusLine()
+setlocal statusline=%!GetVitShowStatusLine()
+
+if exists("b:git_revision")
+    execute "silent! file Show\ ".b:git_revision
+endif
 
 nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileUnderCursor(), b:git_revision."~1", b:git_revision)<cr>
 nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(b:git_revision)<cr>
