@@ -20,6 +20,7 @@ setlocal nomodifiable
 autocmd BufDelete,BufWipeout <buffer> setlocal buftype= | windo diffoff | filetype detect
 
 execute "silent! file ".fnamemodify(b:vit.path.absolute, ":t").":".b:git_revision
-autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:git_revision
+execute "setlocal statusline=%=".b:git_revision
+autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=%=".b:git_revision
 
 windo diffthis
