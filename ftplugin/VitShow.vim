@@ -9,13 +9,18 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-let b:vit.windows.show = bufnr("%")
+if b:vit.windows.show == -1
+    let b:vit.windows.show = bufnr("%")
+else
+    execute bufwinnr(b:vit.windows.show)." wincmd w"
+endif
 
 if exists("b:git_revision")
     let b:vit_content = b:vit.execute("show --submodule=log ".b:git_revision." ".fnamemodify(b:vit.path.absolute, ":."))
 else
     let b:vit_content = "No revision given"
 endif
+silent! 1,$d
 silent! put=b:vit_content
 0d_
 

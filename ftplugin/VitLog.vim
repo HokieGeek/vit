@@ -177,10 +177,10 @@ function! VitLogInfo()
     let l:toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
 
     if tabpagenr("$") == 1
-        let l:line = l:toplevel.":".b:vit.branch()
+        let l:line = l:toplevel.":".b:vit.repo.branch()
     else
         execute "silent! file ".l:toplevel
-        let l:line = b:vit.branch()
+        let l:line = b:vit.repo.branch()
     endif
 
     execute "setlocal statusline=".l:line."%=%l/%L"

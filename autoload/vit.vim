@@ -15,7 +15,7 @@ function! vit#init() " {{{
         return
     endif
 
-    call s:GetGitConfig(expand("%"))
+    call s:ConfigureBuffer(expand("%"))
 
     " Add autocmds
     if exists("b:vit")
@@ -23,54 +23,67 @@ function! vit#init() " {{{
     endif
 endfunction " }}}
 
-" Buffer object {{{
-function! s:GetGitConfig(file) " {{{
-    let l:reffile = a:file
-    let l:reffile_dir = fnamemodify(l:reffile, ":p:h")
-
-    " Determine the git directories
-    let l:vit_root_dir = substitute(system("cd ".l:reffile_dir."; git rev-parse --show-toplevel"), "\n*$", '', '')
-    if v:shell_error == 0 && len(l:vit_root_dir) > 0
-        if !exists("b:vit")
-            let b:vit = {}
-            let b:vit["bufnr"] = bufnr(l:reffile)
+" Repo object {{{
+function! s:GetRepoInfo(file) " {{{
+    let l:reffile_dir = fnamemodify(a:file, ":p:h")
+    let l:root_dir = substitute(system("cd ".l:reffile_dir."; git rev-parse --show-toplevel"), "\n*$", '', '')
+    if v:shell_error == 0 && len(l:root_dir) > 0 && !exists("g:vit_repos") || !has_key(g:vit_repos, l:root_dir)
+        if !exists("g:vit_repos")
+            let g:vit_repos = {}
         endif
 
-        if l:vit_root_dir[0] != "/"
-            let l:vit_root_dir = l:reffile_dir."/".l:vit_root_dir
+        let l:git_dir = substitute(system("cd ".l:reffile_dir."; git rev-parse --git-dir"), "\n*$", '', '')
+        if l:git_dir[0] != "/"
+            let l:git_dir = l:reffile_dir."/".l:git_dir
         endif
 
-        let l:vit_git_dir = substitute(system("cd ".l:reffile_dir."; git rev-parse --git-dir"), "\n*$", '', '')
-        if l:vit_git_dir[0] != "/"
-            let l:vit_git_dir = l:reffile_dir."/".l:vit_git_dir
+        if l:root_dir[0] != "/"
+            let l:root_dir = l:reffile_dir."/".l:root_dir
         endif
 
-        "" Git stuffs
-        let b:vit["worktree"] = l:vit_root_dir
-        let b:vit["gitdir"]   = l:vit_git_dir
-        let b:vit["reffile"]  = l:reffile
+        let l:repo = {}
+        let l:repo["gitdir"]   = l:git_dir
+        let l:repo["worktree"] = l:root_dir
+        let l:repo["branch"]   = function("s:GetBranch")
 
-        "" File paths
-        let l:paths = {}
-        let l:paths["relative"] = substitute(substitute(fnamemodify(l:reffile, ":p"), b:vit.worktree."/", '', ''), '/$', '', '')
-        let l:paths["absolute"] = fnamemodify(l:reffile, ":p")
-        let b:vit["path"] = l:paths
-
-        "" Vit window numbers placeholder
-        let b:vit["windows"] = { "log": -1, "show": -1, "blame": -1, "status": -1, "diff": -1 }
-
-        "" Functions
-        let b:vit["name"]     = function("s:BufferName")
-        let b:vit["execute"]  = function("s:ExecuteGit")
-        let b:vit["branch"]   = function("s:GetBranch")
-        let b:vit["status"]   = function("s:GitStatus")
-        let b:vit["revision"] = function("s:GetFileRevision")
+        let g:vit_repos[l:root_dir] = l:repo
     endif
+    return l:root_dir
 endfunction " }}}
 
 function! s:GetBranch() dict " {{{
     let l:file = readfile(self.gitdir."/HEAD")
     return substitute(l:file[0], 'ref: refs/heads/', '', '')
+endfunction
+" }}}
+
+" Buffer object {{{
+function! s:ConfigureBuffer(file) " {{{
+    let l:repo_key = s:GetRepoInfo(a:file)
+
+    if len(l:repo_key) > 0
+        if !exists("b:vit")
+            let b:vit = {}
+        endif
+        let b:vit["repo"] = g:vit_repos[l:repo_key]
+
+        "" Vit window numbers placeholder
+        let b:vit["windows"] = { "log": -1, "show": -1, "blame": -1, "status": -1, "diff": -1 }
+
+        "" Functions
+        let b:vit["execute"]  = function("s:ExecuteGit")
+        let b:vit["status"]   = function("s:GitStatus")
+        let b:vit["revision"] = function("s:GetFileRevision")
+        let b:vit["winnr"]    = function("s:GetWinnr")
+
+        "" File paths
+        let b:vit["reffile"]  = a:file
+        let b:vit["path"] = {}
+        let b:vit.path["relative"] = substitute(substitute(fnamemodify(b:vit.reffile, ":p"), b:vit.repo.worktree."/", '', ''), '/$', '', '')
+        let b:vit.path["absolute"] = fnamemodify(b:vit.reffile, ":p")
+
+        let b:vit["bufnr"] = bufnr(b:vit.reffile)
+    endif
 endfunction
 " }}}
 
@@ -98,13 +111,13 @@ endfunction " }}}
 
 function! s:ExecuteGit(args) dict " {{{
     if strlen(a:args) > 0
-        " echom "git --git-dir=".self.gitdir." --work-tree=".self.worktree." ".a:args
-        return system("git --git-dir=".self.gitdir." --work-tree=".self.worktree." ".a:args)
+        " echom "git --git-dir=".self.repo.gitdir." --work-tree=".self.repo.worktree." ".a:args
+        return system("git --git-dir=".self.repo.gitdir." --work-tree=".self.repo.worktree." ".a:args)
     endif
 endfunction " }}}
 
-function! s:BufferName() dict " {{{
-    return bufname(self.bufnr)
+function! s:GetWinnr() dict " {{{
+    return bufwinnr(self.bufnr)
 endfunction " }}}
 " }}}
 
@@ -144,7 +157,7 @@ function! vit#Statusline()
         if !exists("b:vit_defined_statusline_highlights")
             call s:StatuslineHighlights()
         endif
-        let l:branch = b:vit.branch()
+        let l:branch = b:vit.repo.branch()
         " echomsg "HERE: ".l:branch
         if len(l:branch) > 0
             let l:status = b:vit.status()
@@ -248,20 +261,15 @@ function! vit#RefreshLogs()
 endfunction " }}}
 
 function! vit#Show(rev) " {{{
-    if len(a:rev) > 0
-        let l:rev = a:rev
-    else
-        let l:rev = b:vit.revision()
-    endif
+    let l:bufnr = b:vit.bufnr
 
-    let l:bufnr = bufnr("%")
     if &lines > 20
         botright new
     else
         botright vnew
     endif
     let b:vit = getbufvar(l:bufnr, "vit")
-    let b:git_revision = l:rev
+    let b:git_revision = len(a:rev) > 0 ? a:rev : b:vit.revision()
     setlocal filetype=VitShow
 endfunction " }}}
 
@@ -269,7 +277,7 @@ function! vit#Status() " {{{
     if exists("b:vit")
         if b:vit.windows.status < 0
             let l:winnr = winnr()
-            let l:bufnr = bufnr("%")
+            let l:bufnr = b:vit.bufnr
             botright vnew
             let b:vit_parent_win = l:winnr
             let b:vit = getbufvar(l:bufnr, "vit")
@@ -380,7 +388,7 @@ endfunction " }}}
 function! vit#Move(newpath) " {{{
     if exists("b:vit")
         let l:bufn = bufnr("%")
-        let l:newpath = substitute(getcwd()."/".a:newpath, b:vit.worktree."/", '', '')
+        let l:newpath = substitute(getcwd()."/".a:newpath, b:vit.repo.worktree."/", '', '')
         call b:vit.execute("mv ".b:vit.path.relative." ".l:newpath)
         if v:shell_error == 0
           execute "edit ".l:newpath

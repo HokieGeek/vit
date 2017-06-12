@@ -13,8 +13,8 @@ let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
 if exists("b:vit")
-    if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.gitdir)
-        let [tabnum, winnum] = g:vit_status_windows[b:vit.gitdir]
+    if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.repo.gitdir)
+        let [tabnum, winnum] = g:vit_status_windows[b:vit.repo.gitdir]
         if tabpagenr() != tabnum || winnr() != winnum
             let vit_status_currbuf = bufnr("%")
             execute "tabnext ".tabnum
@@ -27,7 +27,7 @@ if exists("b:vit")
         if !exists("g:vit_status_windows")
             let g:vit_status_windows = {}
         endif
-        let g:vit_status_windows[b:vit.gitdir] = [tabpagenr(), winnr()]
+        let g:vit_status_windows[b:vit.repo.gitdir] = [tabpagenr(), winnr()]
     endif
 
     let b:vit.windows.status = bufnr("%")
@@ -68,8 +68,8 @@ augroup VitStatus
     autocmd FocusGained,BufWritePost * call vit#RefreshStatuses()
     autocmd BufDelete,BufWipeout <buffer> autocmd! VitStatus
     autocmd BufWinLeave <buffer> let b:vit.windows.status = -1
-                                \ | if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.gitdir)
-                                \ | unlet g:vit_status_windows[b:vit.gitdir]
+                                \ | if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.repo.gitdir)
+                                \ | unlet g:vit_status_windows[b:vit.repo.gitdir]
                                 \ | endif
     autocmd VimResized <buffer> execute "vertical resize ".b:max_cols
 augroup END
@@ -82,7 +82,7 @@ endfunction
 
 execute "silent! file ".fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
 
-autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:vit.branch()
+autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:vit.repo.branch()
 
 nnoremap <buffer> <silent> + :call vit#Add(GetFileAtCursor())<cr>
 vnoremap <buffer> <silent> + :call vit#Add(GetFileAtCursor())<cr><cr>
