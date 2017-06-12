@@ -38,6 +38,8 @@ endfunction
 autocmd CursorMoved <buffer> call s:LoadStashInfo(GetStashIdUnderCursor())
 
 botright new
+autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=\ 
+setlocal statusline=\ 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
 set filetype=VitStashInfo
 let s:stash_diff_viewer=winnr()
@@ -48,3 +50,18 @@ if len(getline(1, "$")) > 8
 else
     execute "resize ".string(len(getline(1, "$")) + 1)
 endif
+
+function! VitStashInfo()
+    let l:toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
+
+    if tabpagenr("$") == 1
+        execute "setlocal statusline=".l:toplevel."%=%l/%L"
+    else
+        execute "silent! file ".l:toplevel
+        setlocal statusline=%=%l/%L
+    endif
+
+endfunction
+autocmd WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitStashInfo()
+autocmd TabLeave * call VitStashInfo()
+call VitStashInfo()
