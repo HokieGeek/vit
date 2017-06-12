@@ -183,10 +183,11 @@ function! VitLogInfo()
         let l:line = b:vit.branch()
     endif
 
-    execute "setlocal statusline=".l:line
+    execute "setlocal statusline=".l:line."%=%l/%L"
 endfunction
-
 autocmd WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitLogInfo()
+autocmd TabLeave * call VitLogInfo()
+call VitLogInfo()
 
 nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
 " nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
