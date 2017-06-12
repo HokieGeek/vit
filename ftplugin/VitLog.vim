@@ -41,8 +41,11 @@ function! VitLoadLog()
         let b:log = "* 0000000 - %Unstaged modifications%\n".b:log
     endif
 
+    let l:currline=line(".")
+    silent! 1,$d
     silent! put =b:log
     0d_
+    execute l:currline
     setlocal nomodifiable
 endfunction
 call VitLoadLog()
