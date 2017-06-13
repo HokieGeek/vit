@@ -14,8 +14,7 @@ if exists("&relativenumber")
 endif
 
 let b:vit.windows.log = bufnr("%")
-let b:reffile_winnr = bufwinnr(b:vit.bufnr)
-let b:vit_log_entry_cache = {}
+let b:vit_reffile_winnr = b:vit.winnr()
 
 if len(b:vit.reffile) > 0
     let b:file = " -- ".b:vit.path.absolute
@@ -93,8 +92,20 @@ function! s:SkipNonCommits(func) " {{{
     endif
 endfunction " }}}
 
+function! VitLogLoadShowByRev(rev) " {{{
+    if b:vit.windows.show == -1
+        call vit#ShowWindow(a:rev)
+    else
+        execute bufwinnr(b:vit.windows.show)." wincmd w"
+        let l:vit = b:vit
+        enew
+        let b:vit = l:vit
+        call vit#Show(a:rev, b:vit.bufnr)
+    endif
+endfunction " }}}
+
 if exists("t:vit_log_standalone") " {{{
-    " Deletes the window with the empty buffer TODO: get rid of this silliness
+    " Deletes the window with the empty buffer
     if bufnr("$") > 1
         bdelete #
     endif
@@ -103,33 +114,7 @@ if exists("t:vit_log_standalone") " {{{
         execute "resize ".string(&lines * 0.60)
     endif
 
-    function! s:LoadLogEntry(rev)
-        if b:vit.windows.show == -1
-            call vit#ShowWindow(a:rev)
-        else
-            if has_key(b:vit_log_entry_cache, a:rev)
-                let l:cached_buf = b:vit_log_entry_cache[a:rev]
-            endif
-            execute bufwinnr(b:vit.windows.show)." wincmd w"
-            if exists("l:cached_buf") && bufexists(l:cached_buf) " FIXME: stop the wipe!
-                execute "buffer ".l:cached_buf
-            else
-                execute bufwinnr(b:vit.windows.show)." wincmd w"
-                let l:vit = b:vit
-                enew
-                let b:vit = l:vit
-                call vit#Show(a:rev, b:vit.bufnr)
-                " setlocal bufhidden=hide
-                let l:new_cache = bufnr("%")
-            endif
-        endif
-        wincmd p
-        if exists("l:new_cache")
-            let b:vit_log_entry_cache[a:rev] = l:new_cache
-        endif
-    endfunction
-
-    autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:LoadLogEntry"))
+    autocmd CursorMoved <buffer> call s:SkipNonCommits(function("VitLogLoadShowByRev")) | wincmd p
 " }}}
 else " {{{
     if len(getline(1, "$")) > 15
@@ -140,7 +125,7 @@ else " {{{
 
     function! s:CheckoutFileAtRevision(rev)
         let l:vit = b:vit
-        execute b:reffile_winnr." wincmd w"
+        execute b:vit_reffile_winnr." wincmd w"
         if a:rev == "0000000"
             execute "buffer ".l:vit.bufnr
         else
@@ -156,13 +141,12 @@ else " {{{
     endfunction
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:CheckoutFileAtRevision"))
-    execute "autocmd BufWinLeave <buffer> "b:reffile_winnr." wincmd w | buffer ".b:vit.bufnr
-    autocmd BufWinLeave <buffer> let b:vit.windows.log = -1
+    execute "autocmd BufWinLeave <buffer> ".b:vit_reffile_winnr." wincmd w | buffer ".b:vit.bufnr
 
-    nnoremap <buffer> <silent> <enter> :call vit#ShowWindow(GetRevUnderCursor())<cr>
+    nnoremap <buffer> <silent> <enter> :call VitLogLoadShowByRev(GetRevUnderCursor())<cr>
 endif " }}}
 
-function! VitLogInfo()
+function! VitLogInfo() " {{{
     let l:toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
 
     if tabpagenr("$") == 1
@@ -176,13 +160,14 @@ function! VitLogInfo()
 endfunction
 autocmd WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitLogInfo()
 autocmd TabLeave * call VitLogInfo()
-call VitLogInfo()
+call VitLogInfo() " }}}
 
+autocmd BufWinLeave <buffer> let b:vit.windows.log = -1
+
+" Swaps the time field in the log from relative to ISO 8601-like
+nnoremap <buffer> <silent> T :let b:timeformat = b:timeformat =~ "cr" ? "\%ci" : "\%cr"<bar>call VitLoadLog()<cr>
 nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
 " nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
-" ISO 8601-like
-nnoremap <buffer> <silent> T :let b:timeformat = b:timeformat =~ "cr" ? "\%ci" : "\%cr"<bar>call VitLoadLog()<cr>
-
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j

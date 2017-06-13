@@ -18,7 +18,6 @@ function! vit#init() " {{{
     call s:ConfigureBuffer(expand("%"))
 endfunction " }}}
 
-" Repo object {{{
 function! s:GetRepoInfo(file) " {{{
     let l:reffile_dir = fnamemodify(a:file, ":p:h")
 
@@ -36,19 +35,16 @@ function! s:GetRepoInfo(file) " {{{
         let l:repo = {}
         let l:repo["worktree"] = l:dirs[0]
         let l:repo["gitdir"]   = l:dirs[1]
-        let l:repo["branch"]   = function("s:GetBranch")
+
+        function! l:repo.branch() dict
+            let l:file = readfile(self.gitdir."/HEAD")
+            return substitute(l:file[0], 'ref: refs/heads/', '', '')
+        endfunction
 
         let g:vit_repos[l:dirs[0]] = l:repo
     endif
     return l:dirs[0]
 endfunction " }}}
-
-function! s:GetBranch() dict " {{{
-    let l:file = readfile(self.gitdir."/HEAD")
-    return substitute(l:file[0], 'ref: refs/heads/', '', '')
-endfunction
-" }}}
-" }}}
 
 " Buffer object {{{
 function! s:ConfigureBuffer(file) " {{{
@@ -63,11 +59,40 @@ function! s:ConfigureBuffer(file) " {{{
         "" Vit window numbers placeholder
         let b:vit["windows"] = { "log": -1, "show": -1, "blame": -1, "status": -1, "diff": -1 }
 
-        "" Functions
-        let b:vit["execute"]  = function("s:ExecuteGit")
-        let b:vit["status"]   = function("s:GitStatus")
-        let b:vit["revision"] = function("s:GetFileRevision")
-        let b:vit["winnr"]    = function("s:GetWinnr")
+        "" Functions " {{{
+        function! b:vit.revision() dict
+            return self.execute("--no-pager log --no-color -n 1 --pretty=format:%H -- ".self.paths.absolute)
+        endfunction
+
+        function! b:vit.status() dict
+            let l:status = self.execute("status --porcelain -- ".self.path.absolute)
+
+            if strlen(l:status) == 0
+                return 1 " Clean
+            elseif l:status[0] == '?'
+                return 2 " Untracked
+            elseif l:status[1] ==# 'M'
+                return 3 " Modified
+            elseif l:status[0] != ' '
+                return 4 " Staged
+            elseif l:status =~ '^fatal'
+                return 0 " Not a git repo
+            else
+                return -1 " foobar
+            endif
+        endfunction
+
+        function! b:vit.execute(args) dict
+            if strlen(a:args) > 0
+                " echom "git --git-dir=".self.repo.gitdir." --work-tree=".self.repo.worktree." ".a:args
+                return system("git --git-dir=".self.repo.gitdir." --work-tree=".self.repo.worktree." ".a:args)
+            endif
+        endfunction
+
+        function! b:vit.winnr() dict "
+            return bufwinnr(self.bufnr)
+        endfunction
+        " }}}
 
         "" File paths
         let b:vit["reffile"]  = a:file
@@ -81,40 +106,6 @@ function! s:ConfigureBuffer(file) " {{{
         command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call vit#Git(<f-args>)
     endif
 endfunction
-" }}}
-
-function! s:GetFileRevision() dict " {{{
-    return self.execute("--no-pager log --no-color -n 1 --pretty=format:%H -- ".self.paths.absolute)
-endfunction " }}}
-
-function! s:GitStatus() dict " {{{
-    let l:status = self.execute("status --porcelain -- ".self.path.absolute)
-
-    if strlen(l:status) == 0
-        return 1 " Clean
-    elseif l:status[0] == '?'
-        return 2 " Untracked
-    elseif l:status[1] ==# 'M'
-        return 3 " Modified
-    elseif l:status[0] != ' '
-        return 4 " Staged
-    elseif l:status =~ '^fatal'
-        return 0 " Not a git repo
-    else
-        return -1 " foobar
-    endif
-endfunction " }}}
-
-function! s:ExecuteGit(args) dict " {{{
-    if strlen(a:args) > 0
-        " echom "git --git-dir=".self.repo.gitdir." --work-tree=".self.repo.worktree." ".a:args
-        return system("git --git-dir=".self.repo.gitdir." --work-tree=".self.repo.worktree." ".a:args)
-    endif
-endfunction " }}}
-
-function! s:GetWinnr() dict " {{{
-    return bufwinnr(self.bufnr)
-endfunction " }}}
 " }}}
 
 " Helpers " {{{
@@ -257,7 +248,6 @@ function! vit#RefreshLogs()
 endfunction " }}}
 
 function! vit#ShowWindow(rev) " {{{
-    echom "vit#ShowWindow(".a:rev.")"
     let l:bufnr = b:vit.bufnr
 
     if &lines > 20
