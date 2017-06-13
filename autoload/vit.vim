@@ -46,7 +46,6 @@ function! s:GetRepoInfo(file) " {{{
     return l:dirs[0]
 endfunction " }}}
 
-" Buffer object {{{
 function! s:ConfigureBuffer(file) " {{{
     let l:repo_key = s:GetRepoInfo(a:file)
 
@@ -358,7 +357,6 @@ function! vit#CheckoutCurrentFile(rev)
     call vit#Checkout(a:rev, l:file)
     edit l:file
 endfunction " }}}
-
 
 function! vit#Stash(args) " {{{
     let l:out = b:vit.execute("stash ".a:args)
