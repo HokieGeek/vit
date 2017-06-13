@@ -1,6 +1,4 @@
 if exists("b:vit_reload")
-    setlocal modifiable
-    silent! 1,$d
     unlet! b:autoloaded_vit_log
 endif
 
@@ -105,22 +103,30 @@ if exists("t:vit_log_standalone") " {{{
         execute "resize ".string(&lines * 0.60)
     endif
 
-    if !exists("b:vit_log_lastline")
-        let b:vit_log_lastline = 0
-    endif
-
     function! s:LoadLogEntry(rev)
-        " TODO: caching
         if b:vit.windows.show == -1
             call vit#ShowWindow(a:rev)
         else
+            if has_key(b:vit_log_entry_cache, a:rev)
+                let l:cached_buf = b:vit_log_entry_cache[a:rev]
+            endif
             execute bufwinnr(b:vit.windows.show)." wincmd w"
-            let l:vit = b:vit
-            enew
-            let b:vit = l:vit
-            call vit#Show(a:rev, b:vit.bufnr)
+            if exists("l:cached_buf") && bufexists(l:cached_buf) " FIXME: stop the wipe!
+                execute "buffer ".l:cached_buf
+            else
+                execute bufwinnr(b:vit.windows.show)." wincmd w"
+                let l:vit = b:vit
+                enew
+                let b:vit = l:vit
+                call vit#Show(a:rev, b:vit.bufnr)
+                " setlocal bufhidden=hide
+                let l:new_cache = bufnr("%")
+            endif
         endif
         wincmd p
+        if exists("l:new_cache")
+            let b:vit_log_entry_cache[a:rev] = l:new_cache
+        endif
     endfunction
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:LoadLogEntry"))
