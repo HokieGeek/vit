@@ -267,7 +267,7 @@ function! vit#ShowWindow(rev) " {{{
     endif
     call vit#Show(a:rev, l:bufnr)
 endfunction
-function! vit#Show(rev, bufnr) " {{{
+function! vit#Show(rev, bufnr)
     let b:vit = getbufvar(a:bufnr, "vit")
     let b:git_revision = len(a:rev) > 0 ? a:rev : b:vit.revision()
     setlocal filetype=VitShow
