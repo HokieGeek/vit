@@ -1,7 +1,6 @@
-if exists("b:autoloaded_vit_show") || v:version < 700
+if v:version < 700
     finish
 endif
-let b:autoloaded_vit_show = 1
 scriptencoding utf-8
 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist nocursorline nonumber
@@ -9,11 +8,7 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-if b:vit.windows.show == -1
-    let b:vit.windows.show = bufnr("%")
-else
-    execute bufwinnr(b:vit.windows.show)." wincmd w"
-endif
+let b:vit.windows.show = bufnr("%")
 
 if exists("b:git_revision")
     let b:vit_content = b:vit.execute("show --submodule=log ".b:git_revision." ".fnamemodify(b:vit.path.absolute, ":."))

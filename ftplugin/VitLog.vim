@@ -27,7 +27,7 @@ endif
 
 let b:timeformat="\%cr" " Relative time
 
-function! VitLoadLog()
+function! VitLoadLog() " {{{
     setlocal modifiable
     let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>'".b:file)
     if strlen(b:log) <= 0
@@ -48,7 +48,7 @@ function! VitLoadLog()
     execute l:currline
     setlocal nomodifiable
 endfunction
-call VitLoadLog()
+call VitLoadLog() " }}}
 
 if exists("b:vit_reload")
     unlet! b:vit_reload
@@ -96,47 +96,30 @@ function! s:SkipNonCommits(func) " {{{
 endfunction " }}}
 
 if exists("t:vit_log_standalone") " {{{
+    " Deletes the window with the empty buffer TODO: get rid of this silliness
     if bufnr("$") > 1
         bdelete #
     endif
 
-    " Create the new window to use for the git show output
-    let s:vit = b:vit
     if &lines > 20
-        botright new
         execute "resize ".string(&lines * 0.60)
-    else
-        botright vnew
     endif
-
-    let b:vit = s:vit
-
-    setlocal filetype=VitShow buftype=nofile bufhidden=wipe nobuflisted noswapfile
-    wincmd p
 
     if !exists("b:vit_log_lastline")
         let b:vit_log_lastline = 0
     endif
 
     function! s:LoadLogEntry(rev)
-        if has_key(b:vit_log_entry_cache, a:rev)
-            let l:rev_entry = b:vit_log_entry_cache[a:rev]
+        " TODO: caching
+        if b:vit.windows.show == -1
+            call vit#ShowWindow(a:rev)
         else
-            let l:rev_entry = b:vit.execute("show --submodule=log ".a:rev)
-            let b:vit_log_entry_cache[a:rev] = l:rev_entry
+            execute bufwinnr(b:vit.windows.show)." wincmd w"
+            let l:vit = b:vit
+            enew
+            let b:vit = l:vit
+            call vit#Show(a:rev, b:vit.bufnr)
         endif
-
-        " Switch to the VitShow window and paste the new output
-        execute bufwinnr(b:vit.windows.show)." wincmd w"
-        setlocal modifiable
-        let b:git_revision = a:rev
-
-        " Remove old entry and add new one
-        silent! 1,$d
-        silent! put =l:rev_entry
-        silent! 0d_
-
-        setlocal nomodifiable
         wincmd p
     endfunction
 
@@ -170,7 +153,7 @@ else " {{{
     execute "autocmd BufWinLeave <buffer> "b:reffile_winnr." wincmd w | buffer ".b:vit.bufnr
     autocmd BufWinLeave <buffer> let b:vit.windows.log = -1
 
-    nnoremap <buffer> <silent> <enter> :call vit#Show(GetRevUnderCursor())<cr>
+    nnoremap <buffer> <silent> <enter> :call vit#ShowWindow(GetRevUnderCursor())<cr>
 endif " }}}
 
 function! VitLogInfo()

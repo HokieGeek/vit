@@ -256,7 +256,8 @@ function! vit#RefreshLogs()
     call map(l:windows, 'vit#RefreshLog(winbufnr(v:val))')
 endfunction " }}}
 
-function! vit#Show(rev) " {{{
+function! vit#ShowWindow(rev) " {{{
+    echom "vit#ShowWindow(".a:rev.")"
     let l:bufnr = b:vit.bufnr
 
     if &lines > 20
@@ -264,7 +265,10 @@ function! vit#Show(rev) " {{{
     else
         botright vnew
     endif
-    let b:vit = getbufvar(l:bufnr, "vit")
+    call vit#Show(a:rev, l:bufnr)
+endfunction
+function! vit#Show(rev, bufnr) " {{{
+    let b:vit = getbufvar(a:bufnr, "vit")
     let b:git_revision = len(a:rev) > 0 ? a:rev : b:vit.revision()
     setlocal filetype=VitShow
 endfunction " }}}

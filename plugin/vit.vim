@@ -35,7 +35,7 @@ function! vit#Git(...) " {{{
             elseif a:1 ==# "log" || a:1 ==# "lg"
                 call vit#Log(b:vit.path.relative)
             elseif a:1 ==# "show"
-                call vit#Show(a:2)
+                call vit#ShowWindow(a:2)
             elseif a:1 ==# "status" || a:1 ==# "st"
                 call vit#Status()
             elseif a:1 ==# "add"
