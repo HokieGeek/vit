@@ -151,19 +151,19 @@ else " {{{
 endif " }}}
 
 function! VitLogInfo() " {{{
-    let l:toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
-
     if tabpagenr("$") == 1
-        let l:line = l:toplevel.":".b:vit.repo.branch()
+        let l:line = b:vit_toplevel.":".b:vit.repo.branch()
     else
-        execute "silent! file ".l:toplevel
         let l:line = b:vit.repo.branch()
     endif
 
     execute "setlocal statusline=".l:line."%=%l/%L"
 endfunction
-autocmd WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitLogInfo()
-autocmd TabLeave * call VitLogInfo()
+
+let b:vit_toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
+execute "file ".b:vit_toplevel
+
+autocmd TabLeave,WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitLogInfo()
 call VitLogInfo() " }}}
 
 autocmd BufWinLeave <buffer> let b:vit.windows.log = -1

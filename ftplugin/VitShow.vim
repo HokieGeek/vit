@@ -69,7 +69,7 @@ endfunction
 command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitShow#Git(<f-args>)
 " }}}
 
-function! GetVitShowStatusLine()
+function! GetVitShowStatusLine() " {{{
     let l:summary=""
     if exists("b:git_revision")
         let l:summary=split(b:vit.execute("show --oneline --shortstat --no-color ".b:git_revision), "\n")[-1]
@@ -77,7 +77,7 @@ function! GetVitShowStatusLine()
     return l:summary."%=%l/%L"
 endfunction
 autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=%!GetVitShowStatusLine()
-setlocal statusline=%!GetVitShowStatusLine()
+setlocal statusline=%!GetVitShowStatusLine() " }}}
 
 if exists("b:git_revision")
     execute "silent! file Show\ ".b:git_revision
