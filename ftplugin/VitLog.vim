@@ -1,32 +1,22 @@
-if exists("b:vit_reload")
-    unlet! b:autoloaded_vit_log
-endif
-
-if exists("b:autoloaded_vit_log") || v:version < 700
+if v:version < 700
     finish
 endif
-let b:autoloaded_vit_log = 1
 scriptencoding utf-8
 
-wincmd k
-wincmd x
+if !exists("b:autoloaded_vit_log")
+    wincmd k
+    wincmd x
+
+    let b:vit.windows.log = bufnr("%")
+    let b:vit_reffile_winnr = b:vit.winnr()
+    let b:timeformat="\%cr" " Relative time
+endif
+let b:autoloaded_vit_log = 1
 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist cursorline nonumber
 if exists("&relativenumber")
     setlocal norelativenumber
 endif
-
-let b:vit.windows.log = bufnr("%")
-let b:vit_reffile_winnr = b:vit.winnr()
-
-if !exists("b:vit_log_args")
-    let b:vit_log_args = ""
-endif
-if len(b:vit.reffile) > 0
-    let b:vit_log_args .= " -- ".b:vit.path.absolute
-endif
-
-let b:timeformat="\%cr" " Relative time
 
 function! VitLoadLog() " {{{
     setlocal modifiable
@@ -42,19 +32,22 @@ function! VitLoadLog() " {{{
         let b:log = "* 0000000 - %Unstaged modifications%\n".b:log
     endif
 
-    " let l:currline=line(".")
+    let l:currline=line(".")
     silent! 1,$d
     silent! put =b:log
     0d_
-    " execute l:currline
+    execute l:currline
     setlocal nomodifiable
-endfunction
-call VitLoadLog() " }}}
+endfunction " }}}
 
-if exists("b:vit_reload")
-    unlet! b:vit_reload
-    finish
+if !exists("b:vit_log_args")
+    let b:vit_log_args = ""
 endif
+if len(b:vit.reffile) > 0
+    let b:vit_log_args .= " -- ".b:vit.path.absolute
+endif
+
+call VitLoadLog()
 
 if !exists("b:vit_log_lastline")
     let b:vit_log_lastline = 0

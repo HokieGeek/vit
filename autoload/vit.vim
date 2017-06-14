@@ -301,17 +301,13 @@ function! vit#Log(file, ...) " {{{
             endif
             setlocal filetype=VitLog
         else
-            call vit#RefreshLog(b:vit.windows.log)
+            call setbufvar(b:vit.windows.log, '&filetype', 'VitLog')
         endif
     endif
 endfunction
-function! vit#RefreshLog(buf_num)
-    call setbufvar(a:buf_num, 'vit_reload', 1)
-    call setbufvar(a:buf_num, '&filetype', 'VitLog')
-endfunction
 function! vit#RefreshLogs()
     let l:windows = filter(range(1, winnr('$')), 'getbufvar(winbufnr(v:val), "&filetype") == "VitLog"')
-    call map(l:windows, 'vit#RefreshLog(winbufnr(v:val))')
+    call map(l:windows, "setbufvar(winbufnr(v:val), '&filetype', 'VitLog')")
 endfunction " }}}
 
 function! vit#ShowWindow(rev) " {{{
@@ -394,11 +390,10 @@ function! vit#Commit(args) " {{{
     endif
 endfunction
 function! vit#PerformCommit(args)
-    " echom "vit#PerformCommit(".a:args.")"
     call b:vit.execute("commit ".a:args)
     echomsg "Successfully committed"
     call vit#RefreshStatuses()
-    " call vit#RefreshLogs()
+    call vit#RefreshLogs()
 endfunction " }}}
 
 function! vit#Reset(args) " {{{
@@ -418,7 +413,7 @@ endfunction " }}}
 function! vit#Checkout(args) " {{{
     call b:vit.execute("checkout ".a:args)
     call vit#RefreshStatuses()
-    " call vit#RefreshLogs()
+    call vit#RefreshLogs()
 endfunction
 function! vit#CheckoutCurrentFile(rev)
     let l:file = expand("%:p")
