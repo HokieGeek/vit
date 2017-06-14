@@ -2,7 +2,6 @@ if exists("b:vit_reload")
     unlet! b:autoloaded_vit_log
 endif
 
-" if exists("b:autoloaded_vit_log") || !exists("b:vit_reload") || v:version < 700
 if exists("b:autoloaded_vit_log") || v:version < 700
     finish
 endif
@@ -43,11 +42,11 @@ function! VitLoadLog() " {{{
         let b:log = "* 0000000 - %Unstaged modifications%\n".b:log
     endif
 
-    let l:currline=line(".")
+    " let l:currline=line(".")
     silent! 1,$d
     silent! put =b:log
     0d_
-    execute l:currline
+    " execute l:currline
     setlocal nomodifiable
 endfunction
 call VitLoadLog() " }}}
@@ -166,7 +165,7 @@ function! VitLogInfo() " {{{
 endfunction
 
 let b:vit_toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
-execute "file ".b:vit_toplevel
+execute "silent! file ".b:vit_toplevel
 
 autocmd TabLeave,WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitLogInfo()
 call VitLogInfo() " }}}
@@ -176,7 +175,7 @@ autocmd BufWinLeave <buffer> let b:vit.windows.log = -1
 " Swaps the time field in the log from relative to ISO 8601-like
 nnoremap <buffer> <silent> T :let b:timeformat = b:timeformat =~ "cr" ? "\%ci" : "\%cr"<bar>call VitLoadLog()<cr>
 nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
-" nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
+nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j
