@@ -297,7 +297,7 @@ function! vit#Commit(args) " {{{
     let l:currFileStatus = b:vit.status()
     if l:currFileStatus == 2 || l:currFileStatus == 3
         if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
-            call vit#Add(expand("%"))
+            call vit#Add(b:vit.reffile)
         endif
     endif
 
