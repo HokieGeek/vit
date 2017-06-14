@@ -20,17 +20,18 @@ endif
 let b:vit.windows.log = bufnr("%")
 let b:vit_reffile_winnr = b:vit.winnr()
 
+if !exists("b:vit_log_args")
+    let b:vit_log_args = ""
+endif
 if len(b:vit.reffile) > 0
-    let b:file = " -- ".b:vit.path.absolute
-else
-    let b:file = ""
+    let b:vit_log_args .= " -- ".b:vit.path.absolute
 endif
 
 let b:timeformat="\%cr" " Relative time
 
 function! VitLoadLog() " {{{
     setlocal modifiable
-    let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>'".b:file)
+    let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>' ".b:vit_log_args)
     if strlen(b:log) <= 0
         echohl WarningMsg
         echom "No log was generated"

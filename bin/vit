@@ -21,6 +21,14 @@ elif [[ ${vimargs[*]} =~ "blame" ]] && (( ${#args[*]} == 0 )); then
     exit 2
 fi
 
+if (( ${#args[@]} > 0 )) && [[ ${args[@]} =~ all ]]; then
+    # TODO: refactor this so that it doesn't break the syntax highlighting in vim
+    [[ ${vimargs[*]} =~ "log" ]] && vimargs=("${vimargs[@]/log/log --all}")
+    [[ ${vimargs[*]} =~ "k" ]] && vimargs=("${vimargs[@]/k/k --all}")
+    delete=(--all)
+    args=(${args[@]/$delete})
+fi
+
 (( ${#args[*]} > 0 )) && {
     origdir=$PWD
     filedir=${1%/*}

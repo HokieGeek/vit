@@ -34,7 +34,7 @@ function! s:Git(...) " {{{
             elseif a:1 ==# "blame"
                 call vit#Blame(b:vit.path.relative)
             elseif a:1 ==# "log" || a:1 ==# "lg"
-                call vit#Log(b:vit.path.relative)
+                call vit#Log(b:vit.path.relative, a:0 == 2 && a:2 == "--all" ? a:2 : "")
             elseif a:1 ==# "show"
                 call vit#ShowWindow(a:2)
             elseif a:1 ==# "status" || a:1 ==# "st"
@@ -67,8 +67,8 @@ function! s:Git(...) " {{{
             elseif a:1 ==# "k"
                 tabnew
                 let t:vit_log_standalone=1
-                call vit#Log(b:vit.path.relative)
-                call vit#Status()
+                call s:Git("log", a:0 == 2 ? a:2 : "")
+                call s:Git("status")
                 wincmd t
             else
                 echohl WarningMsg
@@ -288,10 +288,13 @@ function! vit#Blame(file) " {{{
     endif
 endfunction " }}}
 
-function! vit#Log(file) " {{{
+function! vit#Log(file, ...) " {{{
     if exists("b:vit")
         if b:vit.windows.log < 0
             new
+            if a:0 > 0
+                let b:vit_log_args = join(a:000, ' ')
+            endif
             let l:bufn = bufnr(a:file)
             if l:bufn >= 0
                 let b:vit = getbufvar(l:bufn, "vit")
