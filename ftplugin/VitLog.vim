@@ -35,7 +35,7 @@ function! VitLoadLog() " {{{
         echohl WarningMsg
         echom "No log was generated"
         echohl None
-        finish
+        return
     endif
 
     if len(b:vit.reffile) > 0 && b:vit.status() == 3
@@ -133,13 +133,17 @@ else " {{{
         if a:rev == "0000000"
             execute "buffer ".l:vit.bufnr
         else
-            let l:fileRev = l:vit.execute("show ".a:rev.":".l:vit.path.relative)
+            let l:line = line(".")
             enew
+
             let b:vit = l:vit
-            setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+            let l:fileRev = b:vit.execute("show ".a:rev.":".b:vit.path.relative)
             silent! put =l:fileRev
             silent! 0d_
-            filetype detect
+
+            setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+            execute "setlocal filetype=".getbufvar(b:vit.bufnr, "&filetype")
+            execute "normal ".l:line."gg"
         endif
         wincmd p
     endfunction
