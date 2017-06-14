@@ -4,6 +4,9 @@ endif
 let b:autoloaded_vit_blame = 1
 scriptencoding utf-8
 
+wincmd h
+wincmd x
+
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
 
 let b:vit.windows.blame = bufnr("%")
@@ -45,6 +48,7 @@ augroup VitBlame
     autocmd CursorMoved <buffer> call s:MoveWindowCursor(bufwinnr(b:vit.bufnr))
     execute "autocmd CursorMoved <buffer=".b:vit.bufnr."> call s:MoveWindowCursor(".winnr().")"
     execute "autocmd BufWinLeave <buffer> ".bufwinnr(b:vit.bufnr)." wincmd w | silent loadview 9 | let b:vit.windows.blame=-1"
+    autocmd BufWinLeave <buffer> autocmd! VitBlame
 augroup END
 " }}}
 

@@ -2,11 +2,15 @@ if exists("b:vit_reload")
     unlet! b:autoloaded_vit_log
 endif
 
+" if exists("b:autoloaded_vit_log") || !exists("b:vit_reload") || v:version < 700
 if exists("b:autoloaded_vit_log") || v:version < 700
     finish
 endif
 let b:autoloaded_vit_log = 1
 scriptencoding utf-8
+
+wincmd k
+wincmd x
 
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable nolist cursorline nonumber
 if exists("&relativenumber")

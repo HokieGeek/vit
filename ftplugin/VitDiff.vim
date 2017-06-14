@@ -4,6 +4,9 @@ endif
 let b:autoloaded_vit_diff = 1
 scriptencoding utf-8
 
+wincmd h
+wincmd x
+
 setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile modifiable
 
 if !exists("b:git_revision")

@@ -174,7 +174,7 @@ function! vit#Diff(file, rev) " {{{
         echomsg "Cannot perform a diff against a directory"
         echohl None
     else
-        topleft vnew
+        vnew
         let b:vit = getbufvar(bufnr(a:file), "vit")
         let b:git_revision = a:rev
         setlocal filetype=VitDiff
@@ -215,7 +215,7 @@ endfunction " }}}
 
 function! vit#Blame(file) " {{{
     if exists("b:vit") && b:vit.windows.blame < 0
-        topleft vnew
+        vnew
         let b:vit = getbufvar(bufnr(a:file), "vit")
         set filetype=VitBlame
         wincmd p
@@ -226,7 +226,7 @@ endfunction " }}}
 function! vit#Log(file) " {{{
     if exists("b:vit")
         if b:vit.windows.log < 0
-            topleft new
+            new
             let l:bufn = bufnr(a:file)
             if l:bufn >= 0
                 let b:vit = getbufvar(l:bufn, "vit")
