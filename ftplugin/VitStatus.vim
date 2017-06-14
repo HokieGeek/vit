@@ -47,7 +47,11 @@ unlet! b:vit_lastline
 
 " Set width of the window based on the widest text
 setlocal winminwidth=20
+let b:max_width = 50
 let b:max_cols = max(map(getline(1, "$"), "len(v:val)"))
+if b:max_cols > b:max_width
+    let b:max_cols = b:max_width
+endif
 execute "vertical resize ".b:max_cols
 
 if getline(1) =~ "^##"
@@ -91,5 +95,9 @@ nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileAtCursor(), "HEAD")
 nnoremap <buffer> <silent> D :let first_tab = tabpagenr() + 1
             \<bar>call map(filter(getline(1, "$"), "v:val !~ \"^##\""), "vit#OpenFileAsDiff(split(v:val)[1], \"HEAD\")")
             \<bar>execute "tabnext ".first_tab<bar>unlet first_tab<cr>
+
+" Makes way more sense to make sure that gj/gk aren't used by default when wrapping
+nnoremap <buffer> j j
+nnoremap <buffer> k k
 
 " vim: set foldmethod=marker formatoptions-=tc:
