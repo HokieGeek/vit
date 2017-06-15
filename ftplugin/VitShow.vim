@@ -58,15 +58,15 @@ function! VitShow#Git(...) " {{{
     " echomsg "VitShow#Git(".string(a:000).")"
     if a:0 > 0
         if a:1 ==# "reset"
-            call vit#Reset(join(a:000[1:], ' '). " ".GetRevFromBlame())
+            call vit#commands#Reset(join(a:000[1:], ' '). " ".GetRevFromBlame())
         else
-            call vit#Git(join(a:000, ' '))
+            call vit#config#git(join(a:000, ' '))
         endif
     else
-        call vit#Git()
+        call vit#config#git()
     endif
 endfunction
-command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitShow#Git(<f-args>)
+command! -bar -buffer -complete=customlist,vit#config#gitCompletion -nargs=* Git :call VitShow#Git(<f-args>)
 " }}}
 
 function! GetVitShowStatusLine() " {{{
@@ -83,8 +83,8 @@ if exists("b:git_revision")
     execute "silent! file Show\ ".b:git_revision
 endif
 
-nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileUnderCursor(), b:git_revision."~1", b:git_revision)<cr>
-nnoremap <buffer> <silent> D :call vit#OpenFilesInRevisionAsDiff(b:git_revision)<cr>
+nnoremap <buffer> <silent> d :call vit#windows#OpenFileAsDiff(GetFileUnderCursor(), b:git_revision."~1", b:git_revision)<cr>
+nnoremap <buffer> <silent> D :call vit#windows#OpenFilesInRevisionAsDiff(b:git_revision)<cr>
 
 nnoremap <buffer> <silent> o :execute "tabedit ".fnamemodify(GetFileUnderCursor(), ":p:.")<cr>
 nnoremap <buffer> <silent> O :call OpenFilesFromShow()<cr>

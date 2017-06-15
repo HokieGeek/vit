@@ -20,7 +20,7 @@ function! VitCommit#GitCommitFinish()
     " Check the size of the file. If it's empty or blank, we don't commmit
     if len(readfile(b:filename)) > 0
         let l:file_args = "--file=".b:filename." ".b:vit_commit_args
-        call vit#PerformCommit(l:file_args)
+        call vit#commands#PerformCommit(l:file_args)
     else
         echohl WarningMsg
         echomsg "Cannot commit without a commit message"

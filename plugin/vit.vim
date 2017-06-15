@@ -14,12 +14,11 @@ function! VitInit()
         return
     endif
 
-    call vit#ConfigureBuffer(expand("%"))
-    " call vit#RefreshStatuses()
+    call vit#config#buffer(expand("%"))
 endfunction
 
 function! vit#Statusline()
-    return vit#StatuslineGet()
+    return vit#statusline#get()
 endfunction
 
 autocmd BufWinEnter * call VitInit()

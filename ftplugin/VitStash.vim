@@ -11,7 +11,7 @@ endif
 
 let b:vit.windows.stash = bufnr("%")
 
-let b:content=vit#Stash("list")
+let b:content=vit#commands#Stash("list")
 if strlen(b:content) <= 0
     echohl WarningMsg
     echom "No stash entries were generated"

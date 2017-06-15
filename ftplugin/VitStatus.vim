@@ -61,7 +61,7 @@ endif
 
 augroup VitStatus
     autocmd!
-    autocmd FocusGained,BufWritePost * call vit#RefreshStatuses()
+    autocmd FocusGained,BufWritePost * call vit#windows#RefreshStatuses()
     autocmd BufDelete,BufWipeout <buffer> autocmd! VitStatus
     autocmd BufWinLeave <buffer> let b:vit.windows.status = -1
                                 \ | if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.repo.gitdir)
@@ -80,10 +80,10 @@ execute "silent! file ".fnamemodify(substitute(b:vit.execute("rev-parse --show-t
 
 autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:vit.repo.branch()
 
-nnoremap <buffer> <silent> + :call vit#Add(GetFileAtCursor())<cr>
-vnoremap <buffer> <silent> + :call vit#Add(GetFileAtCursor())<cr><cr>
-nnoremap <buffer> <silent> - :call vit#Unstage(GetFileAtCursor())<cr>
-vnoremap <buffer> <silent> - :call vit#Unstage(GetFileAtCursor())<cr><cr>
+nnoremap <buffer> <silent> + :call vit#commands#Add(GetFileAtCursor())<cr>
+vnoremap <buffer> <silent> + :call vit#commands#Add(GetFileAtCursor())<cr><cr>
+nnoremap <buffer> <silent> - :call vit#commands#Unstage(GetFileAtCursor())<cr>
+vnoremap <buffer> <silent> - :call vit#commands#Unstage(GetFileAtCursor())<cr><cr>
 
 nnoremap <buffer> <silent> <enter> :if getline(".") !~ "^##"
                              \<bar>let path=GetFileAtCursor()
@@ -91,9 +91,9 @@ nnoremap <buffer> <silent> <enter> :if getline(".") !~ "^##"
                              \<bar>execute "edit ".path
                              \<bar>endif<cr>
 
-nnoremap <buffer> <silent> d :call vit#OpenFileAsDiff(GetFileAtCursor(), "HEAD")<cr>
+nnoremap <buffer> <silent> d :call vit#windows#OpenFileAsDiff(GetFileAtCursor(), "HEAD")<cr>
 nnoremap <buffer> <silent> D :let first_tab = tabpagenr() + 1
-            \<bar>call map(filter(getline(1, "$"), "v:val !~ \"^##\""), "vit#OpenFileAsDiff(split(v:val)[1], \"HEAD\")")
+            \<bar>call map(filter(getline(1, "$"), "v:val !~ \"^##\""), "vit#windows#OpenFileAsDiff(split(v:val)[1], \"HEAD\")")
             \<bar>execute "tabnext ".first_tab<bar>unlet first_tab<cr>
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping

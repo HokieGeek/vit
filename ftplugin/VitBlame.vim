@@ -54,7 +54,7 @@ augroup END
 
 autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=\ 
 
-nnoremap <buffer> <silent> <enter> :call vit#ShowWindow(GetRevFromBlame())<cr>
-nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevFromBlame())<cr>
+nnoremap <buffer> <silent> <enter> :call vit#windows#ShowWindow(GetRevFromBlame())<cr>
+nnoremap <buffer> <silent> d :call vit#windows#OpenFilesInRevisionAsDiff(GetRevFromBlame())<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:

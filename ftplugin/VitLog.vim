@@ -60,15 +60,15 @@ endfunction
 function! VitLog#Git(...) " {{{
     if a:0 > 0
         if a:1 ==# "reset"
-            call vit#Reset(join(a:000[1:], ' '). " ".GetRevUnderCursor())
+            call vit#commands#Reset(join(a:000[1:], ' '). " ".GetRevUnderCursor())
         else
-            call vit#Git(join(a:000, ' '))
+            call vit#config#git(join(a:000, ' '))
         endif
     else
-        call vit#Git()
+        call vit#config#git()
     endif
 endfunction
-command! -bar -buffer -complete=customlist,vit#GitCompletion -nargs=* Git :call VitLog#Git(<f-args>)
+command! -bar -buffer -complete=customlist,vit#config#gitCompletion -nargs=* Git :call VitLog#Git(<f-args>)
 " }}}
 
 function! s:SkipNonCommits(func) " {{{
@@ -91,13 +91,13 @@ endfunction " }}}
 
 function! VitLogLoadShowByRev(rev) " {{{
     if b:vit.windows.show == -1
-        call vit#ShowWindow(a:rev)
+        call vit#windows#ShowWindow(a:rev)
     else
         execute bufwinnr(b:vit.windows.show)." wincmd w"
         let l:vit = b:vit
         enew
         let b:vit = l:vit
-        call vit#Show(a:rev, b:vit.bufnr)
+        call vit#windows#Show(a:rev, b:vit.bufnr)
     endif
 endfunction " }}}
 
@@ -167,8 +167,8 @@ autocmd BufWinLeave <buffer> let b:vit.windows.log = -1
 
 " Swaps the time field in the log from relative to ISO 8601-like
 nnoremap <buffer> <silent> T :let b:timeformat = b:timeformat =~ "cr" ? "\%ci" : "\%cr"<bar>call VitLoadLog()<cr>
-nnoremap <buffer> <silent> d :call vit#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
-nnoremap <buffer> <silent> R :call vit#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
+nnoremap <buffer> <silent> d :call vit#windows#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
+nnoremap <buffer> <silent> R :call vit#commands#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j
