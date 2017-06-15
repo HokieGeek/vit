@@ -109,7 +109,6 @@ function! vit#windows#Status() " {{{
 endfunction " }}}
 
 function! vit#windows#refreshByType(type)
-    " call map(vit#utils#getVitBuffersByType(a:type), "vit#windows#afp('".a:type."', winbufnr(v:val))")
     call map(vit#utils#getVitBuffersByType(a:type), "setbufvar(v:val, '&filetype', '".a:type."')")
 endfunction
 
