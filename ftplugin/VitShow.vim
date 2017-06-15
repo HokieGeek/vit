@@ -11,7 +11,11 @@ endif
 let b:vit.windows.show = bufnr("%")
 
 if exists("b:git_revision")
-    let b:vit_content = b:vit.execute("show --submodule=log ".b:git_revision." ".fnamemodify(b:vit.path.absolute, ":."))
+    let b:vit_show_cmd = "show --submodule=log ".b:git_revision
+    if !exists("b:vit_show_full")
+        let b:vit_show_cmd .= " ".fnamemodify(b:vit.path.absolute, ":.")
+    endif
+    let b:vit_content = b:vit.execute(b:vit_show_cmd)
 else
     let b:vit_content = "No revision given"
 endif
@@ -69,7 +73,8 @@ endfunction
 command! -bar -buffer -complete=customlist,vit#config#gitCompletion -nargs=* Git :call VitShow#Git(<f-args>)
 " }}}
 
-function! GetVitShowStatusLine() " {{{
+" Statusline and filename " {{{
+function! GetVitShowStatusLine()
     let l:summary=""
     if exists("b:git_revision")
         let l:summary=split(b:vit.execute("show --oneline --shortstat --no-color ".b:git_revision), "\n")[-1]
@@ -77,16 +82,31 @@ function! GetVitShowStatusLine() " {{{
     return l:summary."%=%l/%L"
 endfunction
 autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=%!GetVitShowStatusLine()
-setlocal statusline=%!GetVitShowStatusLine() " }}}
+setlocal statusline=%!GetVitShowStatusLine()
 
 if exists("b:git_revision")
     execute "silent! file Show\ ".b:git_revision
-endif
+endif " }}}
 
 nnoremap <buffer> <silent> d :call vit#windows#OpenFileAsDiff(GetFileUnderCursor(), b:git_revision."~1", b:git_revision)<cr>
 nnoremap <buffer> <silent> D :call vit#windows#OpenFilesInRevisionAsDiff(b:git_revision)<cr>
 
 nnoremap <buffer> <silent> o :execute "tabedit ".fnamemodify(GetFileUnderCursor(), ":p:.")<cr>
 nnoremap <buffer> <silent> O :call OpenFilesFromShow()<cr>
+
+if !exists("*VitShowToggleView")
+    function! VitShowToggleView(full)
+        setlocal filetype=VitShow
+        let l:rev = b:git_revision
+        let l:vit = b:vit
+        enew
+        if a:full
+            let b:vit_show_full=1
+        endif
+        let b:vit = l:vit
+        call vit#windows#Show(l:rev, b:vit.bufnr)
+    endfunction
+endif
+nnoremap <buffer> <silent> t :call VitShowToggleView(!exists("b:vit_show_full"))<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:
