@@ -75,10 +75,6 @@ function! vit#windows#Log(file, ...) " {{{
             call setbufvar(b:vit.windows.log, '&filetype', 'VitLog')
         endif
     endif
-endfunction
-function! vit#windows#RefreshLogs()
-    let l:windows = filter(range(1, winnr('$')), 'getbufvar(winbufnr(v:val), "&filetype") == "VitLog"')
-    call map(l:windows, "setbufvar(winbufnr(v:val), '&filetype', 'VitLog')")
 endfunction " }}}
 
 function! vit#windows#ShowWindow(rev) " {{{
@@ -110,10 +106,11 @@ function! vit#windows#Status() " {{{
             call setbufvar(b:vit.windows.status, '&filetype', 'VitStatus')
         endif
     endif
-endfunction
-function! vit#windows#RefreshStatuses()
-    let l:windows = filter(range(1, winnr('$')), 'getbufvar(winbufnr(v:val), "&filetype") == "VitStatus"')
-    call map(l:windows, "setbufvar(winbufnr(v:val), '&filetype', 'VitStatus')")
 endfunction " }}}
+
+function! vit#windows#refreshByType(type)
+    " call map(vit#utils#getVitBuffersByType(a:type), "vit#windows#afp('".a:type."', winbufnr(v:val))")
+    call map(vit#utils#getVitBuffersByType(a:type), "setbufvar(v:val, '&filetype', '".a:type."')")
+endfunction
 
 " vim: set foldmethod=marker formatoptions-=tc:

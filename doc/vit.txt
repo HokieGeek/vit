@@ -64,6 +64,8 @@ Mappings~
                                                                  *VitLog-mappings*
 d            Opens a tab with a |VitDiff| for each file in the selected revision
 <enter>      Opens a |VitShow| of the revision associated with the selected entry
+R            Performs a git revert of the given file to the selected revision
+t            Toggles the time format in the log from relative to ISO-8601-like
 
 --------------------------------------------------------------------------------
 show [revision]                                                 *vit-show* *VitShow*

@@ -9,3 +9,13 @@ function! vit#utils#getUserInput(message)
     call inputrestore()
     return l:response
 endfunction
+
+function! vit#utils#getVitBuffersByType(type)
+    let l:vit_buffers = []
+    for i in range(tabpagenr('$'))
+        call extend(l:vit_buffers, filter(tabpagebuflist(i + 1), 'getbufvar(v:val, "&filetype") == "'.a:type.'"'))
+    endfor
+    return l:vit_buffers
+endfunction
+
+" vim: set foldmethod=marker formatoptions-=tc:

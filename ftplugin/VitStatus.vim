@@ -1,7 +1,6 @@
 if v:version < 700
     finish
 endif
-" let b:autoloaded_vit_status = 1
 scriptencoding utf-8
 
 let b:vit_lastline = line(".")
@@ -13,20 +12,20 @@ endif
 
 if exists("b:vit")
     if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.repo.gitdir)
-        let [tabnum, winnum] = g:vit_status_windows[b:vit.repo.gitdir]
-        if tabpagenr() != tabnum || winnr() != winnum
-            let vit_status_currbuf = bufnr("%")
+        let [tabnum, winnum, bufnr] = g:vit_status_windows[b:vit.repo.gitdir]
+        if bufnr != bufnr("%") && (tabpagenr() != tabnum || winnr() != winnum)
+            " Delete the new vit status
+            execute "bdelete ".bufnr("%")
+            " Navigate to the existing one
             execute "tabnext ".tabnum
             execute winnum." wincmd w"
-            execute "bdelete ".vit_status_currbuf
-            unlet vit_status_currbuf
             finish
         endif
     else
         if !exists("g:vit_status_windows")
             let g:vit_status_windows = {}
         endif
-        let g:vit_status_windows[b:vit.repo.gitdir] = [tabpagenr(), winnr()]
+        let g:vit_status_windows[b:vit.repo.gitdir] = [tabpagenr(), winnr(), bufnr("%")]
     endif
 
     let b:vit.windows.status = bufnr("%")
@@ -61,7 +60,7 @@ endif
 
 augroup VitStatus
     autocmd!
-    autocmd FocusGained,BufWritePost * call vit#windows#RefreshStatuses()
+    autocmd FocusGained,BufWritePost * call vit#windows#refreshByType("VitStatus")
     autocmd BufDelete,BufWipeout <buffer> autocmd! VitStatus
     autocmd BufWinLeave <buffer> let b:vit.windows.status = -1
                                 \ | if exists("g:vit_status_windows") && has_key(g:vit_status_windows, b:vit.repo.gitdir)
