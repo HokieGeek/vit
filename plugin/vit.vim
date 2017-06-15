@@ -17,10 +17,6 @@ function! VitInit()
     call vit#config#buffer(expand("%"))
 endfunction
 
-function! vit#Statusline()
-    return vit#statusline#get()
-endfunction
-
 autocmd BufWinEnter * call VitInit()
 
 " vim: set foldmethod=marker formatoptions-=tc:

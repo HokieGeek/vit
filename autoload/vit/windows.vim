@@ -1,7 +1,7 @@
-if exists("g:autoloaded_vit") || v:version < 700
+if exists("g:autoloaded_vit_windows") || v:version < 700
     finish
 endif
-let g:autoloaded_vit = 1
+let g:autoloaded_vit_windows = 1
 scriptencoding utf-8
 
 function! vit#windows#Diff(file, rev) " {{{

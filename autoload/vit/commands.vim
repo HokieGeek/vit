@@ -1,7 +1,7 @@
-if v:version < 700
+if exists("g:autoloaded_vit_commands") || v:version < 700
     finish
 endif
-scriptencoding utf-8
+let g:autoloaded_vit_commands = 1
 
 function! vit#commands#Add(files) " {{{
     let l:files = join(split(a:files), ' ')

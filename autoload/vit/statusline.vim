@@ -1,7 +1,7 @@
-if v:version < 700
+if exists("g:autoloaded_vit_statusline") || v:version < 700
     finish
 endif
-scriptencoding utf-8
+let g:autoloaded_vit_statusline = 1
 
 function! s:AssignHL(name,bg,fg,weight) " {{{
     let l:gui = "guibg=".a:bg[0]." guifg=".a:fg[0]

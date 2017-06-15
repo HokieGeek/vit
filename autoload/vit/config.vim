@@ -1,7 +1,7 @@
-if v:version < 700
+if exists("g:autoloaded_vit_config") || v:version < 700
     finish
 endif
-scriptencoding utf-8
+let g:autoloaded_vit_config = 1
 
 let s:vit_commands = ["log", "status", "blame", "diff", "show", "add", "reset", "checkout", "commit", "stash", "mv", "rm", "revert", "k"]
 
