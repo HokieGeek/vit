@@ -5,6 +5,7 @@ while (( $# > 0 )); do
     stash) vimargs+=('-c' 'Git stash view') ;;
     blame|log|k) vimargs+=('-c' 'Git '$1) ;;
     -h|--help) echo "USAGE: ${0##*/} [-h|--help] [blame|log|stash] [file]"; exit ;;
+    --debug) debug=$2; shift ;;
     *) args+=("$1") ;;
     esac
     shift
@@ -43,4 +44,4 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
 [[ -z "${origdir+x}" ]] || cd ${origdir}
 
 me=${0##*/}
-exec ${me/vit/}vim "${args[@]}" "${vimargs[@]}"
+exec ${me/vit/}vim ${debug:+"-V${debug}/tmp/vit.debug"} "${args[@]}" "${vimargs[@]}"
