@@ -8,7 +8,7 @@ function! vit#commands#Add(files) " {{{
     call b:vit.execute("add ".l:files)
     if v:shell_error == 0
         echo "Added ".a:files." to the stage"
-        call vit#RefreshStatuses()
+        call vit#windows#RefreshStatuses()
     else
         echo "Unable to add ".a:files." to the stage"
     endif
@@ -49,14 +49,14 @@ endfunction
 function! vit#commands#PerformCommit(args)
     call b:vit.execute("commit ".a:args)
     echomsg "Successfully committed"
-    call vit#RefreshStatuses()
-    call vit#RefreshLogs()
+    call vit#windows#RefreshStatuses()
+    call vit#windows#RefreshLogs()
 endfunction " }}}
 
 function! vit#commands#Reset(args) " {{{
     call b:vit.execute("reset ".a:args)
-    call vit#RefreshStatuses()
-    " call vit#RefreshLogs() " FIXME: this is problematic
+    call vit#windows#RefreshStatuses()
+    " call vit#windows#RefreshLogs() " FIXME: this is problematic
 endfunction
 function! vit#commands#ResetFilesInGitIndex(opts, files)
     let l:files = join(split(a:files), ' ')
@@ -69,8 +69,8 @@ endfunction " }}}
 
 function! vit#commands#Checkout(args) " {{{
     call b:vit.execute("checkout ".a:args)
-    call vit#RefreshStatuses()
-    call vit#RefreshLogs()
+    call vit#windows#RefreshStatuses()
+    call vit#windows#RefreshLogs()
 endfunction
 function! vit#commands#CheckoutCurrentFile(rev)
     let l:file = expand("%:p")
@@ -80,8 +80,8 @@ endfunction " }}}
 
 function! vit#commands#Stash(args) " {{{
     let l:out = b:vit.execute("stash ".a:args)
-    call vit#RefreshStatuses()
-    call vit#RefreshLogs()
+    call vit#windows#RefreshStatuses()
+    call vit#windows#RefreshLogs()
     return l:out
 endfunction
 function! vit#commands#StashViewer()
@@ -97,7 +97,7 @@ function! vit#commands#Move(newpath) " {{{
         if v:shell_error == 0
           execute "edit ".l:newpath
           execute "bdelete ".l:bufn
-          call vit#RefreshStatuses()
+          call vit#windows#RefreshStatuses()
         else
             echo "Unable to move file"
         endif
@@ -109,7 +109,7 @@ function! vit#commands#Remove() " {{{
         call b:vit.execute("rm ".b:vit.path.relative)
         if v:shell_error == 0
             bdelete
-            call vit#RefreshStatuses()
+            call vit#windows#RefreshStatuses()
         else
             echo "Unable to remove file(s)"
         endif
