@@ -29,4 +29,8 @@ You can view the manual by typing `:help vit` or going to [doc/vit.txt](doc/vit.
 I recommend installing [pathogen.vim](https://github.com/tpope/vim-pathogen) and then executing the following steps in a shell:
 
     cd ~/.vim/bundle
-    git clone git://github.com/HokieGeek/vit.git
+    git clone git@gitlab.com:HokieGeek/vit.git
+
+There are also scripts in ```~/.vim/bundle/vit/bin``` which, if they are in your path, will allow you to start vim with some vit
+commands executed. This allows you to perform a ```vit log FILE```, as an example, instead of having to open the file in vim
+and then execute the ```:Git log``` command.
