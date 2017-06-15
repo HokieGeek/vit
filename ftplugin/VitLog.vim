@@ -107,10 +107,6 @@ if exists("t:vit_log_standalone") " {{{
         bdelete #
     endif
 
-    if &lines > 20
-        execute "resize ".string(&lines * 0.60)
-    endif
-
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("VitLogLoadShowByRev")) | wincmd p
 " }}}
 else " {{{
