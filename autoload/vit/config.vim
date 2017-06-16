@@ -171,7 +171,7 @@ function! vit#config#buffer(file) " {{{
         command! -bar -buffer -complete=customlist,vit#config#gitcompletion -nargs=* Git :call vit#config#git(<f-args>)
 
         "" Special features
-        if !exists("g:vit_gutter_disable")
+        if has("signs") && !exists("g:vit_gutter_disable")
             call vit#gutter#config()
         endif
     endif
