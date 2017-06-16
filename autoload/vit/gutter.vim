@@ -3,7 +3,7 @@ if exists("g:autoloaded_vit_gutter") || v:version < 700
 endif
 let g:autoloaded_vit_gutter = 1
 
-function! vit#gutter#define()
+function! vit#gutter#define() " {{{
     highlight VitSignSub guifg=#FF0000 guibg=bg ctermbg=none ctermfg=red   cterm=none
     highlight VitSignAdd guifg=#00FF00 guibg=bg ctermbg=none ctermfg=green cterm=none
     highlight VitSignMod guifg=#FFFF00 guibg=bg ctermbg=none ctermfg=yellow  cterm=none
@@ -13,9 +13,9 @@ function! vit#gutter#define()
     sign define vitmod text=» texthl=VitSignMod
 
     let g:vit_gutter_signs_defined = 0
-endfunction
+endfunction " }}}
 
-function! vit#gutter#config()
+function! vit#gutter#config() " {{{
     if !exists("g:vit_gutter_signs_defined")
         call vit#gutter#define()
     endif
@@ -33,9 +33,9 @@ function! vit#gutter#config()
     call vit#gutter#update()
 
     let b:vit_gutter_enabled = 1
-endfunction
+endfunction " }}}
 
-function! s:place(bufnr, startline, range, type)
+function! s:place(bufnr, startline, range, type) " {{{
     let i = 0
     while i < a:range
         let l:line = a:startline+i
@@ -43,18 +43,18 @@ function! s:place(bufnr, startline, range, type)
         let s:vit_sign_cnt += 1
         let i += 1
     endwhile
-endfunction
+endfunction " }}}
 
-function! s:breakupPos(hunkPos)
+function! s:breakupPos(hunkPos) " {{{
     return split(substitute(a:hunkPos, "[+-]", "", "g"), ",")
-endfunction
+endfunction " }}}
 
-function! s:analyzeHunk(hunk)
+function! s:analyzeHunk(hunk) " {{{
     let l:hunkArr = split(a:hunk, " ")
     return [s:breakupPos(l:hunkArr[1]), s:breakupPos(l:hunkArr[2])]
-endfunction
+endfunction " }}}
 
-function! vit#gutter#processDiff(diff, bufnr)
+function! vit#gutter#processDiff(diff, bufnr) " {{{
     execute "sign unplace * buffer=".a:bufnr
     let s:vit_sign_cnt = 1
 
@@ -81,32 +81,34 @@ function! vit#gutter#processDiff(diff, bufnr)
         let i += 1
     endwhile
     unlet s:vit_sign_cnt
-endfunction
+endfunction " }}}
 
-function! vit#gutter#update()
+function! vit#gutter#update() " {{{
     let l:diff = split(b:vit.execute("diff-index --unified=0 --no-color --diff-algorithm=minimal HEAD -- ".b:vit.path.relative), "\n")
     call vit#gutter#processDiff(l:diff, b:vit.bufnr)
-endfunction
+endfunction " }}}
 
-function! vit#gutter#remove()
+function! vit#gutter#remove() " {{{
     execute "sign unplace * buffer=".b:vit.bufnr
     delcommand GitGutterToggle
     autocmd! VitGutter
     nunmap ]g
     nunmap [g
     unlet b:vit_gutter_enabled
-endfunction
+endfunction " }}}
 
-function! vit#gutter#toggle()
+function! vit#gutter#toggle() " {{{
     if exists("b:vit_gutter_enabled")
         call vit#gutter#remove()
     else
         call vit#gutter#config()
     endif
-endfunction
+endfunction " }}}
 
-function! vit#gutter#navigate(dir)
+function! vit#gutter#navigate(dir) " {{{
     " TODO: Determine current pos and determine which is closest in the given
     " direction
     " execute "sign jump ".b:vit_gutter_pos
-endfunction
+endfunction " }}}
+
+" vim: set foldmethod=marker formatoptions-=tc:
