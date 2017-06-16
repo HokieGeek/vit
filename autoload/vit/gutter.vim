@@ -10,9 +10,29 @@ function! vit#gutter#define()
 
     sign define vitadd text=+ texthl=VitSignAdd
     sign define vitsub text=_ texthl=VitSignSub
-    sign define vitmod text=△ texthl=VitSignMod
+    sign define vitmod text=» texthl=VitSignMod
 
     let g:vit_gutter_signs_defined = 0
+endfunction
+
+function! vit#gutter#config()
+    if !exists("g:vit_gutter_signs_defined")
+        call vit#gutter#define()
+    endif
+
+    command! -bar -buffer GitGutterToggle :call vit#gutter#toggle()
+
+    augroup VitGutter
+        autocmd!
+        autocmd BufWritePost,BufReadPost <buffer> call vit#gutter#update()
+    augroup END
+
+    nnoremap <buffer> <silent> ]g :call vit#gutter#navigate("+")<cr>
+    nnoremap <buffer> <silent> [g :call vit#gutter#navigate("-")<cr>
+
+    call vit#gutter#update()
+
+    let b:vit_gutter_enabled = 1
 endfunction
 
 function! s:place(bufnr, startline, range, type)
@@ -63,10 +83,30 @@ function! vit#gutter#processDiff(diff, bufnr)
     unlet s:vit_sign_cnt
 endfunction
 
-function! vit#gutter#test()
-    if !exists("g:vit_gutter_signs_defined")
-        call vit#gutter#define()
-    endif
+function! vit#gutter#update()
     let l:diff = split(b:vit.execute("diff-index --unified=0 --no-color HEAD -- ".b:vit.path.relative), "\n")
     call vit#gutter#processDiff(l:diff, b:vit.bufnr)
+endfunction
+
+function! vit#gutter#remove()
+    execute "sign unplace * buffer=".b:vit.bufnr
+    delcommand GitGutterToggle
+    autocmd! VitGutter
+    nunmap ]g
+    nunmap [g
+    unlet b:vit_gutter_enabled
+endfunction
+
+function! vit#gutter#toggle()
+    if exists("b:vit_gutter_enabled")
+        call vit#gutter#remove()
+    else
+        call vit#gutter#config()
+    endif
+endfunction
+
+function! vit#gutter#navigate(dir)
+    " TODO: Determine current pos and determine which is closest in the given
+    " direction
+    " execute "sign jump ".b:vit_gutter_pos
 endfunction
