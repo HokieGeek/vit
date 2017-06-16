@@ -84,7 +84,7 @@ function! vit#gutter#processDiff(diff, bufnr)
 endfunction
 
 function! vit#gutter#update()
-    let l:diff = split(b:vit.execute("diff-index --unified=0 --no-color HEAD -- ".b:vit.path.relative), "\n")
+    let l:diff = split(b:vit.execute("diff-index --unified=0 --no-color --diff-algorithm=minimal HEAD -- ".b:vit.path.relative), "\n")
     call vit#gutter#processDiff(l:diff, b:vit.bufnr)
 endfunction
 
