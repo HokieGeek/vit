@@ -18,12 +18,15 @@ CONTENTS                                                       *vit*  *vit-conte
 
     1. Usage ..................... |vit-usage|
     2. Commands .................. |vit-commands|
-    3. Shell scripts ............. |vit-shellscript|
+    3. Gutter diff ............... |vit-gutter|
+    4. Shell scripts ............. |vit-shellscript|
 
 ================================================================================
 USAGE                                                                  *vit-usage*
-
-:Git [|vit-commands|] [arguments]                              *vit-git* *vit-command*
+                                                                         *vit-git*
+                                                                     *vit-command*
+                                                                             *Git*
+:Git [|vit-commands|] [arguments]
 
 The following are the available vit-commands:
         log       |vit-log|
@@ -203,6 +206,18 @@ revert REVISION                                                       *vit-rever
 
 Reverts only the current buffer to the specified revision. If no revision is 
 given it prompts the user for the revision to compare against.
+
+================================================================================
+GUTTER DIFF                                                           *vit-gutter*
+
+By default, the tool will display information on the vim signs column (the
+gutter) with information onw how the file saved to disk differs from the HEAD
+in git.
+
+                                                                 *GitGutterToggle*
+:GitGutterToggle
+
+This command hides and shows the gutter with the diff information
 
 ================================================================================
 SHELL SCRIPT                                                     *vit-shellscript*
