@@ -69,7 +69,7 @@ augroup VitStatus
     autocmd VimResized <buffer> execute "vertical resize ".b:max_cols
 augroup END
 
-function! GetFileAtCursor()
+function! s:GetFileAtCursor()
     if getline(".") !~ "^##"
         return split(getline("."))[1]
     endif
@@ -79,18 +79,18 @@ execute "silent! file ".fnamemodify(substitute(b:vit.execute("rev-parse --show-t
 
 autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:vit.repo.branch()
 
-nnoremap <buffer> <silent> + :call vit#commands#Add(GetFileAtCursor())<cr>
-vnoremap <buffer> <silent> + :call vit#commands#Add(GetFileAtCursor())<cr><cr>
-nnoremap <buffer> <silent> - :call vit#commands#Unstage(GetFileAtCursor())<cr>
-vnoremap <buffer> <silent> - :call vit#commands#Unstage(GetFileAtCursor())<cr><cr>
+nnoremap <buffer> <silent> + :call vit#commands#Add(<SID>GetFileAtCursor())<cr>
+vnoremap <buffer> <silent> + :call vit#commands#Add(<SID>GetFileAtCursor())<cr><cr>
+nnoremap <buffer> <silent> - :call vit#commands#Unstage(<SID>GetFileAtCursor())<cr>
+vnoremap <buffer> <silent> - :call vit#commands#Unstage(<SID>GetFileAtCursor())<cr><cr>
 
 nnoremap <buffer> <silent> <enter> :if getline(".") !~ "^##"
-                             \<bar>let path=GetFileAtCursor()
+                             \<bar>let path=<SID>GetFileAtCursor()
                              \<bar>execute b:vit_parent_win."wincmd w"
                              \<bar>execute "edit ".path
                              \<bar>endif<cr>
 
-nnoremap <buffer> <silent> d :call vit#windows#OpenFileAsDiff(GetFileAtCursor(), "HEAD")<cr>
+nnoremap <buffer> <silent> d :call vit#windows#OpenFileAsDiff(<SID>GetFileAtCursor(), "HEAD")<cr>
 nnoremap <buffer> <silent> D :let first_tab = tabpagenr() + 1
             \<bar>call map(filter(getline(1, "$"), "v:val !~ \"^##\""), "vit#windows#OpenFileAsDiff(split(v:val)[1], \"HEAD\")")
             \<bar>execute "tabnext ".first_tab<bar>unlet first_tab<cr>

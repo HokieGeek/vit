@@ -22,7 +22,7 @@ endif
 silent! put=b:content
 0d_
 
-function! GetStashIdUnderCursor()
+function! s:GetStashIdUnderCursor()
     return substitute(getline("."), ":.*$", "", "")
 endfunction
 
@@ -35,7 +35,7 @@ function! s:LoadStashInfo(id)
     wincmd p
 endfunction
 
-autocmd CursorMoved <buffer> call s:LoadStashInfo(GetStashIdUnderCursor())
+autocmd CursorMoved <buffer> call s:LoadStashInfo(<SID>GetStashIdUnderCursor())
 
 botright new
 autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=\ 
@@ -50,7 +50,7 @@ else
     execute "resize ".string(len(getline(1, "$")) + 1)
 endif
 
-function! VitStashInfo()
+function! s:VitStashInfo()
     let l:toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
 
     if tabpagenr("$") == 1
@@ -61,6 +61,6 @@ function! VitStashInfo()
     endif
 
 endfunction
-autocmd WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitStashInfo()
-autocmd TabLeave * call VitStashInfo()
-call VitStashInfo()
+autocmd WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call <SID>VitStashInfo()
+autocmd TabLeave * call <SID>VitStashInfo()
+call s:VitStashInfo()

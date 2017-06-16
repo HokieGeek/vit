@@ -20,7 +20,7 @@ if b:vit.windows.show != bufnr("%")
         return l:file
     endfunction " }}}
 
-    function! GetFileUnderCursor() " {{{
+    function! s:GetFileUnderCursor() " {{{
         let l:currline = line(".")
         if getline(".") !~ "^diff"
             let l:last_wrapscan = &wrapscan
@@ -35,7 +35,7 @@ if b:vit.windows.show != bufnr("%")
         return l:file
     endfunction " }}}
 
-    function! OpenFilesFromShow() " {{{
+    function! s:OpenFilesFromShow() " {{{
         let l:showfiles = map(filter(getline(1, "$"), 'v:val =~ "^diff"'), 'fnamemodify(GetFileFromDiffLine(v:val), ":p:.")')
         let l:showfiles = map(l:showfiles, 'v:val.":1:".substitute(split(b:vit.execute("show --stat '.b:git_revision.' -- ".v:val), "\n")[6], " *".v:val." *| *", "", "")')
 
@@ -44,7 +44,7 @@ if b:vit.windows.show != bufnr("%")
         lwindow
     endfunction " }}}
 
-    function! VitShow#Git(...) " {{{
+    function! s:Git(...) " {{{
         " echomsg "VitShow#Git(".string(a:000).")"
         if a:0 > 0
             if a:1 ==# "reset"
@@ -56,11 +56,11 @@ if b:vit.windows.show != bufnr("%")
             call vit#config#git()
         endif
     endfunction
-    command! -bar -buffer -complete=customlist,vit#config#gitCompletion -nargs=* Git :call VitShow#Git(<f-args>)
+    command! -bar -buffer -complete=customlist,vit#config#gitCompletion -nargs=* Git :call <SID>Git(<f-args>)
     " }}}
 
     if !exists("*VitShowToggleView") " {{{
-        function! VitShowToggleView(full)
+        function! s:VitShowToggleView(full)
             setlocal filetype=VitShow
             let l:rev = b:git_revision
             let l:vit = b:vit
@@ -86,13 +86,13 @@ if b:vit.windows.show != bufnr("%")
     " Maps and autocmds " {{{
     autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=%!GetVitShowStatusLine()
 
-    nnoremap <buffer> <silent> d :call vit#windows#OpenFileAsDiff(GetFileUnderCursor(), b:git_revision."~1", b:git_revision)<cr>
+    nnoremap <buffer> <silent> d :call vit#windows#OpenFileAsDiff(<SID>GetFileUnderCursor(), b:git_revision."~1", b:git_revision)<cr>
     nnoremap <buffer> <silent> D :call vit#windows#OpenFilesInRevisionAsDiff(b:git_revision)<cr>
 
-    nnoremap <buffer> <silent> o :execute "tabedit ".fnamemodify(GetFileUnderCursor(), ":p:.")<cr>
-    nnoremap <buffer> <silent> O :call OpenFilesFromShow()<cr>
+    nnoremap <buffer> <silent> o :execute "tabedit ".fnamemodify(<SID>GetFileUnderCursor(), ":p:.")<cr>
+    nnoremap <buffer> <silent> O :call <SID>OpenFilesFromShow()<cr>
 
-    nnoremap <buffer> <silent> t :call VitShowToggleView(!exists("b:vit_show_full"))<cr>
+    nnoremap <buffer> <silent> t :call <SID>VitShowToggleView(!exists("b:vit_show_full"))<cr>
     " }}}
 endif
 

@@ -27,7 +27,7 @@ wincmd p
 noautocmd execute b:vit_blame_starting_linenum
 unlet b:vit_blame_starting_linenum
 
-function! GetRevFromBlame()
+function! s:GetRevFromBlame()
     return substitute(getline("."), '^\^\?\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
@@ -54,7 +54,7 @@ augroup END
 
 autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=\ 
 
-nnoremap <buffer> <silent> <enter> :call vit#windows#ShowWindow(GetRevFromBlame())<cr>
-nnoremap <buffer> <silent> d :call vit#windows#OpenFilesInRevisionAsDiff(GetRevFromBlame())<cr>
+nnoremap <buffer> <silent> <enter> :call vit#windows#ShowWindow(<SID>GetRevFromBlame())<cr>
+nnoremap <buffer> <silent> d :call vit#windows#OpenFilesInRevisionAsDiff(<SID>GetRevFromBlame())<cr>
 
 " vim: set foldmethod=marker formatoptions-=tc:

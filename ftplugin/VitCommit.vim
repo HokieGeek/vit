@@ -12,7 +12,7 @@ if strlen(b:vit_commit_args) > 0
 endif
 call append(line("$"), split(vit#ExecuteGit("status --porcelain | awk '{ print \"# \" $0 }'"), "\n"))
 
-function! VitCommit#GitCommitFinish()
+function! s:GitCommitFinish()
     g/^#/d
     g/^\s*$/d
     write
@@ -30,7 +30,7 @@ function! VitCommit#GitCommitFinish()
     call delete(b:filename)
 endfunction
 cnoremap <silent> <buffer> w execute "silent file ".b:filename<bar>w<bar>silent 0file
-autocmd BufWinLeave <buffer> call VitCommit#GitCommitFinish()
+autocmd BufWinLeave <buffer> call <SID>GitCommitFinish()
 
 resize 10
 normal ggO

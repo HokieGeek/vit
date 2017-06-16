@@ -8,7 +8,7 @@ if !executable("git")
     finish
 endif
 
-function! VitInit()
+function! s:VitInit()
     if exists("b:vit_initialized")
         return
     endif
@@ -17,6 +17,6 @@ function! VitInit()
     call vit#config#buffer(expand("%"))
 endfunction
 
-autocmd BufWinEnter * call VitInit()
+autocmd BufWinEnter * call <SID>VitInit()
 
 " vim: set foldmethod=marker formatoptions-=tc:

@@ -33,14 +33,14 @@ endif
 " }}}
 
 " Functions " {{{
-function! GetRevUnderCursor()
+function! s:GetRevUnderCursor()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-function! VitLog#Git(...) " {{{
+function! s:Git(...) " {{{
     if a:0 > 0
         if a:1 ==# "reset"
-            call vit#commands#Reset(join(a:000[1:], ' '). " ".GetRevUnderCursor())
+            call vit#commands#Reset(join(a:000[1:], ' '). " ".<SID>GetRevUnderCursor())
         else
             call vit#config#git(join(a:000, ' '))
         endif
@@ -48,12 +48,12 @@ function! VitLog#Git(...) " {{{
         call vit#config#git()
     endif
 endfunction
-command! -bar -buffer -complete=customlist,vit#config#gitCompletion -nargs=* Git :call VitLog#Git(<f-args>)
+command! -bar -buffer -complete=customlist,vit#config#gitCompletion -nargs=* Git :call <SID>Git(<f-args>)
 " }}}
 
 function! s:SkipNonCommits(func) " {{{
     if b:vit_log_lastline != line(".")
-        let l:rev = GetRevUnderCursor()
+        let l:rev = s:GetRevUnderCursor()
         if l:rev =~ "^[\|\\/*]"
             if b:vit_log_lastline > line(".")
                 let l:newline = line(".")-1
@@ -69,7 +69,7 @@ function! s:SkipNonCommits(func) " {{{
     endif
 endfunction " }}}
 
-function! VitLogLoadShowByRev(rev) " {{{
+function! s:VitLogLoadShowByRev(rev) " {{{
     if b:vit.windows.show == -1
         call vit#windows#ShowWindow(a:rev)
     else
@@ -81,7 +81,7 @@ function! VitLogLoadShowByRev(rev) " {{{
     endif
 endfunction " }}}
 
-function! VitLogInfo() " {{{
+function! s:VitLogInfo() " {{{
     if tabpagenr("$") == 1
         let l:line = b:vit_toplevel.":".b:vit.repo.branch()
     else
@@ -94,10 +94,10 @@ endfunction
 let b:vit_toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
 execute "silent! file ".b:vit_toplevel
 
-autocmd TabLeave,WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call VitLogInfo()
-call VitLogInfo() " }}}
+autocmd TabLeave,WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call <SID>VitLogInfo()
+call s:VitLogInfo() " }}}
 
-function! VitLoadLog() " {{{
+function! s:VitLoadLog() " {{{
     setlocal modifiable
     let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>' ".b:vit_log_args)
     if strlen(b:log) <= 0
@@ -125,16 +125,16 @@ endfunction " }}}
 autocmd BufWinLeave <buffer> let b:vit.windows.log = -1
 
 " Swaps the time field in the log from relative to ISO 8601-like
-nnoremap <buffer> <silent> t :let b:timeformat = b:timeformat =~ "cr" ? "\%ci" : "\%cr"<bar>call VitLoadLog()<cr>
-nnoremap <buffer> <silent> d :call vit#windows#OpenFilesInRevisionAsDiff(GetRevUnderCursor())<cr>
-nnoremap <buffer> <silent> R :call vit#commands#RevertFile(GetRevUnderCursor(), b:vit.path.relative)<cr>
+nnoremap <buffer> <silent> t :let b:timeformat = b:timeformat =~ "cr" ? "\%ci" : "\%cr"<bar>call <SID>VitLoadLog()<cr>
+nnoremap <buffer> <silent> d :call vit#windows#OpenFilesInRevisionAsDiff(<SID>GetRevUnderCursor())<cr>
+nnoremap <buffer> <silent> R :call vit#commands#RevertFile(<SID>GetRevUnderCursor(), b:vit.path.relative)<cr>
 
 " Makes way more sense to make sure that gj/gk aren't used by default when wrapping
 nnoremap <buffer> j j
 nnoremap <buffer> k k
 " }}}
 
-call VitLoadLog()
+call s:VitLoadLog()
 
 if exists("t:vit_log_k")
     " Deletes the window with the empty buffer
@@ -142,7 +142,7 @@ if exists("t:vit_log_k")
         execute "bdelete ".winbufnr(filter(range(1, winnr("$")), "v:val != ".winnr())[0])
     endif
 
-    autocmd CursorMoved <buffer> call s:SkipNonCommits(function("VitLogLoadShowByRev")) | wincmd p
+    autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:VitLogLoadShowByRev")) | wincmd p
 else
     if len(getline(1, "$")) > 15
         execute "resize ".string(&lines * 0.20)
@@ -174,7 +174,7 @@ else
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:CheckoutFileAtRevision"))
     execute "autocmd BufWinLeave <buffer> ".b:vit_reffile_winnr." wincmd w | buffer ".b:vit.bufnr
 
-    nnoremap <buffer> <silent> <enter> :call VitLogLoadShowByRev(GetRevUnderCursor())<cr>
+    nnoremap <buffer> <silent> <enter> :call <SID>VitLogLoadShowByRev(<SID>GetRevUnderCursor())<cr>
 endif
 
 " vim: set foldmethod=marker formatoptions-=tc:
