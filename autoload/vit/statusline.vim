@@ -52,3 +52,5 @@ function! vit#statusline#get() " {{{
     return l:status
 endfunction
 " }}}
+
+" vim: set foldmethod=marker formatoptions-=tc:

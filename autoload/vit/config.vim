@@ -172,3 +172,5 @@ function! vit#config#buffer(file) " {{{
     endif
 endfunction
 " }}}
+
+" vim: set foldmethod=marker formatoptions-=tc:
