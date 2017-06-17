@@ -18,4 +18,8 @@ function! vit#utils#getVitBuffersByType(type)
     return l:vit_buffers
 endfunction
 
+function! vit#utils#reloadBuffers()
+    bufdo! edit!|syntax on
+endfunction
+
 " vim: set foldmethod=marker formatoptions-=tc:
