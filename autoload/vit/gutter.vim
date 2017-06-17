@@ -5,7 +5,7 @@ let g:autoloaded_vit_gutter = 1
 
 function! vit#gutter#config() " {{{
     if !exists("g:vit_gutter_signs_defined")
-        call <SID>define()
+        call <SID>defineSigns()
     endif
 
     command! -bar -buffer GitGutterToggle :call <SID>toggle()
@@ -13,6 +13,7 @@ function! vit#gutter#config() " {{{
     augroup VitGutter
         autocmd!
         autocmd BufWritePost,BufReadPost <buffer> call <SID>update()
+        autocmd FileType Vit* call <SID>remove()
     augroup END
 
     nnoremap <buffer> <silent> ]g :<C-U>call <SID>jumpHunks(bufnr("%"), v:count, "+")<cr>
@@ -25,15 +26,16 @@ function! vit#gutter#config() " {{{
     let b:vit_gutter_enabled = 1
 endfunction " }}}
 
-function! s:define() " {{{
+function! s:defineHighlights() " {{{
     highlight VitSignSub guifg=#FF0000 guibg=bg ctermbg=none ctermfg=red   cterm=none
     highlight VitSignAdd guifg=#00FF00 guibg=bg ctermbg=none ctermfg=green cterm=none
     highlight VitSignMod guifg=#FFFF00 guibg=bg ctermbg=none ctermfg=yellow  cterm=none
+endfunction " }}}
 
+function! s:defineSigns() " {{{
     sign define vitadd text=+ texthl=VitSignAdd
     sign define vitsub text=_ texthl=VitSignSub
     sign define vitmod text=» texthl=VitSignMod
-
     let g:vit_gutter_signs_defined = 0
 endfunction " }}}
 
@@ -101,12 +103,13 @@ function! s:processDiff(diff, bufnr) " {{{
 endfunction " }}}
 
 function! s:update() " {{{
+    call <SID>defineHighlights()
     let l:diff = split(b:vit.execute("diff-index --unified=0 --no-color --diff-algorithm=minimal HEAD -- ".b:vit.path.relative), "\n")
     call s:processDiff(l:diff, b:vit.bufnr)
 endfunction " }}}
 
 function! s:remove() " {{{
-    execute "sign unplace * buffer=".b:vit.bufnr
+    execute "sign unplace * buffer=".bufnr("%")
     autocmd! VitGutter
     nunmap <buffer> <silent> ]g
     nunmap <buffer> <silent> [g
