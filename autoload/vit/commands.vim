@@ -51,7 +51,7 @@ function! vit#commands#PerformCommit(args)
     echomsg "Successfully committed"
     call vit#windows#refreshByType("VitStatus")
     call vit#windows#refreshByType("VitLog")
-    call vit#utils#reloadBuffers()
+    " call vit#utils#reloadBuffers()
 endfunction " }}}
 
 function! vit#commands#Reset(args) " {{{
@@ -84,7 +84,7 @@ function! vit#commands#Stash(args) " {{{
     if a:args != "list"
         call vit#windows#refreshByType("VitStatus")
         call vit#windows#refreshByType("VitLog")
-        call vit#utils#reloadBuffers()
+        " call vit#utils#reloadBuffers()
     endif
     return l:out
 endfunction
