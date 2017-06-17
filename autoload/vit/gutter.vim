@@ -109,13 +109,15 @@ function! s:update() " {{{
 endfunction " }}}
 
 function! s:remove() " {{{
-    execute "sign unplace * buffer=".bufnr("%")
-    autocmd! VitGutter
-    nunmap <buffer> <silent> ]g
-    nunmap <buffer> <silent> [g
-    nunmap <buffer> <silent> ]G
-    nunmap <buffer> <silent> [G
-    unlet b:vit_gutter_enabled
+    if exists("b:vit_gutter_enabled")
+        unlet! b:vit_gutter_enabled
+        execute "sign unplace * buffer=".bufnr("%")
+        autocmd! VitGutter
+        nunmap <buffer> <silent> ]g
+        nunmap <buffer> <silent> [g
+        nunmap <buffer> <silent> ]G
+        nunmap <buffer> <silent> [G
+    endif
 endfunction " }}}
 
 function! s:toggle() " {{{

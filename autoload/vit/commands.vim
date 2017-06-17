@@ -81,9 +81,11 @@ endfunction " }}}
 
 function! vit#commands#Stash(args) " {{{
     let l:out = b:vit.execute("stash ".a:args)
-    call vit#windows#refreshByType("VitStatus")
-    call vit#windows#refreshByType("VitLog")
-    call vit#utils#reloadBuffers()
+    if a:args != "list"
+        call vit#windows#refreshByType("VitStatus")
+        call vit#windows#refreshByType("VitLog")
+        call vit#utils#reloadBuffers()
+    endif
     return l:out
 endfunction
 function! vit#commands#StashViewer()
