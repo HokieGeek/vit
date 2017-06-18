@@ -150,7 +150,7 @@ else
         execute "resize ".string(len(getline(1, "$")) + 1)
     endif
 
-    function! s:CheckoutFileAtRevision(rev)
+    function! s:CheckoutFileAtRevision(rev) " {{{
         let l:vit = b:vit
         execute b:vit_reffile_winnr." wincmd w"
         if a:rev == "0000000"
@@ -169,7 +169,7 @@ else
             execute "normal ".l:line."gg"
         endif
         wincmd p
-    endfunction
+    endfunction " }}}
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:CheckoutFileAtRevision"))
     execute "autocmd BufWinLeave <buffer> ".b:vit_reffile_winnr." wincmd w | buffer ".b:vit.bufnr
