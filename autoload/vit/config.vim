@@ -134,7 +134,7 @@ function! vit#config#buffer(file) " {{{
 
         "" Functions " {{{
         function! b:vit.revision() dict
-            return self.repo.execute("--no-pager log --no-color --max-count=1 --pretty=format:%H -- ".self.paths.absolute)
+            return self.repo.execute("rev-list --max-count=1 HEAD -- ".self.paths.absolute)
         endfunction
 
         function! b:vit.status() dict
