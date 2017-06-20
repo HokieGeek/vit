@@ -83,11 +83,18 @@ The equivalent git command is: >
 >
 Mappings~
                                                                 *VitShow-mappings*
-d            Opens |VitDiff| of file under cursor
-D            Opens |VitDiff| of files in selected revision
-o            Opens the file under the cursor as a new tab
-O            Opens every files in the revision in a new tab's |location-list|
-t            Toggles the view from single file to full revision
+d            Opens |VitDiff| of file under cursor.
+D            Opens |VitDiff| of files in selected revision.
+o            Opens the current revision of the file under the cursor in a tab.
+O            Opens the current revision of every file in the revision in a
+             new tab's |location-list|.
+t            Toggles the view from single file to full revision.
+[count]]h    Traverse to the next diff hunk.
+             If a [count] is given, will traverse to the the count'th hunk.
+[count][h    Traverse to the previous diff hunk.
+             If a [count] is given, will traverse to the the count'th hunk.
+]G           Traverse to the last diff hunk in the file
+[G           Traverse to the first diff hunk in the file
 
 --------------------------------------------------------------------------------
 status                                                      *vit-status* *VitStatus*
