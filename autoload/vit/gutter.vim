@@ -104,7 +104,7 @@ endfunction " }}}
 
 function! s:update() " {{{
     call <SID>defineHighlights()
-    let l:diff = split(b:vit.execute("diff-index --unified=0 --no-color --diff-algorithm=minimal HEAD -- ".b:vit.path.relative), "\n")
+    let l:diff = split(b:vit.execute("diff-index --unified=0 --no-color --diff-algorithm=minimal HEAD -- ".b:vit.path.absolute), "\n")
     call s:processDiff(l:diff, b:vit.bufnr)
 endfunction " }}}
 
