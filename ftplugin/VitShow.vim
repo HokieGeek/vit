@@ -83,6 +83,21 @@ if b:vit.windows.show != bufnr("%")
     setlocal statusline=%!GetVitShowStatusLine()
     " }}}
 
+    function! s:navigateHunks(dir, count)
+        let l:pat = "^@@ "
+        if a:count == -1
+            call cursor(a:dir == "-" ? 1 : line("$"), 1)
+            call search(l:pat, (a:dir == "-" ? "" : "b"))
+        else
+            let l:c = a:count == 0 ? 1 : a:count
+            while l:c > 0
+                call search(l:pat, (a:dir == "-" ? "b" : ""))
+                let l:c -= 1
+            endwhile
+        endif
+        normal z.
+    endfunction
+
     " Maps and autocmds " {{{
     autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=%!GetVitShowStatusLine()
 
@@ -93,6 +108,11 @@ if b:vit.windows.show != bufnr("%")
     nnoremap <buffer> <silent> O :call <SID>OpenFilesFromShow()<cr>
 
     nnoremap <buffer> <silent> t :call <SID>VitShowToggleView(!exists("b:vit_show_full"))<cr>
+
+    nnoremap <buffer> <silent> ]h :<C-U>call <SID>navigateHunks("+", v:count)<cr>
+    nnoremap <buffer> <silent> [h :<C-U>call <SID>navigateHunks("-", v:count)<cr>
+    nnoremap <buffer> <silent> ]H :<C-U>call <SID>navigateHunks("+", -1)<cr>
+    nnoremap <buffer> <silent> [H :<C-U>call <SID>navigateHunks("-", -1)<cr>
     " }}}
 endif
 
