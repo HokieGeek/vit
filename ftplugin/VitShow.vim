@@ -21,18 +21,7 @@ if b:vit.windows.show != bufnr("%")
     endfunction " }}}
 
     function! s:GetFileUnderCursor() " {{{
-        let l:currline = line(".")
-        if getline(".") !~ "^diff"
-            let l:last_wrapscan = &wrapscan
-            setlocal nowrapscan
-            execute "silent! normal! ?diff\<cr>"
-            if l:last_wrapscan == 1
-                setlocal wrapscan
-            endif
-        endif
-        let l:file = GetFileFromDiffLine(getline("."))
-        execute l:currline
-        return l:file
+        return GetFileFromDiffLine(getline(search("^diff", "bcnW")))
     endfunction " }}}
 
     function! s:OpenFilesFromShow() " {{{
