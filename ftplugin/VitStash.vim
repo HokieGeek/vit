@@ -36,7 +36,7 @@ function! s:GetStashIdUnderCursor()
 endfunction
 
 function! s:LoadStashInfo(id)
-    let l:diff = b:vit.execute("stash show --stat --patch ".a:id)
+    let l:diff = b:vit.repo.execute("stash show --stat --patch ".a:id)
     execute s:stash_diff_viewer." wincmd w"
     setlocal modifiable
     silent! 1,$d
@@ -47,7 +47,7 @@ function! s:LoadStashInfo(id)
 endfunction
 
 function! s:VitStashInfo()
-    let l:toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
+    let l:toplevel = fnamemodify(substitute(b:vit.repo.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
 
     if tabpagenr("$") == 1
         execute "setlocal statusline=".l:toplevel."%=%l/%L"

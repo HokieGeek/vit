@@ -101,10 +101,18 @@ function! s:GetRepoInfo(file) " {{{
         let l:repo = {}
         let l:repo["worktree"] = l:dirs[0]
         let l:repo["gitdir"]   = l:dirs[1]
+        let l:repo["gitcmd"]   = "git --git-dir=".l:repo.gitdir." --work-tree=".l:repo.worktree
 
         function! l:repo.branch() dict
             let l:file = readfile(self.gitdir."/HEAD")
             return substitute(l:file[0], 'ref: refs/heads/', '', '')
+        endfunction
+
+        function! l:repo.execute(args) dict
+            if strlen(a:args) > 0
+                " echom self.gitcmd." ".a:args
+                return system(self.gitcmd." ".a:args)
+            endif
         endfunction
 
         let g:vit_repos[l:dirs[0]] = l:repo
@@ -126,11 +134,11 @@ function! vit#config#buffer(file) " {{{
 
         "" Functions " {{{
         function! b:vit.revision() dict
-            return self.execute("--no-pager log --no-color -n 1 --pretty=format:%H -- ".self.paths.absolute)
+            return self.repo.execute("--no-pager log --no-color --max-count=1 --pretty=format:%H -- ".self.paths.absolute)
         endfunction
 
         function! b:vit.status() dict
-            let l:status = self.execute("status --porcelain -- ".self.path.absolute)
+            let l:status = self.repo.execute("status --porcelain -- ".self.path.absolute)
 
             if strlen(l:status) == 0
                 return 1 " Clean
@@ -147,25 +155,17 @@ function! vit#config#buffer(file) " {{{
             endif
         endfunction
 
-        function! b:vit.execute(args) dict
-            if strlen(a:args) > 0
-                " echom "git --git-dir=".self.repo.gitdir." --work-tree=".self.repo.worktree." ".a:args
-                return system("git --git-dir=".self.repo.gitdir." --work-tree=".self.repo.worktree." ".a:args)
-            endif
-        endfunction
-
-        function! b:vit.winnr() dict "
+        function! b:vit.winnr() dict
             return bufwinnr(self.bufnr)
         endfunction
         " }}}
 
         "" File paths
         let b:vit["reffile"]  = a:file
+        let b:vit["bufnr"] = bufnr(b:vit.reffile)
         let b:vit["path"] = {}
         let b:vit.path["relative"] = substitute(substitute(fnamemodify(b:vit.reffile, ":p"), b:vit.repo.worktree."/", '', ''), '/$', '', '')
         let b:vit.path["absolute"] = fnamemodify(b:vit.reffile, ":p")
-
-        let b:vit["bufnr"] = bufnr(b:vit.reffile)
 
         "" Command
         command! -bar -buffer -complete=customlist,vit#config#gitcompletion -nargs=* Git :call vit#config#git(<f-args>)

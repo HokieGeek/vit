@@ -29,7 +29,7 @@ if exists("b:vit")
     endif
 
     let b:vit.windows.status = bufnr("%")
-    let b:status = b:vit.execute("status --short") " Using short here because it displays files relative to the cwd
+    let b:status = b:vit.repo.execute("status --short") " Using short here because it displays files relative to the cwd
     if len(b:status) <= 0
         let b:status = "  No changes"
     endif
@@ -75,7 +75,7 @@ function! s:GetFileAtCursor()
     endif
 endfunction
 
-execute "silent! file ".fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
+execute "silent! file ".fnamemodify(substitute(b:vit.repo.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
 
 autocmd WinEnter,WinLeave,BufEnter <buffer> execute "setlocal statusline=".b:vit.repo.branch()
 

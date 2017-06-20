@@ -5,7 +5,7 @@ let g:autoloaded_vit_commands = 1
 
 function! vit#commands#Add(files) " {{{
     let l:files = join(split(a:files), ' ')
-    call b:vit.execute("add ".l:files)
+    call b:vit.repo.execute("add ".l:files)
     if v:shell_error == 0
         echo "Added ".a:files." to the stage"
         call vit#windows#refreshByType("VitStatus")
@@ -47,7 +47,7 @@ function! vit#commands#Commit(args) " {{{
     endif
 endfunction
 function! vit#commands#PerformCommit(args)
-    call b:vit.execute("commit ".a:args)
+    call b:vit.repo.execute("commit ".a:args)
     echomsg "Successfully committed"
     call vit#windows#refreshByType("VitStatus")
     call vit#windows#refreshByType("VitLog")
@@ -55,7 +55,7 @@ function! vit#commands#PerformCommit(args)
 endfunction " }}}
 
 function! vit#commands#Reset(args) " {{{
-    call b:vit.execute("reset ".a:args)
+    call b:vit.repo.execute("reset ".a:args)
     call vit#windows#refreshByType("VitStatus")
     call vit#windows#refreshByType("VitLog")
 endfunction
@@ -69,7 +69,7 @@ function! vit#commands#Unstage(files)
 endfunction " }}}
 
 function! vit#commands#Checkout(args) " {{{
-    call b:vit.execute("checkout ".a:args)
+    call b:vit.repo.execute("checkout ".a:args)
     call vit#windows#refreshByType("VitStatus")
     call vit#windows#refreshByType("VitLog")
 endfunction
@@ -80,7 +80,7 @@ function! vit#commands#CheckoutCurrentFile(rev)
 endfunction " }}}
 
 function! vit#commands#Stash(args) " {{{
-    let l:out = b:vit.execute("stash ".a:args)
+    let l:out = b:vit.repo.execute("stash ".a:args)
     if a:args != "list"
         call vit#windows#refreshByType("VitStatus")
         call vit#windows#refreshByType("VitLog")
@@ -97,7 +97,7 @@ function! vit#commands#Move(newpath) " {{{
     if exists("b:vit")
         let l:bufn = bufnr("%")
         let l:newpath = substitute(getcwd()."/".a:newpath, b:vit.repo.worktree."/", '', '')
-        call b:vit.execute("mv ".b:vit.path.relative." ".l:newpath)
+        call b:vit.repo.execute("mv ".b:vit.path.relative." ".l:newpath)
         if v:shell_error == 0
           execute "edit ".l:newpath
           execute "bdelete ".l:bufn
@@ -110,7 +110,7 @@ endfunction " }}}
 
 function! vit#commands#Remove() " {{{
     if exists("b:vit")
-        call b:vit.execute("rm ".b:vit.path.relative)
+        call b:vit.repo.execute("rm ".b:vit.path.relative)
         if v:shell_error == 0
             bdelete
             call vit#windows#refreshByType("VitStatus")
@@ -123,7 +123,7 @@ endfunction " }}}
 function! vit#commands#RevertFile(rev, file) " {{{
     if confirm("Are you sure you want to git revert this file?", "y\nN", 0) == 1 && exists("b:vit")
         call vit#commands#Checkout(a:rev." -- ".a:file)
-        let l:msg = b:vit.execute("cat-file commit ".a:rev)
+        let l:msg = b:vit.repo.execute("cat-file commit ".a:rev)
         call vit#commands#PerformCommit("-m 'Reverted ".a:file." to ".a:rev." \"".split(l:msg, '\n')[5]."\"'")
     endif
 endfunction " }}}

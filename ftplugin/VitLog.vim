@@ -91,7 +91,7 @@ function! s:VitLogInfo() " {{{
     execute "setlocal statusline=".l:line."%=%l/%L"
 endfunction
 
-let b:vit_toplevel = fnamemodify(substitute(b:vit.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
+let b:vit_toplevel = fnamemodify(substitute(b:vit.repo.execute("rev-parse --show-toplevel"), "\n$", "", ""), ":t")
 execute "silent! file ".b:vit_toplevel
 
 autocmd TabLeave,WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call <SID>VitLogInfo()
@@ -99,7 +99,7 @@ call s:VitLogInfo() " }}}
 
 function! s:VitLoadLog() " {{{
     setlocal modifiable
-    let b:log = b:vit.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>' ".b:vit_log_args)
+    let b:log = b:vit.repo.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>' ".b:vit_log_args)
     if strlen(b:log) <= 0
         echohl WarningMsg
         echom "No log was generated"
@@ -160,7 +160,7 @@ else
             enew
 
             let b:vit = l:vit
-            let l:fileRev = b:vit.execute("show ".a:rev.":".b:vit.path.relative)
+            let l:fileRev = b:vit.repo.execute("show ".a:rev.":".b:vit.path.relative)
             silent! put =l:fileRev
             silent! 0d_
 

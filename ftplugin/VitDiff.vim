@@ -15,7 +15,7 @@ endif
 
 let b:vit.windows.diff = bufnr("%")
 
-let b:content = b:vit.execute("show ".b:git_revision.":".b:vit.path.relative)
+let b:content = b:vit.repo.execute("show ".b:git_revision.":".b:vit.path.relative)
 silent! put =b:content
 0d_
 setlocal nomodifiable

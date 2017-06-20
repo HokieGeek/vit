@@ -37,7 +37,7 @@ if b:vit.windows.show != bufnr("%")
 
     function! s:OpenFilesFromShow() " {{{
         let l:showfiles = map(filter(getline(1, "$"), 'v:val =~ "^diff"'), 'fnamemodify(GetFileFromDiffLine(v:val), ":p:.")')
-        let l:showfiles = map(l:showfiles, 'v:val.":1:".substitute(split(b:vit.execute("show --stat '.b:git_revision.' -- ".v:val), "\n")[6], " *".v:val." *| *", "", "")')
+        let l:showfiles = map(l:showfiles, 'v:val.":1:".substitute(split(b:vit.repo.execute("show --stat '.b:git_revision.' -- ".v:val), "\n")[6], " *".v:val." *| *", "", "")')
 
         tabnew
         lexpr l:showfiles
@@ -76,7 +76,7 @@ if b:vit.windows.show != bufnr("%")
     function! GetVitShowStatusLine() " {{{
         let l:summary=""
         if exists("b:git_revision")
-            let l:summary=split(b:vit.execute("show --oneline --shortstat --no-color ".b:git_revision), "\n")[-1]
+            let l:summary=split(b:vit.repo.execute("show --oneline --shortstat --no-color ".b:git_revision), "\n")[-1]
         endif
         return l:summary."%=%l/%L"
     endfunction
@@ -101,7 +101,7 @@ if exists("b:git_revision")
     if !exists("b:vit_show_full")
         let b:vit_show_cmd .= " ".fnamemodify(b:vit.path.absolute, ":.")
     endif
-    let b:vit_content = b:vit.execute(b:vit_show_cmd)
+    let b:vit_content = b:vit.repo.execute(b:vit_show_cmd)
 else
     let b:vit_content = "No revision given"
 endif
