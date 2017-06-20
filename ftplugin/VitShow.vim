@@ -37,7 +37,7 @@ if b:vit.windows.show != bufnr("%")
 
     function! s:OpenFilesFromShow() " {{{
         let l:showfiles = map(filter(getline(1, "$"), 'v:val =~ "^diff"'), 'fnamemodify(GetFileFromDiffLine(v:val), ":p:.")')
-        let l:showfiles = map(l:showfiles, 'v:val.":1:".substitute(split(b:vit.repo.execute("show --stat '.b:git_revision.' -- ".v:val), "\n")[6], " *".v:val." *| *", "", "")')
+        let l:showfiles = map(l:showfiles, 'v:val.":1:".substitute(split(b:vit.repo.execute("show --stat '.b:git_revision.' -- ".v:val), "\n")[6], " *".v:val."[^|]*| *", "", "")')
 
         tabnew
         lexpr l:showfiles
