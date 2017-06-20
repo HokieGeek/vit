@@ -36,7 +36,7 @@ function! s:GetStashIdUnderCursor()
 endfunction
 
 function! s:LoadStashInfo(id)
-    let l:diff = b:vit.repo.execute("stash show --stat --patch ".a:id)
+    let l:diff = b:vit.repo.execute("stash show --stat --patch --submodule ".a:id)
     execute s:stash_diff_viewer." wincmd w"
     setlocal modifiable
     silent! 1,$d
