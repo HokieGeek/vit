@@ -214,6 +214,15 @@ By default, the tool will display information on the vim signs column (the
 gutter) with information onw how the file saved to disk differs from the HEAD
 in git.
 
+                                                             *vit-gutter-mappings*
+
+[count]]g       Traverse to the next diff hunk in the file.
+                If a [count] is given, will traverse to the the count'th hunk.
+[count][g       Traverse to the previous diff hunk in the file
+                If a [count] is given, will traverse to the the count'th hunk.
+]G              Traverse to the last diff hunk in the file
+[G              Traverse to the first diff hunk in the file
+
                                                                  *GitGutterToggle*
 :GitGutterToggle
 
