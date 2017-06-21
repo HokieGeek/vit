@@ -33,7 +33,13 @@ function! vit#config#git(...) " {{{
             elseif a:1 ==# "blame"
                 call vit#windows#Blame(b:vit.path.relative)
             elseif a:1 ==# "log" || a:1 ==# "lg"
-                call vit#windows#Log(b:vit.path.relative, a:0 == 2 && a:2 == "--all" ? a:2 : "")
+                let l:args = []
+                for arg in a:000[1:]
+                    if arg =~ "all" || arg =~ "stat"
+                        call add(l:args, arg)
+                    endif
+                endfor
+                call vit#windows#Log(b:vit.path.relative, l:args)
             elseif a:1 ==# "show"
                 call vit#windows#ShowWindow(a:2)
             elseif a:1 ==# "status" || a:1 ==# "st"

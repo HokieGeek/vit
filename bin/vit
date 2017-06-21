@@ -22,13 +22,16 @@ elif [[ ${vimargs[*]} =~ "blame" ]] && (( ${#args[*]} == 0 )); then
     exit 2
 fi
 
-if (( ${#args[@]} > 0 )) && [[ ${args[@]} =~ all ]]; then
-    # TODO: refactor this so that it doesn't break the syntax highlighting in vim
-    [[ ${vimargs[*]} =~ "log" ]] && vimargs=("${vimargs[@]/log/log --all}")
-    [[ ${vimargs[*]} =~ "k" ]] && vimargs=("${vimargs[@]/k/k --all}")
-    delete=(--all)
-    args=(${args[@]/$delete})
-fi
+for arg in ${args[@]}; do
+    case $arg in
+    --all|--stat)
+        [[ ${vimargs[*]} =~ "log" ]] && vimargs=("${vimargs[@]/log/log ${arg}}")
+        [[ ${vimargs[*]} =~ "k" ]] && vimargs=("${vimargs[@]/k/k ${arg}}")
+        delete=(${arg})
+        args=(${args[@]/$delete})
+        ;;
+    esac
+done
 
 (( ${#args[*]} > 0 )) && {
     origdir=$PWD
@@ -44,4 +47,4 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
 [[ -z "${origdir+x}" ]] || cd ${origdir}
 
 me=${0##*/}
-exec ${me/vit/}vim ${debug:+"-V${debug}/tmp/vit.debug"} "${args[@]}" "${vimargs[@]}"
+exec ${me/vit/}vim ${debug:+"-V${debug}/tmp/vit.debug"} "${vimargs[@]}" "${args[@]}"

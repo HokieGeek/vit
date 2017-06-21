@@ -57,7 +57,7 @@ The following windows are available: |VitLog|, |VitStatus|, |VitShow|, |VitBlame
 COMANDS                                                             *vit-commands*
 
 --------------------------------------------------------------------------------
-log [file]                                                        *vit-log* *VitLog*
+log [--all] [--stat] [file]                                       *vit-log* *VitLog*
 
 Opens an interactive window with the git log of the given file.
 
@@ -244,8 +244,10 @@ This command hides and shows the gutter with the diff information
 ================================================================================
 SHELL SCRIPT                                                     *vit-shellscript*
 
-bin/vit [-h|--help] [blame | log | stash] [file]                      *vit-script*
-bin/gvit [-h|--help] [blame | log | stash] [file]                    *gvit-script*
+                                                                      *vit-script*
+                                                                     *gvit-script*
+bin/vit [-h|--help] [blame | log [--all | --stat] | stash] [file]
+bin/gvit [-h|--help] [blame | log [--all | --stat] | stash] [file]
 
                                                              *vit-script-commands*
                                                             *gvit-script-commands*
