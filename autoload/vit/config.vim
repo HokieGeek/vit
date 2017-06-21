@@ -73,7 +73,7 @@ function! vit#config#git(...) " {{{
                 wincmd t
             else
                 echohl WarningMsg
-                echomsg "Unrecognized command. See :help vit"
+                echomsg "Unrecognized command: ".a:1.". See :help vit"
                 echohl None
             endif
         else
