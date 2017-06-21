@@ -54,8 +54,10 @@ function! vit#windows#Blame(file) " {{{
         vnew
         let b:vit = getbufvar(bufnr(a:file), "vit")
         set filetype=VitBlame
+        setlocal scrollbind
         wincmd p
-        windo setlocal scrollbind
+        setlocal scrollbind
+        syncbind
     endif
 endfunction " }}}
 
