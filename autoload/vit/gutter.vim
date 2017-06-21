@@ -62,23 +62,16 @@ function! s:place(bufnr, startline, range, type) " {{{
     endwhile
 endfunction " }}}
 
-function! s:breakupPos(hunkPos) " {{{
-    return split(substitute(a:hunkPos, "[+-]", "", "g"), ",")
-endfunction " }}}
-
-function! s:analyzeHunk(hunk) " {{{
-    let l:hunkArr = split(a:hunk, " ")
-    return [s:breakupPos(l:hunkArr[1]), s:breakupPos(l:hunkArr[2])]
-endfunction " }}}
-
 function! s:getHunksFromDiff(diff) " {{{
     let l:hunks = []
-    let i = 0
-    while i < len(a:diff)
-        if a:diff[i][0] == "@"
-            call add(l:hunks, s:analyzeHunk(a:diff[i]))
+    let i = len(a:diff)-1
+    while i >= 0
+        if a:diff[i] =~ "^@@"
+            let l:hunkArr = split(substitute(a:diff[i], "[+-]", "", "g"), " ")
+            let l:hunk = [split(l:hunkArr[1], ","), split(l:hunkArr[2], ",")]
+            call insert(l:hunks, l:hunk)
         endif
-        let i += 1
+        let i -= 1
     endwhile
     return l:hunks
 endfunction " }}}
