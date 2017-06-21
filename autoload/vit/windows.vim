@@ -61,12 +61,12 @@ function! vit#windows#Blame(file) " {{{
     endif
 endfunction " }}}
 
-function! vit#windows#Log(file, ...) " {{{
+function! vit#windows#Log(file, args) " {{{
     if exists("b:vit")
         if b:vit.windows.log < 0
             new
-            if a:0 > 0
-                let b:vit_log_args = join(a:000, ' ')
+            if len(a:args) > 0
+                let b:vit_log_args = a:args
             endif
             let l:bufn = bufnr(a:file)
             if l:bufn >= 0

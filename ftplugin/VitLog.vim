@@ -21,10 +21,10 @@ if !exists("b:autoloaded_vit_log")
 endif
 
 if !exists("b:vit_log_args")
-    let b:vit_log_args = ""
+    let b:vit_log_args = []
 endif
 if len(b:vit.reffile) > 0
-    let b:vit_log_args .= " -- ".b:vit.path.absolute
+    call add(b:vit_log_args, " -- ".b:vit.path.absolute)
 endif
 
 if !exists("b:vit_log_lastline")
@@ -54,7 +54,7 @@ command! -bar -buffer -complete=customlist,vit#config#gitCompletion -nargs=* Git
 function! s:SkipNonCommits(func) " {{{
     if b:vit_log_lastline != line(".")
         let l:rev = s:GetRevUnderCursor()
-        if l:rev =~ "^[\|\\/*]"
+        if l:rev =~ "^[\|\\/*]" || l:rev =~ "^[ \t]*$"
             if b:vit_log_lastline > line(".")
                 let l:newline = line(".")-1
             else
@@ -99,7 +99,7 @@ call s:VitLogInfo() " }}}
 
 function! s:VitLoadLog() " {{{
     setlocal modifiable
-    let b:log = b:vit.repo.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>' ".b:vit_log_args)
+    let b:log = b:vit.repo.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>' ".join(b:vit_log_args, " "))
     if strlen(b:log) <= 0
         echohl WarningMsg
         echom "No log was generated"
