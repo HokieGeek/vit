@@ -71,6 +71,18 @@ function! s:analyzeHunk(hunk) " {{{
     return [s:breakupPos(l:hunkArr[1]), s:breakupPos(l:hunkArr[2])]
 endfunction " }}}
 
+function! s:getHunksFromDiff(diff) " {{{
+    let l:hunks = []
+    let i = 0
+    while i < len(a:diff)
+        if a:diff[i][0] == "@"
+            call add(l:hunks, s:analyzeHunk(a:diff[i]))
+        endif
+        let i += 1
+    endwhile
+    return l:hunks
+endfunction " }}}
+
 function! s:processDiff(diff, bufnr) " {{{
     execute "sign unplace * buffer=".a:bufnr
     if exists("b:vit.signs")
@@ -78,28 +90,21 @@ function! s:processDiff(diff, bufnr) " {{{
     endif
     let b:vit["signs"] = {}
 
-    let i = 0
-    while i < len(a:diff)
-        if a:diff[i][0] == "@"
-            let l:hunkInfo = s:analyzeHunk(a:diff[i])
-            " echo l:hunkInfo
-
-            if len(l:hunkInfo[0]) == 1 && len(l:hunkInfo[1]) == 1
-                call s:place(a:bufnr, l:hunkInfo[1][0], 1, "vitmod")
-            endif
-
-            if len(l:hunkInfo[0]) > 1 && l:hunkInfo[0][1] != 0
-                call s:place(a:bufnr, l:hunkInfo[1][0]-1, 1, "vitsub")
-            endif
-
-            if len(l:hunkInfo[1]) > 1 && l:hunkInfo[1][1] > 0
-                call s:place(a:bufnr, l:hunkInfo[1][0], l:hunkInfo[1][1], "vitadd")
-            elseif len(l:hunkInfo[0]) > 1 && len(l:hunkInfo[1]) == 1 && l:hunkInfo[0][1] == 0
-                call s:place(a:bufnr, l:hunkInfo[1][0], 1, "vitadd")
-            endif
+    for hunkInfo in s:getHunksFromDiff(a:diff)
+        if len(hunkInfo[0]) == 1 && len(hunkInfo[1]) == 1
+            call s:place(a:bufnr, hunkInfo[1][0], 1, "vitmod")
         endif
-        let i += 1
-    endwhile
+
+        if len(hunkInfo[0]) > 1 && hunkInfo[0][1] != 0
+            call s:place(a:bufnr, hunkInfo[1][0]-1, 1, "vitsub")
+        endif
+
+        if len(hunkInfo[1]) > 1 && hunkInfo[1][1] > 0
+            call s:place(a:bufnr, hunkInfo[1][0], hunkInfo[1][1], "vitadd")
+        elseif len(hunkInfo[0]) > 1 && len(hunkInfo[1]) == 1 && hunkInfo[0][1] == 0
+            call s:place(a:bufnr, hunkInfo[1][0], 1, "vitadd")
+        endif
+    endfor
 endfunction " }}}
 
 function! s:update() " {{{
