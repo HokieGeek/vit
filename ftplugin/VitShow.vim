@@ -72,8 +72,8 @@ if b:vit.windows.show != bufnr("%")
     setlocal statusline=%!GetVitShowStatusLine()
     " }}}
 
-    function! s:navigateHunks(dir, count)
-        let l:pat = "^@@ "
+    function! s:navigate(target, dir, count)
+        let l:pat = a:target == "hunk" ? "^@@ " : "^diff "
         if a:count == -1
             call cursor(a:dir == "-" ? 1 : line("$"), 1)
             call search(l:pat, (a:dir == "-" ? "" : "b"))
@@ -98,10 +98,15 @@ if b:vit.windows.show != bufnr("%")
 
     nnoremap <buffer> <silent> t :call <SID>VitShowToggleView(!exists("b:vit_show_full"))<cr>
 
-    nnoremap <buffer> <silent> ]h :<C-U>call <SID>navigateHunks("+", v:count)<cr>
-    nnoremap <buffer> <silent> [h :<C-U>call <SID>navigateHunks("-", v:count)<cr>
-    nnoremap <buffer> <silent> ]H :<C-U>call <SID>navigateHunks("+", -1)<cr>
-    nnoremap <buffer> <silent> [H :<C-U>call <SID>navigateHunks("-", -1)<cr>
+    nnoremap <buffer> <silent> ]h :<C-U>call <SID>navigate("hunk", "+", v:count)<cr>
+    nnoremap <buffer> <silent> [h :<C-U>call <SID>navigate("hunk", "-", v:count)<cr>
+    nnoremap <buffer> <silent> ]H :<C-U>call <SID>navigate("hunk", "+", -1)<cr>
+    nnoremap <buffer> <silent> [H :<C-U>call <SID>navigate("hunk", "-", -1)<cr>
+
+    nnoremap <buffer> <silent> ]f :<C-U>call <SID>navigate("file", "+", v:count)<cr>
+    nnoremap <buffer> <silent> [f :<C-U>call <SID>navigate("file", "-", v:count)<cr>
+    nnoremap <buffer> <silent> ]F :<C-U>call <SID>navigate("file", "+", -1)<cr>
+    nnoremap <buffer> <silent> [F :<C-U>call <SID>navigate("file", "-", -1)<cr>
     " }}}
 endif
 

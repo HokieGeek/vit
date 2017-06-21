@@ -93,8 +93,14 @@ t            Toggles the view from single file to full revision.
              If a [count] is given, will traverse to the the count'th hunk.
 [count][h    Traverse to the previous diff hunk.
              If a [count] is given, will traverse to the the count'th hunk.
-]G           Traverse to the last diff hunk in the file
-[G           Traverse to the first diff hunk in the file
+]H           Traverse to the last diff hunk in the view.
+[H           Traverse to the first diff hunk in the view.
+[count]]f    Traverse to the next diff file.
+             If a [count] is given, will traverse to the the count'th file.
+[count][f    Traverse to the previous diff file.
+             If a [count] is given, will traverse to the the count'th file.
+]F           Traverse to the last diff file in the view.
+[F           Traverse to the first diff file in the view.
 
 --------------------------------------------------------------------------------
 status                                                      *vit-status* *VitStatus*
