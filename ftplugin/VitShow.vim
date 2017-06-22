@@ -84,7 +84,7 @@ if b:vit.windows.show != bufnr("%")
                 let l:c -= 1
             endwhile
         endif
-        normal z.
+        call feedkeys('z.')
     endfunction
 
     " Maps and autocmds " {{{
