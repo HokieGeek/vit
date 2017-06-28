@@ -3,6 +3,10 @@ if exists("g:autoloaded_vit_commands") || v:version < 700
 endif
 let g:autoloaded_vit_commands = 1
 
+function! vit#commands#fileDiffAsList(file, rev) " {{{
+    return split(b:vit.repo.execute("diff --unified=0 --no-color --diff-algorithm=minimal ".a:rev." -- ".a:file), "\n")
+endfunction " }}}
+
 function! vit#commands#Add(files) " {{{
     let l:files = join(split(a:files), ' ')
     call b:vit.repo.execute("add ".l:files)

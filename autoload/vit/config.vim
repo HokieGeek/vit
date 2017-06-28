@@ -140,7 +140,7 @@ function! vit#config#buffer(file) " {{{
 
         "" Functions " {{{
         function! b:vit.revision() dict
-            return self.repo.execute("rev-list --max-count=1 HEAD -- ".self.paths.absolute)
+            return self.repo.execute("rev-list --max-count=1 HEAD -- ".self.path.absolute)
         endfunction
 
         function! b:vit.status() dict

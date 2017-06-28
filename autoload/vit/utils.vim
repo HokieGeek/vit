@@ -22,4 +22,21 @@ function! vit#utils#reloadBuffers()
     silent! bufdo! edit!|syntax on
 endfunction
 
+function! vit#utils#getHunksFromDiff(diff) " {{{
+    let l:hunks = []
+    let i = len(a:diff)-1
+    while i >= 0
+        if a:diff[i] =~ "^@@"
+            let l:hunkArr = split(substitute(a:diff[i], "[+-]", "", "g"), " ")
+            let l:hunk = {}
+            let l:hunk["str"] = a:diff[i]
+            let l:hunk["before"] = split(l:hunkArr[1], ",")
+            let l:hunk["after"] = split(l:hunkArr[2], ",")
+            call insert(l:hunks, l:hunk)
+        endif
+        let i -= 1
+    endwhile
+    return l:hunks
+endfunction " }}}
+
 " vim: set foldmethod=marker formatoptions-=tc:

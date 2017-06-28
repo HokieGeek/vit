@@ -62,48 +62,34 @@ function! s:place(bufnr, startline, range, type) " {{{
     endwhile
 endfunction " }}}
 
-function! s:getHunksFromDiff(diff) " {{{
-    let l:hunks = []
-    let i = len(a:diff)-1
-    while i >= 0
-        if a:diff[i] =~ "^@@"
-            let l:hunkArr = split(substitute(a:diff[i], "[+-]", "", "g"), " ")
-            let l:hunk = [split(l:hunkArr[1], ","), split(l:hunkArr[2], ",")]
-            call insert(l:hunks, l:hunk)
-        endif
-        let i -= 1
-    endwhile
-    return l:hunks
-endfunction " }}}
-
-function! s:processDiff(diff, bufnr) " {{{
+function! s:processHunks(hunks, bufnr) " {{{
     execute "sign unplace * buffer=".a:bufnr
     if exists("b:vit.signs")
         unlet! b:vit["signs"]
     endif
     let b:vit["signs"] = {}
 
-    for hunkInfo in s:getHunksFromDiff(a:diff)
-        if len(hunkInfo[0]) == 1 && len(hunkInfo[1]) == 1
-            call s:place(a:bufnr, hunkInfo[1][0], 1, "vitmod")
+    for hunkInfo in a:hunks
+        if len(hunkInfo.before) == 1 && len(hunkInfo.after) == 1
+            call s:place(a:bufnr, hunkInfo.after[0], 1, "vitmod")
         endif
 
-        if len(hunkInfo[0]) > 1 && hunkInfo[0][1] != 0
-            call s:place(a:bufnr, hunkInfo[1][0]-1, 1, "vitsub")
+        if len(hunkInfo.before) > 1 && hunkInfo.before[1] != 0
+            call s:place(a:bufnr, hunkInfo.after[0]-1, 1, "vitsub")
         endif
 
-        if len(hunkInfo[1]) > 1 && hunkInfo[1][1] > 0
-            call s:place(a:bufnr, hunkInfo[1][0], hunkInfo[1][1], "vitadd")
-        elseif len(hunkInfo[0]) > 1 && len(hunkInfo[1]) == 1 && hunkInfo[0][1] == 0
-            call s:place(a:bufnr, hunkInfo[1][0], 1, "vitadd")
+        if len(hunkInfo.after) > 1 && hunkInfo.after[1] > 0
+            call s:place(a:bufnr, hunkInfo.after[0], hunkInfo.after[1], "vitadd")
+        elseif len(hunkInfo.before) > 1 && len(hunkInfo.after) == 1 && hunkInfo.before[1] == 0
+            call s:place(a:bufnr, hunkInfo.after[0], 1, "vitadd")
         endif
     endfor
 endfunction " }}}
 
 function! s:update() " {{{
     call <SID>defineHighlights()
-    let l:diff = split(b:vit.repo.execute("diff-index --unified=0 --no-color --diff-algorithm=minimal HEAD -- ".b:vit.path.absolute), "\n")
-    call s:processDiff(l:diff, b:vit.bufnr)
+    let l:hunks = vit#utils#getHunksFromDiff(vit#commands#fileDiffAsList(b:vit.path.absolute, "HEAD"))
+    call s:processHunks(l:hunks, b:vit.bufnr)
 endfunction " }}}
 
 function! s:remove() " {{{
