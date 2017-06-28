@@ -5,7 +5,7 @@ let g:autoloaded_vit_config = 1
 
 let s:vit_commands = ["log", "status", "blame", "diff", "show", "add", "reset", "checkout", "commit", "stash", "mv", "rm", "revert", "k"]
 
-function! vit#config#gitcompletion(arg_lead, cmd_line, cursor_pos) " {{{
+function! s:gitcompletion(arg_lead, cmd_line, cursor_pos) " {{{
     if a:cmd_line =~# "^Git add "
         let l:files = split(glob(b:vit_root_dir."/".a:arg_lead."*"))
         let l:files = map(l:files, 'v:val.(isdirectory(v:val)?"/":"")')
@@ -20,7 +20,7 @@ function! vit#config#gitcompletion(arg_lead, cmd_line, cursor_pos) " {{{
     endif
 endfunction " }}}
 
-function! vit#config#git(...) " {{{
+function! s:git(...) " {{{
     if exists("b:vit")
         if a:0 > 0
             if a:1 ==# "diff"
@@ -74,8 +74,8 @@ function! vit#config#git(...) " {{{
                 tabnew
                 let b:vit = l:vit
                 let t:vit_log_k=1
-                call vit#config#git("log", a:0 == 2 ? a:2 : "")
-                call vit#config#git("status")
+                call s:git("log", a:0 == 2 ? a:2 : "")
+                call s:git("status")
                 wincmd t
             else
                 echohl WarningMsg
@@ -174,7 +174,7 @@ function! vit#config#buffer(file) " {{{
         let b:vit.path["absolute"] = fnamemodify(b:vit.reffile, ":p")
 
         "" Command
-        command! -bar -buffer -complete=customlist,vit#config#gitcompletion -nargs=* Git :call vit#config#git(<f-args>)
+        command! -bar -buffer -complete=customlist,s:gitcompletion -nargs=* Git :call s:git(<f-args>)
 
         "" Special features
         if has("signs") && !exists("g:vit_gutter_disable")
