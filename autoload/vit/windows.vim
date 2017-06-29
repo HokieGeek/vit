@@ -4,7 +4,7 @@ endif
 let g:autoloaded_vit_windows = 1
 scriptencoding utf-8
 
-function! vit#windows#Diff(file, rev) " {{{
+function! vit#windows#Diff(file, rev)
     if isdirectory(a:file)
         echohl WarningMsg
         echomsg "Cannot perform a diff against a directory"
@@ -47,9 +47,9 @@ function! vit#windows#OpenFilesInRevisionAsDiff(rev)
         echomsg "There are no files related to the selected revision"
         echohl None
     endif
-endfunction " }}}
+endfunction
 
-function! vit#windows#Blame(file) " {{{
+function! vit#windows#Blame(file)
     if exists("b:vit") && b:vit.windows.blame < 0
         vnew
         let b:vit = getbufvar(bufnr(a:file), "vit")
@@ -59,9 +59,9 @@ function! vit#windows#Blame(file) " {{{
         setlocal scrollbind
         syncbind
     endif
-endfunction " }}}
+endfunction
 
-function! vit#windows#Log(file, args) " {{{
+function! vit#windows#Log(file, args)
     if exists("b:vit")
         if b:vit.windows.log < 0
             new
@@ -77,9 +77,9 @@ function! vit#windows#Log(file, args) " {{{
             call setbufvar(b:vit.windows.log, '&filetype', 'VitLog')
         endif
     endif
-endfunction " }}}
+endfunction
 
-function! vit#windows#ShowWindow(rev) " {{{
+function! vit#windows#ShowWindow(rev)
     let l:bufnr = b:vit.bufnr
 
     if &lines > 20
@@ -93,9 +93,9 @@ function! vit#windows#Show(rev, bufnr)
     let b:vit = getbufvar(a:bufnr, "vit")
     let b:git_revision = len(a:rev) > 0 ? a:rev : b:vit.revision()
     setlocal filetype=VitShow
-endfunction " }}}
+endfunction
 
-function! vit#windows#Status() " {{{
+function! vit#windows#Status()
     if exists("b:vit")
         if b:vit.windows.status < 0
             let l:winnr = winnr()
@@ -108,10 +108,10 @@ function! vit#windows#Status() " {{{
             call setbufvar(b:vit.windows.status, '&filetype', 'VitStatus')
         endif
     endif
-endfunction " }}}
+endfunction
 
 function! vit#windows#refreshByType(type)
     call map(vit#utils#getVitBuffersByType(a:type), "setbufvar(v:val, '&filetype', '".a:type."')")
 endfunction
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':

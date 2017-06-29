@@ -36,7 +36,7 @@ if exists("&relativenumber")
     setlocal norelativenumber
 endif
 
-function! s:MoveWindowCursor(winnr) " {{{
+function! s:MoveWindowCursor(winnr)
     let l:currline = line(".")
     execute a:winnr." wincmd w"
     execute "normal ".l:currline."gg"
@@ -57,4 +57,4 @@ autocmd WinEnter,WinLeave,BufEnter <buffer> setlocal statusline=\
 nnoremap <buffer> <silent> <enter> :call vit#windows#ShowWindow(<SID>GetRevFromBlame())<cr>
 nnoremap <buffer> <silent> d :call vit#windows#OpenFilesInRevisionAsDiff(<SID>GetRevFromBlame())<cr>
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':

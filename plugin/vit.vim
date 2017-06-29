@@ -19,4 +19,4 @@ endfunction
 
 autocmd BufWinEnter * call <SID>VitInit()
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':

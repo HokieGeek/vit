@@ -22,7 +22,7 @@ function! vit#utils#reloadBuffers()
     silent! bufdo! edit!|syntax on
 endfunction
 
-function! vit#utils#getHunksFromDiff(diff) " {{{
+function! vit#utils#getHunksFromDiff(diff)
     let l:hunks = []
     let i = len(a:diff)-1
     while i >= 0
@@ -37,6 +37,6 @@ function! vit#utils#getHunksFromDiff(diff) " {{{
         let i -= 1
     endwhile
     return l:hunks
-endfunction " }}}
+endfunction
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':

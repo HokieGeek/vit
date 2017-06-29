@@ -5,7 +5,7 @@ let g:autoloaded_vit_config = 1
 
 let s:vit_commands = ["log", "status", "blame", "diff", "show", "add", "reset", "checkout", "commit", "stash", "mv", "rm", "revert", "k"]
 
-function! s:gitcompletion(arg_lead, cmd_line, cursor_pos) " {{{
+function! s:gitcompletion(arg_lead, cmd_line, cursor_pos)
     if a:cmd_line =~# "^Git add "
         let l:files = split(glob(b:vit_root_dir."/".a:arg_lead."*"))
         let l:files = map(l:files, 'v:val.(isdirectory(v:val)?"/":"")')
@@ -18,9 +18,9 @@ function! s:gitcompletion(arg_lead, cmd_line, cursor_pos) " {{{
             return filter(s:vit_commands, 'v:val[0:strlen(a:arg_lead)-1] ==? a:arg_lead')
         endif
     endif
-endfunction " }}}
+endfunction
 
-function! s:git(...) " {{{
+function! s:git(...)
     if exists("b:vit")
         if a:0 > 0
             if a:1 ==# "diff"
@@ -88,9 +88,9 @@ function! s:git(...) " {{{
     else
         echomsg "Not in a git repository"
     endif
-endfunction " }}}
+endfunction
 
-function! s:GetRepoInfo(file) " {{{
+function! s:GetRepoInfo(file)
     let l:reffile_dir = fnamemodify(a:file, ":p:h")
 
     let l:dirs = split(system("cd ".l:reffile_dir."; git rev-parse --show-toplevel --git-dir 2>/dev/null"), "\n")
@@ -124,9 +124,9 @@ function! s:GetRepoInfo(file) " {{{
         let g:vit_repos[l:dirs[0]] = l:repo
     endif
     return l:dirs[0]
-endfunction " }}}
+endfunction
 
-function! vit#config#buffer(file) " {{{
+function! vit#config#buffer(file)
     let l:repo_key = s:GetRepoInfo(a:file)
 
     if len(l:repo_key) > 0
@@ -184,4 +184,4 @@ function! vit#config#buffer(file) " {{{
 endfunction
 " }}}
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':

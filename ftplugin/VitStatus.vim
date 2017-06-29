@@ -99,4 +99,4 @@ nnoremap <buffer> <silent> D :let first_tab = tabpagenr() + 1
 nnoremap <buffer> j j
 nnoremap <buffer> k k
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':

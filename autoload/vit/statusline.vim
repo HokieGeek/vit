@@ -3,13 +3,13 @@ if exists("g:autoloaded_vit_statusline") || v:version < 700
 endif
 let g:autoloaded_vit_statusline = 1
 
-function! s:AssignHL(name,bg,fg,weight) " {{{
+function! s:AssignHL(name,bg,fg,weight)
     let l:gui = "guibg=".a:bg[0]." guifg=".a:fg[0]
     let l:term = "ctermbg=".a:bg[1]." ctermfg=".a:fg[1]." cterm=".a:weight
     execute "highlight SL_HL_".a:name." ".l:gui." ".l:term
-endfunction " }}}
+endfunction
 
-function! s:StatuslineHighlights() " {{{
+function! s:StatuslineHighlights()
     let l:git_bg     = ["#f4d224", "178"]
     let l:red_bright = ["#ce0000", "196"]
     let l:green      = ["#0c8f0c", "22"]
@@ -22,9 +22,9 @@ function! s:StatuslineHighlights() " {{{
     call s:AssignHL("VitUntracked",             l:git_bg,     l:white,      "bold")
 
     let b:vit_defined_statusline_highlights=0
-endfunction " }}}
+endfunction
 
-function! vit#statusline#get() " {{{
+function! vit#statusline#get()
     let l:status=""
     if exists("b:vit")
         if !exists("b:vit_defined_statusline_highlights")
@@ -53,4 +53,4 @@ function! vit#statusline#get() " {{{
 endfunction
 " }}}
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':

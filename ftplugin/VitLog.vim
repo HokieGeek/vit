@@ -37,7 +37,7 @@ function! s:GetRevUnderCursor()
     return substitute(getline("."), '^[\* \\/\|]*\s*\([0-9a-f]\{7,}\) .*', '\1', '')
 endfunction
 
-function! s:Git(...) " {{{
+function! s:Git(...)
     if a:0 > 0
         if a:1 ==# "reset"
             call vit#commands#Reset(join(a:000[1:], ' '). " ".<SID>GetRevUnderCursor())
@@ -51,7 +51,7 @@ endfunction
 command! -bar -buffer -complete=customlist,vit#config#gitCompletion -nargs=* Git :call <SID>Git(<f-args>)
 " }}}
 
-function! s:SkipNonCommits(func) " {{{
+function! s:SkipNonCommits(func)
     if b:vit_log_lastline != line(".")
         let l:rev = s:GetRevUnderCursor()
         if l:rev =~ "^[\|\\/*]" || l:rev =~ "^[ \t]*$"
@@ -67,9 +67,9 @@ function! s:SkipNonCommits(func) " {{{
         endif
         let b:vit_log_lastline = line(".")
     endif
-endfunction " }}}
+endfunction
 
-function! s:VitLogLoadShowByRev(rev) " {{{
+function! s:VitLogLoadShowByRev(rev)
     if b:vit.windows.show == -1
         call vit#windows#ShowWindow(a:rev)
     else
@@ -79,9 +79,9 @@ function! s:VitLogLoadShowByRev(rev) " {{{
         let b:vit = l:vit
         call vit#windows#Show(a:rev, l:vit.bufnr)
     endif
-endfunction " }}}
+endfunction
 
-function! s:VitLogInfo() " {{{
+function! s:VitLogInfo()
     if tabpagenr("$") == 1
         let l:line = b:vit_toplevel.":".b:vit.repo.branch()
     else
@@ -97,7 +97,7 @@ execute "silent! file ".b:vit_toplevel
 autocmd TabLeave,WinEnter,WinLeave,BufEnter,BufWritePost <buffer> call <SID>VitLogInfo()
 call s:VitLogInfo() " }}}
 
-function! s:VitLoadLog() " {{{
+function! s:VitLoadLog()
     setlocal modifiable
     let b:log = b:vit.repo.execute("--no-pager log --no-color --graph --pretty=format:'\%h -\%d \%s (".b:timeformat.") <\%an>' ".join(b:vit_log_args, " "))
     if strlen(b:log) <= 0
@@ -117,7 +117,7 @@ function! s:VitLoadLog() " {{{
     0d_
     execute l:currline
     setlocal nomodifiable
-endfunction " }}}
+endfunction
 
 " }}}
 
@@ -150,7 +150,7 @@ else
         execute "resize ".string(len(getline(1, "$")) + 1)
     endif
 
-    function! s:CheckoutFileAtRevision(rev) " {{{
+    function! s:CheckoutFileAtRevision(rev)
         let l:vit = b:vit
         execute b:vit_reffile_winnr." wincmd w"
         if a:rev == "0000000"
@@ -169,7 +169,7 @@ else
             execute "normal ".l:line."gg"
         endif
         wincmd p
-    endfunction " }}}
+    endfunction
 
     autocmd CursorMoved <buffer> call s:SkipNonCommits(function("s:CheckoutFileAtRevision"))
     execute "autocmd BufWinLeave <buffer> ".b:vit_reffile_winnr." wincmd w | buffer ".b:vit.bufnr
@@ -177,4 +177,4 @@ else
     nnoremap <buffer> <silent> <enter> :call <SID>VitLogLoadShowByRev(<SID>GetRevUnderCursor())<cr>
 endif
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':

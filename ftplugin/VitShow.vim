@@ -11,20 +11,20 @@ if b:vit.windows.show != bufnr("%")
         setlocal norelativenumber
     endif
 
-    function! GetFileFromDiffLine(line) " {{{
+    function! GetFileFromDiffLine(line)
         if a:line =~ "--cc"
             let l:file = substitute(a:line, '^diff\s*--cc\s*', '', '')
         else
             let l:file = substitute(a:line, '.* b/\(.*\)$', '\1', '')
         endif
         return l:file
-    endfunction " }}}
+    endfunction
 
-    function! s:GetFileUnderCursor() " {{{
+    function! s:GetFileUnderCursor()
         return GetFileFromDiffLine(getline(search("^diff", "bcnW")))
-    endfunction " }}}
+    endfunction
 
-    function! s:OpenFilesFromShow() " {{{
+    function! s:OpenFilesFromShow()
         let l:rev = b:git_revision
         let l:showfiles = map(filter(getline(1, "$"), 'v:val =~ "^diff"'), 'fnamemodify(GetFileFromDiffLine(v:val), ":p:.")')
 
@@ -36,9 +36,9 @@ if b:vit.windows.show != bufnr("%")
         endfor
         lexpr l:diffs
         lwindow
-    endfunction " }}}
+    endfunction
 
-    function! s:Git(...) " {{{
+    function! s:Git(...)
         " echomsg "VitShow#Git(".string(a:000).")"
         if a:0 > 0
             if a:1 ==# "reset"
@@ -67,7 +67,7 @@ if b:vit.windows.show != bufnr("%")
         endfunction
     endif " }}}
 
-    function! GetVitShowStatusLine() " {{{
+    function! GetVitShowStatusLine()
         let l:summary=""
         if exists("b:git_revision")
             let l:summary=split(b:vit.repo.execute("show --oneline --shortstat --no-color ".b:git_revision), "\n")[-1]
@@ -135,4 +135,4 @@ if exists("b:git_revision")
     execute "silent! file Show\ ".b:git_revision
 endif
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':

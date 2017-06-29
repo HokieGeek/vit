@@ -3,11 +3,11 @@ if exists("g:autoloaded_vit_commands") || v:version < 700
 endif
 let g:autoloaded_vit_commands = 1
 
-function! vit#commands#fileDiffAsList(file, rev) " {{{
+function! vit#commands#fileDiffAsList(file, rev)
     return split(b:vit.repo.execute("diff --unified=0 --no-color --diff-algorithm=minimal ".a:rev." -- ".a:file), "\n")
-endfunction " }}}
+endfunction
 
-function! vit#commands#Add(files) " {{{
+function! vit#commands#Add(files)
     let l:files = join(split(a:files), ' ')
     call b:vit.repo.execute("add ".l:files)
     if v:shell_error == 0
@@ -16,9 +16,9 @@ function! vit#commands#Add(files) " {{{
     else
         echo "Unable to add ".a:files." to the stage"
     endif
-endfunction " }}}
+endfunction
 
-function! vit#commands#Commit(args) " {{{
+function! vit#commands#Commit(args)
     let l:currFileStatus = b:vit.status()
     if l:currFileStatus == 2 || l:currFileStatus == 3
         if confirm("Current file not staged. Add it?", "Y\nn", 1) == 1
@@ -56,9 +56,9 @@ function! vit#commands#PerformCommit(args)
     call vit#windows#refreshByType("VitStatus")
     call vit#windows#refreshByType("VitLog")
     " call vit#utils#reloadBuffers()
-endfunction " }}}
+endfunction
 
-function! vit#commands#Reset(args) " {{{
+function! vit#commands#Reset(args)
     call b:vit.repo.execute("reset ".a:args)
     call vit#windows#refreshByType("VitStatus")
     call vit#windows#refreshByType("VitLog")
@@ -70,9 +70,9 @@ endfunction
 function! vit#commands#Unstage(files)
     call vit#commands#ResetFilesInGitIndex("HEAD", a:files)
     echomsg "Unstaged ".a:files
-endfunction " }}}
+endfunction
 
-function! vit#commands#Checkout(args) " {{{
+function! vit#commands#Checkout(args)
     call b:vit.repo.execute("checkout ".a:args)
     call vit#windows#refreshByType("VitStatus")
     call vit#windows#refreshByType("VitLog")
@@ -81,9 +81,9 @@ function! vit#commands#CheckoutCurrentFile(rev)
     let l:file = expand("%:p")
     call vit#commands#Checkout(a:rev, l:file)
     edit l:file
-endfunction " }}}
+endfunction
 
-function! vit#commands#Stash(args) " {{{
+function! vit#commands#Stash(args)
     let l:out = b:vit.repo.execute("stash ".a:args)
     if a:args != "list"
         call vit#windows#refreshByType("VitStatus")
@@ -95,9 +95,9 @@ endfunction
 function! vit#commands#StashViewer()
     tabnew
     set filetype=VitStash
-endfunction " }}}
+endfunction
 
-function! vit#commands#Move(newpath) " {{{
+function! vit#commands#Move(newpath)
     if exists("b:vit")
         let l:bufn = bufnr("%")
         let l:newpath = substitute(getcwd()."/".a:newpath, b:vit.repo.worktree."/", '', '')
@@ -110,9 +110,9 @@ function! vit#commands#Move(newpath) " {{{
             echo "Unable to move file"
         endif
     endif
-endfunction " }}}
+endfunction
 
-function! vit#commands#Remove() " {{{
+function! vit#commands#Remove()
     if exists("b:vit")
         call b:vit.repo.execute("rm ".b:vit.path.relative)
         if v:shell_error == 0
@@ -122,14 +122,14 @@ function! vit#commands#Remove() " {{{
             echo "Unable to remove file(s)"
         endif
     endif
-endfunction " }}}
+endfunction
 
-function! vit#commands#RevertFile(rev, file) " {{{
+function! vit#commands#RevertFile(rev, file)
     if confirm("Are you sure you want to git revert this file?", "y\nN", 0) == 1 && exists("b:vit")
         call vit#commands#Checkout(a:rev." -- ".a:file)
         let l:msg = b:vit.repo.execute("cat-file commit ".a:rev)
         call vit#commands#PerformCommit("-m 'Reverted ".a:file." to ".a:rev." \"".split(l:msg, '\n')[5]."\"'")
     endif
-endfunction " }}}
+endfunction
 
-" vim: set foldmethod=marker formatoptions-=tc:
+" vim:set formatoptions-=tc foldmethod=expr foldexpr=getline(v\:lnum)=~#'^\s*fu[nction]*'?'a1'\:getline(v\:lnum)=~#'^\s*endf[unction]*'?'s1'\:'=':
